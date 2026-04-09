@@ -73,10 +73,14 @@
             font-family: 'Inter', system-ui, sans-serif;
             background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 50%, #f0fdf4 100%);
             min-height: 100vh;
-            min-height: 100dvh;
             overflow-x: hidden;
-            overscroll-behavior: none;
             -webkit-overflow-scrolling: touch;
+        }
+        
+        @media (min-width: 768px) {
+            html, body {
+                overflow: auto;
+            }
         }
         
         body {
@@ -86,7 +90,6 @@
         
         .app-container {
             min-height: 100vh;
-            min-height: 100dvh;
             display: flex;
             flex-direction: column;
         }
@@ -107,6 +110,8 @@
             .main-content {
                 margin-left: 256px;
                 padding-bottom: 0;
+                height: 100vh;
+                overflow-y: auto;
             }
         }
         
