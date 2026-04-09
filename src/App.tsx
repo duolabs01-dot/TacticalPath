@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Layout } from "./components/Layout";
+import { MobileLayout } from "./components/MobileLayout";
 import { Landing } from "./pages/Landing";
 import { Login } from "./pages/Login";
 import { SignUp } from "./pages/SignUp";
@@ -23,7 +23,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Layout />}>
+        <Route element={<MobileLayout />}>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
@@ -42,8 +42,8 @@ export default function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/assessment" element={<Assessment />} />
           <Route path="/subscription" element={<Subscription />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

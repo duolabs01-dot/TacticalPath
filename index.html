@@ -2,13 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TacticalPath - Scholastic Chess Classroom Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TacticalPath">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    
+    <title>TacticalPath - Chess Learning</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="apple-touch-icon" href="/icon.svg">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -41,11 +55,6 @@
                             500: '#22c55e',
                             600: '#16a34a',
                         },
-                        warm: {
-                            50: '#fefce8',
-                            100: '#fef9c3',
-                            200: '#fef08a',
-                        }
                     }
                 }
             }
@@ -57,793 +66,149 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 50%, #f0fdf4 100%);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            overscroll-behavior: none;
+            -webkit-overflow-scrolling: touch;
         }
         
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0fdf4 100%);
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .app-container {
             min-height: 100vh;
-            overflow-x: hidden;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
         }
         
-        .hero-gradient {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+        .page-content {
+            flex: 1;
+            padding-bottom: 80px;
         }
         
-        .card-shadow {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        @media (min-width: 768px) {
+            .page-content {
+                padding-bottom: 0;
+            }
         }
         
-        .card-hover {
-            transition: all 0.3s ease;
+        /* Mobile-first bottom nav */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 100;
         }
         
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.15);
+        @media (min-width: 768px) {
+            .mobile-nav {
+                display: none;
+            }
         }
         
-        .mastery-bar {
-            transition: width 1s ease-out;
+        /* Safe area padding for notch */
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top);
         }
         
-        .floating-animation {
-            animation: float 6s ease-in-out infinite;
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
         }
         
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        /* Touch feedback */
+        .tap-effect {
+            -webkit-tap-highlight-color: rgba(59, 130, 246, 0.2);
         }
         
-        .pulse-soft {
-            animation: pulse-soft 2s ease-in-out infinite;
+        /* Smooth scrolling */
+        .smooth-scroll {
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
         
-        @keyframes pulse-soft {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
-        .nav-pill {
+        /* Card styles */
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             transition: all 0.2s ease;
         }
         
-        .nav-pill:hover {
-            background-color: rgba(255, 255, 255, 0.95);
-            transform: scale(1.05);
+        .card:active {
+            transform: scale(0.98);
         }
         
-        .section-divider {
-            height: 4px;
-            background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-            border-radius: 2px;
+        /* Button styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.96);
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #1e293b;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-secondary:active {
+            background: #f8fafc;
+        }
+        
+        /* Bottom sheet style for mobile */
+        .bottom-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 1.5rem 1.5rem 0 0;
+            padding: 1.5rem;
+            padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 200;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .bottom-sheet.active {
+            transform: translateY(0);
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 via-sky-50 to-green-50">
-
-    <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-2">
-                    <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center text-white font-bold text-lg">♞</div>
-                    <span class="font-display text-2xl font-bold text-gray-800">TacticalPath</span>
-                </div>
-                
-                <div class="hidden md:flex items-center space-x-1 bg-gray-100 rounded-full p-1">
-                    <a href="#product" class="nav-pill px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-primary-600">Product</a>
-                    <a href="#how-it-works" class="nav-pill px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-primary-600">How It Works</a>
-                    <a href="#classroom" class="nav-pill px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-primary-600">For Coaches</a>
-                    <a href="#prototype" class="nav-pill px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-primary-600">Demo</a>
-                </div>
-                
-                <button class="hidden md:block px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-full transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40">
-                    Request Pilot Access
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div class="absolute top-20 right-10 w-72 h-72 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 floating-animation"></div>
-        <div class="absolute bottom-20 left-10 w-96 h-96 bg-accent-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 floating-animation" style="animation-delay: 2s;"></div>
-        
-        <div class="max-w-7xl mx-auto relative">
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
-                <div class="space-y-8">
-                    <div class="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-700 rounded-full text-sm font-semibold">
-                        🎓 Built for Scholastic Chess Programs
-                    </div>
-                    
-                    <h1 class="font-display text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight">
-                        Where Chess Class 
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-accent-500">Comes Alive</span>
-                    </h1>
-                    
-                    <p class="text-xl text-gray-600 leading-relaxed max-w-lg">
-                        TacticalPath helps coaches turn game play into skill-building moments. Students play, learn from their mistakes, and master tactical themes—one safe, structured loop at a time.
-                    </p>
-                    
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <button class="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold text-lg rounded-2xl transition-all shadow-xl shadow-primary-500/30 hover:shadow-primary-500/40 hover:scale-105">
-                            Start Free Pilot →
-                        </button>
-                        <button class="px-8 py-4 bg-white hover:bg-gray-50 text-gray-700 font-bold text-lg rounded-2xl transition-all shadow-lg border-2 border-gray-200 hover:border-primary-300">
-                            See How It Works
-                        </button>
-                    </div>
-                    
-                    <div class="flex items-center gap-6 pt-4 text-sm text-gray-500">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-accent-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                            No credit card required
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-accent-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                            4-week free pilot
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="relative">
-                    <div class="bg-white rounded-3xl card-shadow p-8 relative z-10">
-                        <div class="aspect-square bg-gradient-to-br from-primary-50 to-accent-50 rounded-2xl flex items-center justify-center relative overflow-hidden">
-                            <div class="text-center space-y-4 p-8">
-                                <div class="text-8xl">♟️</div>
-                                <div class="font-display text-2xl font-bold text-gray-800">Classroom in Session</div>
-                                <div class="text-gray-600">12 students actively playing</div>
-                                
-                                <div class="grid grid-cols-3 gap-3 mt-6">
-                                    <div class="bg-white rounded-xl p-3 shadow-sm">
-                                        <div class="text-2xl font-bold text-primary-600">8</div>
-                                        <div class="text-xs text-gray-500">Games Live</div>
-                                    </div>
-                                    <div class="bg-white rounded-xl p-3 shadow-sm">
-                                        <div class="text-2xl font-bold text-accent-500">24</div>
-                                        <div class="text-xs text-gray-500">Drills Done</div>
-                                    </div>
-                                    <div class="bg-white rounded-xl p-3 shadow-sm">
-                                        <div class="text-2xl font-bold text-warm-500">4</div>
-                                        <div class="text-xs text-gray-500">Waiting</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="absolute top-4 right-4 w-3 h-3 bg-accent-500 rounded-full pulse-soft"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="absolute -bottom-4 -right-4 w-full h-full bg-primary-200 rounded-3xl -z-10"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Product Positioning Section -->
-    <section id="product" class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="font-display text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-                    Not Another Chess App
-                </h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    TacticalPath is a <strong>scholastic classroom platform</strong>—built specifically for school chess clubs, after-school programs, and coaching classrooms.
-                </p>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-8 mb-12">
-                <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
-                    <div class="text-3xl mb-3">❌</div>
-                    <h3 class="font-bold text-lg text-red-800 mb-2">Not a Consumer App</h3>
-                    <p class="text-red-700 text-sm">No solo rating grinding. No subscription pressure. No adult competitive framing.</p>
-                </div>
-                
-                <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
-                    <div class="text-3xl mb-3">❌</div>
-                    <h3 class="font-bold text-lg text-red-800 mb-2">Not a Coach Marketplace</h3>
-                    <p class="text-red-700 text-sm">No booking systems. No public directories. You bring your own coach.</p>
-                </div>
-                
-                <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
-                    <div class="text-3xl mb-3">❌</div>
-                    <h3 class="font-bold text-lg text-red-800 mb-2">Not Raw Engine Output</h3>
-                    <p class="text-red-700 text-sm">No dense Stockfish lines. No confusing notation dumps. Kid-friendly explanations only.</p>
-                </div>
-            </div>
-            
-            <div class="bg-gradient-to-br from-primary-50 to-accent-50 rounded-3xl p-8 md:p-12">
-                <div class="grid md:grid-cols-2 gap-8 items-center">
-                    <div>
-                        <div class="inline-flex items-center px-3 py-1 bg-accent-200 text-accent-800 rounded-full text-xs font-bold mb-4">
-                            ✓ WHAT IT IS
-                        </div>
-                        <h3 class="font-display text-3xl font-bold text-gray-900 mb-4">
-                            A Complete Classroom Loop
-                        </h3>
-                        <ul class="space-y-3">
-                            <li class="flex items-start gap-3">
-                                <div class="w-6 h-6 bg-accent-500 text-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold">✓</div>
-                                <div><strong>Students play live games</strong> against classmates or a bot</div>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <div class="w-6 h-6 bg-accent-500 text-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold">✓</div>
-                                <div><strong>System finds the single most teachable turning point</strong> per game</div>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <div class="w-6 h-6 bg-accent-500 text-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold">✓</div>
-                                <div><strong>Student completes 3 targeted drills</strong> from a verified puzzle library</div>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <div class="w-6 h-6 bg-accent-500 text-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold">✓</div>
-                                <div><strong>Student gains theme mastery progress</strong> and returns to waiting room</div>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <div class="w-6 h-6 bg-accent-500 text-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold">✓</div>
-                                <div><strong>Coach gets actionable blindspot heatmap</strong> for next week's lesson</div>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <div class="bg-white rounded-2xl p-6 card-shadow">
-                        <div class="text-center mb-4">
-                            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Core Loop</div>
-                        </div>
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-3 bg-primary-50 rounded-xl p-3">
-                                <div class="w-8 h-8 bg-primary-600 text-white rounded-lg flex items-center justify-center font-bold text-sm">1</div>
-                                <div class="text-sm font-medium text-gray-800">Play Game</div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-0.5 h-6 bg-primary-300"></div>
-                            </div>
-                            <div class="flex items-center gap-3 bg-primary-50 rounded-xl p-3">
-                                <div class="w-8 h-8 bg-primary-600 text-white rounded-lg flex items-center justify-center font-bold text-sm">2</div>
-                                <div class="text-sm font-medium text-gray-800">Find Turning Point</div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-0.5 h-6 bg-primary-300"></div>
-                            </div>
-                            <div class="flex items-center gap-3 bg-accent-50 rounded-xl p-3">
-                                <div class="w-8 h-8 bg-accent-500 text-white rounded-lg flex items-center justify-center font-bold text-sm">3</div>
-                                <div class="text-sm font-medium text-gray-800">Complete 3 Drills</div>
-                            </div>
-                            <div class="flex justify-center">
-                                <div class="w-0.5 h-6 bg-accent-300"></div>
-                            </div>
-                            <div class="flex items-center gap-3 bg-accent-50 rounded-xl p-3">
-                                <div class="w-8 h-8 bg-accent-500 text-white rounded-lg flex items-center justify-center font-bold text-sm">4</div>
-                                <div class="text-sm font-medium text-gray-800">Mastery Progress</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="py-20 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="font-display text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-                    A Typical 45-Minute Club Session
-                </h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    From login to mastery—here's how TacticalPath structures your chess club time.
-                </p>
-            </div>
-            
-            <div class="grid md:grid-cols-4 gap-6">
-                <div class="bg-white rounded-2xl p-6 card-shadow card-hover">
-                    <div class="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center text-2xl font-bold mb-4">0:05</div>
-                    <h3 class="font-bold text-lg text-gray-900 mb-2">Students Arrive</h3>
-                    <p class="text-gray-600 text-sm">Kids log in with visual password cards. They land in the Mastery Map waiting room.</p>
-                </div>
-                
-                <div class="bg-white rounded-2xl p-6 card-shadow card-hover">
-                    <div class="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center text-2xl font-bold mb-4">0:10</div>
-                    <h3 class="font-bold text-lg text-gray-900 mb-2">Coach Reviews Heatmap</h3>
-                    <p class="text-gray-600 text-sm">See what themes your class missed last week. Teach a quick mini-lesson.</p>
-                </div>
-                
-                <div class="bg-white rounded-2xl p-6 card-shadow card-hover">
-                    <div class="w-12 h-12 bg-accent-100 text-accent-600 rounded-xl flex items-center justify-center text-2xl font-bold mb-4">0:35</div>
-                    <h3 class="font-bold text-lg text-gray-900 mb-2">Live Play + Drills</h3>
-                    <p class="text-gray-600 text-sm">Auto-pair students. When games end, kids get one lesson + 3 drills automatically.</p>
-                </div>
-                
-                <div class="bg-white rounded-2xl p-6 card-shadow card-hover">
-                    <div class="w-12 h-12 bg-warm-100 text-warm-600 rounded-xl flex items-center justify-center text-2xl font-bold mb-4">0:45</div>
-                    <h3 class="font-bold text-lg text-gray-900 mb-2">Wrap-Up & Celebrate</h3>
-                    <p class="text-gray-600 text-sm">Pause play. Review progress together. Give shoutouts. Session ends clean.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- For Coaches Section -->
-    <section id="classroom" class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
-                <div>
-                    <div class="inline-flex items-center px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-xs font-bold mb-4">
-                        🎯 FOR COACHES & CLUBS
-                    </div>
-                    <h2 class="font-display text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-                        Your Classroom Command Center
-                    </h2>
-                    <p class="text-lg text-gray-600 mb-8">
-                        Everything you need to run a smooth, engaging chess program—with none of the administrative headache.
-                    </p>
-                    
-                    <div class="space-y-4">
-                        <div class="flex items-start gap-4 bg-gray-50 rounded-xl p-4">
-                            <div class="w-10 h-10 bg-primary-600 text-white rounded-lg flex items-center justify-center flex-shrink-0">👥</div>
-                            <div>
-                                <h4 class="font-bold text-gray-900">Classroom Roster Management</h4>
-                                <p class="text-sm text-gray-600">Bulk import students. Generate printable login cards with picture passwords.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-start gap-4 bg-gray-50 rounded-xl p-4">
-                            <div class="w-10 h-10 bg-primary-600 text-white rounded-lg flex items-center justify-center flex-shrink-0">⚡</div>
-                            <div>
-                                <h4 class="font-bold text-gray-900">One-Tap Auto-Pairing</h4>
-                                <p class="text-sm text-gray-600">Pair the whole class instantly. Or manually match students. Your call.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-start gap-4 bg-gray-50 rounded-xl p-4">
-                            <div class="w-10 h-10 bg-accent-500 text-white rounded-lg flex items-center justify-center flex-shrink-0">🗺️</div>
-                            <div>
-                                <h4 class="font-bold text-gray-900">Blindspot Heatmap</h4>
-                                <p class="text-sm text-gray-600">See exactly which tactical themes your whole class is struggling with.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-start gap-4 bg-gray-50 rounded-xl p-4">
-                            <div class="w-10 h-10 bg-accent-500 text-white rounded-lg flex items-center justify-center flex-shrink-0">📊</div>
-                            <div>
-                                <h4 class="font-bold text-gray-900">Weekly Progress Reports</h4>
-                                <p class="text-sm text-gray-600">Export parent-ready PDFs showing theme mastery growth—not just wins/losses.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="relative">
-                    <div class="bg-gradient-to-br from-gray-50 to-primary-50 rounded-3xl p-8 card-shadow">
-                        <div class="bg-white rounded-2xl p-6 mb-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <h4 class="font-bold text-gray-900">Classroom Blindspot Heatmap</h4>
-                                <span class="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded-full font-semibold">This Week</span>
-                            </div>
-                            
-                            <div class="space-y-3">
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="text-gray-700">Back-Rank Mates</span>
-                                        <span class="font-bold text-red-600">70% missed</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-3">
-                                        <div class="bg-red-500 h-3 rounded-full" style="width: 70%"></div>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="text-gray-700">Hanging Pieces</span>
-                                        <span class="font-bold text-orange-600">55% missed</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-3">
-                                        <div class="bg-orange-500 h-3 rounded-full" style="width: 55%"></div>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="text-gray-700">Basic Forks</span>
-                                        <span class="font-bold text-yellow-600">40% missed</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-3">
-                                        <div class="bg-yellow-500 h-3 rounded-full" style="width: 40%"></div>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="text-gray-700">Basic Pins</span>
-                                        <span class="font-bold text-green-600">25% missed</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-3">
-                                        <div class="bg-green-500 h-3 rounded-full" style="width: 25%"></div>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="text-gray-700">Missed Captures</span>
-                                        <span class="font-bold text-green-600">20% missed</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-3">
-                                        <div class="bg-green-500 h-3 rounded-full" style="width: 20%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-accent-50 border-2 border-accent-200 rounded-xl p-4">
-                            <div class="flex items-start gap-3">
-                                <div class="text-2xl">💡</div>
-                                <div>
-                                    <div class="font-bold text-accent-800 text-sm">Coach Recommendation</div>
-                                    <div class="text-accent-700 text-sm mt-1">Teach back-rank mate patterns tomorrow. 70% of your students missed it this week.</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- For Students Section -->
-    <section class="py-20 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="font-display text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-                    The Student Experience
-                </h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Safe. Structured. Skill-building. No harsh ratings. No confusing jargon.
-                </p>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-8 mb-12">
-                <div class="bg-white rounded-3xl overflow-hidden card-shadow">
-                    <div class="bg-gradient-to-br from-primary-500 to-primary-700 p-6 text-white">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="font-bold text-lg">Mastery Map</div>
-                            <div class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm">Chloe's Progress</div>
-                        </div>
-                        <div class="text-3xl font-display font-bold mb-2">Welcome back, Chloe! 👋</div>
-                        <div class="text-primary-100">Chess Club • Mrs. Johnson's 6th Grade</div>
-                    </div>
-                    
-                    <div class="p-6 space-y-4">
-                        <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-2xl">⏳</span>
-                                <span class="font-bold text-yellow-800">Waiting for next round...</span>
-                            </div>
-                            <button class="w-full mt-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-xl transition-all">
-                                Play a Bot While You Wait →
-                            </button>
-                        </div>
-                        
-                        <div>
-                            <div class="font-semibold text-gray-700 mb-3">Your Theme Mastery</div>
-                            <div class="space-y-3">
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="flex items-center gap-2">
-                                            <span>♞</span> Forks
-                                        </span>
-                                        <span class="font-bold text-primary-600">Level 3</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                        <div class="mastery-bar bg-primary-500 h-2.5 rounded-full" style="width: 60%"></div>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="flex items-center gap-2">
-                                            <span>♖</span> Pins
-                                        </span>
-                                        <span class="font-bold text-primary-600">Level 2</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                        <div class="mastery-bar bg-primary-500 h-2.5 rounded-full" style="width: 40%"></div>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="flex items-center gap-2">
-                                            <span>♛</span> Checkmates
-                                        </span>
-                                        <span class="font-bold text-accent-600">Level 4</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                        <div class="mastery-bar bg-accent-500 h-2.5 rounded-full" style="width: 80%"></div>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="flex items-center gap-2">
-                                            <span>⚠️</span> Hanging Pieces
-                                        </span>
-                                        <span class="font-bold text-orange-600">Level 1</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                        <div class="mastery-bar bg-orange-500 h-2.5 rounded-full" style="width: 20%"></div>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <div class="flex justify-between text-sm mb-1">
-                                        <span class="flex items-center gap-2">
-                                            <span>💎</span> Captures
-                                        </span>
-                                        <span class="font-bold text-accent-600">Level 3</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                        <div class="mastery-bar bg-accent-500 h-2.5 rounded-full" style="width: 65%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="space-y-6">
-                    <div class="bg-white rounded-2xl p-6 card-shadow">
-                        <div class="text-4xl mb-3">🎯</div>
-                        <h3 class="font-bold text-xl text-gray-900 mb-2">One Lesson Per Game</h3>
-                        <p class="text-gray-600">After every game, we show ONE teachable moment with simple arrows and one sentence. Not overwhelming engine dumps.</p>
-                    </div>
-                    
-                    <div class="bg-white rounded-2xl p-6 card-shadow">
-                        <div class="text-4xl mb-3">🧩</div>
-                        <h3 class="font-bold text-xl text-gray-900 mb-2">3 Targeted Drills</h3>
-                        <p class="text-gray-600">Immediately practice the theme from that mistake. Reinforce learning while it's fresh.</p>
-                    </div>
-                    
-                    <div class="bg-white rounded-2xl p-6 card-shadow">
-                        <div class="text-4xl mb-3">📈</div>
-                        <h3 class="font-bold text-xl text-gray-900 mb-2">Growth Mindset Metrics</h3>
-                        <p class="text-gray-600">Track theme mastery levels, not harsh Elo ratings. Personal bests, not public leaderboards.</p>
-                    </div>
-                    
-                    <div class="bg-white rounded-2xl p-6 card-shadow">
-                        <div class="text-4xl mb-3">🛡️</div>
-                        <h3 class="font-bold text-xl text-gray-900 mb-2">Safe Environment</h3>
-                        <p class="text-gray-600">No public chat. No stranger matchmaking. Only classmates and coach-assigned bots.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Pilot Pricing Section -->
-    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-12">
-                <div class="inline-flex items-center px-4 py-2 bg-accent-100 text-accent-700 rounded-full text-sm font-bold mb-4">
-                    🎓 PILOT PROGRAM
-                </div>
-                <h2 class="font-display text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-                    Start Your Free Pilot Today
-                </h2>
-                <p class="text-xl text-gray-600">
-                    No commitment. No credit card. Just a complete classroom experience for 4 weeks.
-                </p>
-            </div>
-            
-            <div class="bg-gradient-to-br from-primary-50 via-white to-accent-50 rounded-3xl p-8 md:p-12 card-shadow border-2 border-primary-200">
-                <div class="grid md:grid-cols-2 gap-8 items-center">
-                    <div>
-                        <div class="text-5xl font-display font-bold text-primary-600 mb-2">FREE</div>
-                        <div class="text-xl text-gray-600 mb-6">4-Week Pilot Program</div>
-                        
-                        <ul class="space-y-3 mb-8">
-                            <li class="flex items-center gap-3">
-                                <svg class="w-6 h-6 text-accent-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                <span class="text-gray-700">Up to 30 active students</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <svg class="w-6 h-6 text-accent-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                <span class="text-gray-700">All 5 launch puzzle themes</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <svg class="w-6 h-6 text-accent-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                <span class="text-gray-700">Live classroom play mode</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <svg class="w-6 h-6 text-accent-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                <span class="text-gray-700">Coach heatmap & reports</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <svg class="w-6 h-6 text-accent-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                <span class="text-gray-700">White-glove onboarding support</span>
-                            </li>
-                        </ul>
-                        
-                        <button class="w-full px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold text-lg rounded-2xl transition-all shadow-xl shadow-primary-500/30 hover:scale-105">
-                            Apply for Free Pilot →
-                        </button>
-                    </div>
-                    
-                    <div class="bg-white rounded-2xl p-6 card-shadow">
-                        <div class="text-center mb-6">
-                            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Post-Pilot Option</div>
-                            <div class="text-3xl font-display font-bold text-gray-900 mt-2">$99<span class="text-lg text-gray-500 font-normal">/month</span></div>
-                            <div class="text-sm text-gray-500">or $400/semester</div>
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <div class="text-sm text-gray-600 space-y-2">
-                                <p>✓ Same flat rate, up to 30 students</p>
-                                <p>✓ No per-seat pricing complexity</p>
-                                <p>✓ Easy budget approval for PTAs & clubs</p>
-                                <p>✓ Cancel anytime</p>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-6 bg-gray-50 rounded-xl p-4">
-                            <div class="text-xs text-gray-500 text-center">
-                                <strong>Note:</strong> We don't do subscriptions in v1. After your free pilot, it's a simple classroom license. No tricks.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Prototype Demo Section -->
-    <section id="prototype" class="py-20 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12">
-                <div class="inline-flex items-center px-4 py-2 bg-warm-100 text-warm-700 rounded-full text-sm font-bold mb-4">
-                    🔬 PROTOTYPE DEMO
-                </div>
-                <h2 class="font-display text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-                    Try the Working Prototype
-                </h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    We've built early interactive pieces. These are <strong>mocked demos</strong>—not the full classroom product—but they show where we're headed.
-                </p>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                <div class="bg-white rounded-2xl overflow-hidden card-shadow card-hover">
-                    <div class="bg-gradient-to-br from-primary-500 to-primary-700 p-6 text-white">
-                        <div className="text-3xl mb-2">🧩</div>
-                        <h3 class="font-bold text-xl">Puzzle Play Demo</h3>
-                        <p class="text-primary-100 text-sm mt-1">One working tactical puzzle</p>
-                    </div>
-                    <div class="p-6">
-                        <p class="text-gray-600 text-sm mb-4">
-                            Try our mate-in-1 puzzle with real move validation. This is a single hardcoded example—our full library will have 750 verified puzzles across 5 themes.
-                        </p>
-                        <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
-                            <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-semibold">PROTOTYPE ONLY</span>
-                            <span>• Local-only • One puzzle</span>
-                        </div>
-                        <button class="w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition-all">
-                            Try Puzzle Demo →
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-2xl overflow-hidden card-shadow card-hover">
-                    <div class="bg-gradient-to-br from-accent-500 to-accent-700 p-6 text-white">
-                        <div className="text-3xl mb-2">♟️</div>
-                        <h3 class="font-bold text-xl">Game Replay Demo</h3>
-                        <p class="text-accent-100 text-sm mt-1">Step through a sample game</p>
-                    </div>
-                    <div class="p-6">
-                        <p class="text-gray-600 text-sm mb-4">
-                            Watch a hardcoded Italian Game replay with move-by-move stepping. Future version will analyze real student games and find turning points.
-                        </p>
-                        <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
-                            <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-semibold">PROTOTYPE ONLY</span>
-                            <span>• Hardcoded PGN • No analysis</span>
-                        </div>
-                        <button class="w-full px-6 py-3 bg-accent-600 hover:bg-accent-700 text-white font-bold rounded-xl transition-all">
-                            View Game Replay →
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mt-8 bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-6 max-w-4xl mx-auto">
-                <div class="flex items-start gap-4">
-                    <div class="text-3xl">⚠️</div>
-                    <div>
-                        <h4 class="font-bold text-yellow-800 mb-2">What's Not Built Yet</h4>
-                        <ul class="text-yellow-700 text-sm space-y-1">
-                            <li>• No real backend, auth, or multiplayer</li>
-                            <li>• No actual turning-point detection or drill assignment</li>
-                            <li>• No coach dashboard or classroom orchestration</li>
-                            <li>• No real puzzle library (just this one demo)</li>
-                            <li>• No student accounts or roster management</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="py-20 px-4 sm:px-6 lg:px-8 hero-gradient text-white">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="font-display text-4xl sm:text-5xl font-bold mb-6">
-                Ready to Transform Your Chess Club?
-            </h2>
-            <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                Join our pilot program. Get white-glove onboarding. See your students build real tactical skills.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button class="px-8 py-4 bg-white text-primary-700 font-bold text-lg rounded-2xl hover:bg-gray-100 transition-all shadow-xl hover:scale-105">
-                    Apply for Free Pilot →
-                </button>
-                <button class="px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-bold text-lg rounded-2xl transition-all border-2 border-white/30">
-                    Schedule a Demo Call
-                </button>
-            </div>
-            <div class="mt-8 text-blue-200 text-sm">
-                <p>📧 hello@tacticalpath.app • 📍 Built for schools, clubs, and scholastic programs</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-300 py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid md:grid-cols-4 gap-8 mb-8">
-                <div>
-                    <h4 class="font-bold text-white mb-4">Product</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-white transition-colors">How It Works</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">For Coaches</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">For Schools</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Pilot Program</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-bold text-white mb-4">Resources</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-white transition-colors">Documentation</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Curriculum Themes</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Research Basis</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-bold text-white mb-4">Company</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-bold text-white mb-4">Connect</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-white transition-colors">Newsletter</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Community</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Support</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
-                <p>© 2026 TacticalPath. Built for scholastic chess programs. Not a consumer app.</p>
-            </div>
-        </div>
-    </footer>
-
+<body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
-
