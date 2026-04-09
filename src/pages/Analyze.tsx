@@ -1,200 +1,188 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, Camera, FileText, Search, BrainCircuit, History, ChevronRight, Play, X } from "lucide-react";
+import { ArrowLeft, BookOpen, Camera, ChevronRight, CirclePlay, Clock3, Search, Upload, X } from "lucide-react";
+
+const lessonCards = [
+  {
+    title: "Turning-point replay demo",
+    detail: "See how one critical moment can become a short post-game lesson.",
+    to: "/game-analysis",
+    tag: "Demo replay",
+  },
+  {
+    title: "Italian Game practice lesson",
+    detail: "Open the sample lesson flow already included in the prototype.",
+    to: "/italian-game",
+    tag: "Opening sample",
+  },
+  {
+    title: "Theme progress snapshot",
+    detail: "Use the current insights screen as a stand-in for mastery reporting.",
+    to: "/skill-insights",
+    tag: "Prototype insights",
+  },
+];
 
 export function Analyze() {
   const [showPgnInput, setShowPgnInput] = useState(false);
   const [pgnText, setPgnText] = useState("");
   const navigate = useNavigate();
 
-  const handleAnalyze = () => {
+  const handleReplay = () => {
     if (pgnText.trim()) {
-      // In a real app, we would pass this PGN to the GameAnalysis component
-      // For now, we'll just navigate to the analysis page
       navigate("/game-analysis");
-    } else {
-      alert("Please enter a valid PGN.");
+      return;
     }
+
+    setShowPgnInput(true);
   };
 
   return (
-    <div className="flex-1 overflow-y-auto pb-32 bg-slate-50 dark:bg-[#0b111a] text-slate-900 dark:text-slate-100 min-h-screen relative transition-colors duration-200">
-      <header className="sticky top-0 z-50 flex items-center p-4 border-b border-slate-200 dark:border-slate-800/50 backdrop-blur-md bg-white/75 dark:bg-[#0b111a]/75 transition-colors duration-200">
-        <Link
-          to="/dashboard"
-          className="text-slate-900 dark:text-slate-100 p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors"
-        >
-          <ArrowLeft className="h-6 w-6" />
-        </Link>
-        <h1 className="text-lg font-bold leading-tight tracking-tight flex-1 ml-2">
-          Game Analysis
-        </h1>
-        <button className="text-slate-900 dark:text-slate-100 p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors">
-          <History className="h-6 w-6" />
-        </button>
+    <div className="tp-page flex-1 overflow-y-auto pb-24 pt-6">
+      <header className="sticky top-0 z-40 border-b border-white/60 bg-white/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-5xl items-center px-4 sm:px-6">
+          <Link
+            to="/study-plan"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition hover:text-blue-700"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <div className="ml-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-600">Lesson library</p>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-slate-950">Replay and review</h1>
+          </div>
+        </div>
       </header>
 
-      <div className="p-4">
-        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 shadow-xl shadow-blue-900/20 relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-black/10 rounded-full blur-xl"></div>
-          
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-3">
-              <BrainCircuit className="h-6 w-6 text-blue-200" />
-              <h2 className="text-white text-xl font-bold tracking-tight">
-                Neural Engine
-              </h2>
+      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+        <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="tp-card rounded-[2rem] p-6 sm:p-8">
+            <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">
+              <CirclePlay className="h-3.5 w-3.5" />
+              Prototype lesson flow
             </div>
-            <p className="text-blue-100 text-sm leading-relaxed mb-6 max-w-[280px]">
-              Upload your games to receive Grandmaster-level insights, blunder detection, and personalized improvement plans.
+            <h2 className="font-display mt-4 text-4xl font-bold tracking-tight text-slate-950">
+              Review one moment, not an overwhelming report
+            </h2>
+            <p className="mt-4 max-w-2xl text-base leading-8 text-slate-600">
+              This route now serves as the lesson library for the demo. It is the smart place to collect replayable examples and gently explain what the real turning-point experience should become.
             </p>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <button 
-                onClick={() => setShowPgnInput(true)}
-                className="flex flex-col items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl p-4 transition-colors backdrop-blur-sm"
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <button
+                onClick={handleReplay}
+                className="tp-card-hover rounded-[1.6rem] bg-blue-600 px-5 py-5 text-left text-white shadow-xl shadow-blue-500/25 transition"
               >
-                <Upload className="h-6 w-6 text-white" />
-                <span className="text-xs font-bold text-white uppercase tracking-wider">PGN File</span>
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-100">Quick action</p>
+                    <h3 className="mt-2 text-2xl font-bold">Open replay demo</h3>
+                  </div>
+                  <CirclePlay className="h-7 w-7 text-blue-100" />
+                </div>
+                <p className="mt-4 text-sm leading-7 text-blue-100">Use the existing sample game to show how a turning point might be revisited after class play.</p>
               </button>
-              <button 
-                onClick={() => alert("Camera scanning feature coming soon!")}
-                className="flex flex-col items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl p-4 transition-colors backdrop-blur-sm"
+
+              <div className="rounded-[1.6rem] border border-slate-200 bg-slate-50 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Prototype note</p>
+                <p className="mt-3 text-sm leading-7 text-slate-600">
+                  There is still no live PGN analysis pipeline here. Entered PGN simply routes into the sample replay so the interaction remains coherent instead of pretending the analysis is real.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="tp-card rounded-[2rem] p-6 sm:p-7">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-600">Bring your own PGN</p>
+            <h3 className="mt-2 font-display text-3xl font-bold tracking-tight text-slate-950">Paste and continue</h3>
+            <p className="mt-3 text-sm leading-7 text-slate-600">
+              This keeps the route useful without making fake promises. If a PGN is pasted, the app simply opens the replay demo.
+            </p>
+            <div className="mt-5 flex gap-3">
+              <button
+                onClick={() => setShowPgnInput(true)}
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-blue-200 hover:text-blue-700"
               >
-                <Camera className="h-6 w-6 text-white" />
-                <span className="text-xs font-bold text-white uppercase tracking-wider">Scan Board</span>
+                <Upload className="h-4 w-4" />
+                Paste PGN
+              </button>
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-500"
+              >
+                <Camera className="h-4 w-4" />
+                Camera later
               </button>
             </div>
           </div>
-        </div>
+        </section>
+
+        <section className="mt-8">
+          <div className="mb-4 flex items-center gap-3">
+            <BookOpen className="h-5 w-5 text-blue-600" />
+            <h2 className="font-display text-3xl font-bold tracking-tight text-slate-950">Useful lesson routes</h2>
+          </div>
+          <div className="space-y-4">
+            {lessonCards.map((card) => (
+              <Link key={card.title} to={card.to} className="tp-card-hover flex items-start gap-4 rounded-[1.6rem] border border-slate-200 bg-white p-5 transition">
+                <div className="flex-1">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">{card.tag}</div>
+                      <h3 className="mt-3 text-lg font-bold text-slate-900">{card.title}</h3>
+                      <p className="mt-2 text-sm leading-7 text-slate-600">{card.detail}</p>
+                    </div>
+                    <ChevronRight className="mt-1 h-4 w-4 text-slate-400" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-[1.8rem] border border-dashed border-blue-200 bg-white/80 p-5 text-sm leading-7 text-slate-600">
+          <div className="flex items-start gap-3">
+            <Clock3 className="mt-1 h-4 w-4 text-blue-600" />
+            <p>
+              Smart rule for now: the lesson surfaces should explain the intended classroom loop honestly, while reusing the replayable prototype pages that already function.
+            </p>
+          </div>
+        </section>
       </div>
 
       {showPgnInput && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 w-full max-w-md shadow-2xl relative transition-colors duration-200">
-            <button 
-              onClick={() => setShowPgnInput(false)}
-              className="absolute top-4 right-4 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
-            >
-              <X className="h-6 w-6" />
-            </button>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 transition-colors duration-200">Paste PGN</h3>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mb-4 transition-colors duration-200">Paste your game's PGN below to analyze it.</p>
-            <textarea
-              value={pgnText}
-              onChange={(e) => setPgnText(e.target.value)}
-              className="w-full h-48 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-slate-900 dark:text-slate-300 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 resize-none transition-colors duration-200"
-              placeholder="[Event &quot;Live Chess&quot;]..."
-            />
-            <button 
-              onClick={handleAnalyze}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
-            >
-              Analyze Game
-            </button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-[1.8rem] bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-600">Prototype input</p>
+                <h3 className="mt-2 text-2xl font-bold text-slate-950">Paste PGN text</h3>
+                <p className="mt-2 text-sm leading-7 text-slate-600">The demo will route you into the sample replay after submission.</p>
+              </div>
+              <button onClick={() => setShowPgnInput(false)} className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:text-slate-900">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="relative mt-5">
+              <Search className="pointer-events-none absolute left-4 top-4 h-4 w-4 text-slate-400" />
+              <textarea
+                value={pgnText}
+                onChange={(e) => setPgnText(e.target.value)}
+                placeholder='[Event "Classroom Demo"] ...'
+                className="h-52 w-full rounded-[1.4rem] border border-slate-200 bg-slate-50 pl-10 pr-4 pt-3 text-sm text-slate-700 outline-none transition focus:border-blue-300"
+              />
+            </div>
+            <div className="mt-5 flex gap-3">
+              <button onClick={() => setShowPgnInput(false)} className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-300">
+                Cancel
+              </button>
+              <button onClick={handleReplay} className="flex-1 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700">
+                Continue to replay
+              </button>
+            </div>
           </div>
         </div>
       )}
-
-      <div className="px-4 py-2">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-slate-400 dark:text-slate-500 transition-colors duration-200" />
-          </div>
-          <input
-            type="text"
-            className="block w-full pl-10 pr-3 py-3 border border-slate-200 dark:border-slate-800 rounded-xl leading-5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors duration-200"
-            placeholder="Search past analyses..."
-          />
-        </div>
-      </div>
-
-      <div className="px-4 py-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-slate-900 dark:text-white text-lg font-bold tracking-tight transition-colors duration-200">
-            Recent Analyses
-          </h3>
-        </div>
-        
-        <div className="space-y-3">
-          <Link to="/game-analysis" className="block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 transition-colors duration-200">
-                  <span className="text-slate-900 dark:text-white font-bold text-xs transition-colors duration-200">W</span>
-                </div>
-                <div>
-                  <h4 className="text-slate-900 dark:text-white font-bold text-sm transition-colors duration-200">vs. GrandmasterBot</h4>
-                  <p className="text-slate-500 text-[11px] font-medium">Italian Game • 32 moves</p>
-                </div>
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="text-emerald-600 dark:text-emerald-400 text-xs font-bold transition-colors duration-200">+12 ELO</span>
-                <span className="text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-wider mt-1 transition-colors duration-200">2 hrs ago</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 transition-colors duration-200">
-              <div className="flex gap-4">
-                <div className="flex flex-col">
-                  <span className="text-slate-500 text-[10px] uppercase tracking-wider font-bold">Accuracy</span>
-                  <span className="text-slate-900 dark:text-white text-sm font-bold transition-colors duration-200">88.4%</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-slate-500 text-[10px] uppercase tracking-wider font-bold">Blunders</span>
-                  <span className="text-rose-600 dark:text-rose-400 text-sm font-bold transition-colors duration-200">1</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-slate-500 text-[10px] uppercase tracking-wider font-bold">Brilliant</span>
-                  <span className="text-blue-600 dark:text-blue-400 text-sm font-bold transition-colors duration-200">2</span>
-                </div>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500 transition-colors">
-                <Play className="h-4 w-4 text-blue-600 dark:text-blue-500 group-hover:text-white ml-0.5 transition-colors duration-200" />
-              </div>
-            </div>
-          </Link>
-
-          <Link to="#" className="block bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700 transition-colors duration-200">
-                  <span className="text-slate-900 dark:text-white font-bold text-xs transition-colors duration-200">B</span>
-                </div>
-                <div>
-                  <h4 className="text-slate-900 dark:text-white font-bold text-sm transition-colors duration-200">vs. Player4592</h4>
-                  <p className="text-slate-500 text-[11px] font-medium">Sicilian Defense • 45 moves</p>
-                </div>
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="text-rose-600 dark:text-rose-400 text-xs font-bold transition-colors duration-200">-8 ELO</span>
-                <span className="text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-wider mt-1 transition-colors duration-200">Yesterday</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 transition-colors duration-200">
-              <div className="flex gap-4">
-                <div className="flex flex-col">
-                  <span className="text-slate-500 text-[10px] uppercase tracking-wider font-bold">Accuracy</span>
-                  <span className="text-slate-900 dark:text-white text-sm font-bold transition-colors duration-200">72.1%</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-slate-500 text-[10px] uppercase tracking-wider font-bold">Blunders</span>
-                  <span className="text-rose-600 dark:text-rose-400 text-sm font-bold transition-colors duration-200">3</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-slate-500 text-[10px] uppercase tracking-wider font-bold">Brilliant</span>
-                  <span className="text-slate-400 dark:text-slate-400 text-sm font-bold transition-colors duration-200">0</span>
-                </div>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-blue-500 transition-colors">
-                <Play className="h-4 w-4 text-slate-500 dark:text-slate-400 group-hover:text-white ml-0.5 transition-colors duration-200" />
-              </div>
-            </div>
-          </Link>
-        </div>
-      </div>
     </div>
   );
 }

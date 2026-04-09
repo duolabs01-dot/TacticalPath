@@ -1,3 +1,109 @@
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  --tp-blue-50: #eff6ff;
+  --tp-blue-100: #dbeafe;
+  --tp-blue-500: #3b82f6;
+  --tp-blue-600: #2563eb;
+  --tp-blue-700: #1d4ed8;
+  --tp-green-100: #dcfce7;
+  --tp-green-500: #22c55e;
+  --tp-green-600: #16a34a;
+  --tp-ink: #0f172a;
+  --tp-muted: #475569;
+  --tp-line: rgba(148, 163, 184, 0.28);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Inter", system-ui, sans-serif;
+  color: var(--tp-ink);
+  background:
+    radial-gradient(circle at top right, rgba(147, 197, 253, 0.38), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(187, 247, 208, 0.34), transparent 28%),
+    linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 48%, #f0fdf4 100%);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.font-display {
+  font-family: "Fredoka", "Inter", system-ui, sans-serif;
+}
+
+.tp-page {
+  background:
+    radial-gradient(circle at top right, rgba(191, 219, 254, 0.58), transparent 24%),
+    radial-gradient(circle at bottom left, rgba(187, 247, 208, 0.5), transparent 26%),
+    linear-gradient(135deg, #f8fbff 0%, #eef7ff 48%, #f5fff7 100%);
+}
+
+.tp-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--tp-line);
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.tp-card-hover {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.tp-card-hover:hover {
+  transform: translateY(-3px);
+  border-color: rgba(59, 130, 246, 0.28);
+  box-shadow: 0 18px 45px rgba(37, 99, 235, 0.14);
+}
+
+.tp-hero-gradient {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 52%, #1d4ed8 100%);
+}
+
+.tp-soft-ring {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35) inset;
+}
+
+.section-divider {
+  height: 4px;
+  width: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.85), transparent);
+}
+
+.floating-drift {
+  animation: floating-drift 6s ease-in-out infinite;
+}
+
+.pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+@keyframes floating-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
