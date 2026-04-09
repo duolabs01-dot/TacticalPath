@@ -34,7 +34,7 @@ export function BottomNav() {
   const location = useLocation();
 
   return (
-    <nav className="mobile-nav flex items-center justify-around px-2 pt-2 pb-1">
+    <nav className="mobile-nav flex items-center justify-around px-2 pt-2 pb-1 md:hidden">
       {navItems.map((item) => {
         const Icon = item.icon;
         const isActive = item.matches.some((path) => location.pathname.startsWith(path));
