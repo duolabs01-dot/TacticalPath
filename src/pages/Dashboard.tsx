@@ -11,13 +11,13 @@ const themes = [
 
 export function Dashboard() {
   return (
-    <div className="px-4 py-6">
+    <div className="px-4 py-6 md:p-8 max-w-5xl mx-auto">
       {/* Header */}
       <header className="mb-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-blue-600">Welcome back</p>
-            <h1 className="text-2xl font-bold text-slate-900">Chloe M.</h1>
+            <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">Chloe M.</h1>
           </div>
           <div className="flex items-center gap-2 bg-emerald-100 px-3 py-1.5 rounded-full">
             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
@@ -49,7 +49,7 @@ export function Dashboard() {
           <h2 className="text-lg font-bold text-slate-900">Your Progress</h2>
           <Link to="/skill-insights" className="text-sm font-medium text-blue-600">See all</Link>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {themes.slice(0, 4).map((theme) => (
             <Link 
               key={theme.name} 

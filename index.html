@@ -91,6 +91,25 @@
             flex-direction: column;
         }
         
+        @media (min-width: 768px) {
+            .app-container {
+                flex-direction: row;
+            }
+        }
+        
+        .main-content {
+            flex: 1;
+            padding-bottom: 80px;
+            overflow-y: auto;
+        }
+        
+        @media (min-width: 768px) {
+            .main-content {
+                margin-left: 256px;
+                padding-bottom: 0;
+            }
+        }
+        
         .page-content {
             flex: 1;
             padding-bottom: 80px;

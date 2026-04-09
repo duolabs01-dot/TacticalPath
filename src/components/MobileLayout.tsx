@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
+import { SideNav } from "./SideNav";
 
 const HIDE_NAV_ROUTES = [
   "/",
@@ -20,9 +21,13 @@ export function MobileLayout() {
 
   return (
     <div className="app-container">
-      <div className="page-content smooth-scroll">
+      {/* Desktop sidebar */}
+      <SideNav />
+      {/* Main content */}
+      <main className="main-content smooth-scroll">
         <Outlet />
-      </div>
+      </main>
+      {/* Mobile bottom nav */}
       {!shouldHideNav && <BottomNav />}
     </div>
   );
