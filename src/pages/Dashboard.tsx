@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
-import { ChevronRight, Puzzle, Target, Users } from "lucide-react";
-
-const themes = [
-  { name: "Hanging Pieces", level: 3, progress: 72 },
-  { name: "Missed Captures", level: 2, progress: 48 },
-  { name: "1-Move Checkmates", level: 4, progress: 86 },
-  { name: "Basic Forks", level: 2, progress: 41 },
-  { name: "Basic Pins", level: 3, progress: 67 },
-];
+import { ChevronRight, Puzzle, Target, Users, Trophy, Flame } from "lucide-react";
+import { useProgress } from "../hooks/useProgress";
+import { puzzleThemes } from "../data/puzzles";
 
 export function Dashboard() {
+  const { progress, getThemeLevel, getOverallLevel } = useProgress();
+
+  const recentThemes = [...puzzleThemes]
+    .sort((a, b) => getThemeLevel(b.id) - getThemeLevel(a.id))
+    .slice(0, 4);
+
   return (
     <div className="px-4 py-6 md:p-8 max-w-5xl mx-auto">
       {/* Header */}
@@ -17,14 +17,37 @@ export function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-blue-600">Welcome back</p>
-            <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">Chloe M.</h1>
+            <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">{progress.username}</h1>
           </div>
           <div className="flex items-center gap-2 bg-emerald-100 px-3 py-1.5 rounded-full">
             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-            <span className="text-xs font-semibold text-emerald-700">In Session</span>
+            <span className="text-xs font-semibold text-emerald-700">Ready to Practice</span>
           </div>
         </div>
       </header>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-4 gap-3 mb-6">
+        <div className="card p-3 text-center">
+          <Trophy className="w-5 h-5 text-amber-500 mx-auto mb-1" />
+          <p className="text-lg font-bold text-slate-900">{progress.totalPuzzlesSolved}</p>
+          <p className="text-xs text-slate-500">Solved</p>
+        </div>
+        <div className="card p-3 text-center">
+          <Flame className="w-5 h-5 text-orange-500 mx-auto mb-1" />
+          <p className="text-lg font-bold text-slate-900">{progress.streak}</p>
+          <p className="text-xs text-slate-500">Streak</p>
+        </div>
+        <div className="card p-3 text-center">
+          <Target className="w-5 h-5 text-blue-500 mx-auto mb-1" />
+          <p className="text-lg font-bold text-slate-900">Level {getOverallLevel()}</p>
+          <p className="text-xs text-slate-500">Mastery</p>
+        </div>
+        <div className="card p-3 text-center">
+          <span className="text-lg font-bold text-emerald-600">{progress.difficulty}</span>
+          <p className="text-xs text-slate-500">Difficulty</p>
+        </div>
+      </div>
 
       {/* Quick Action Card */}
       <Link 
@@ -43,36 +66,39 @@ export function Dashboard() {
         </div>
       </Link>
 
-      {/* Mastery Progress */}
+      {/* Theme Progress */}
       <section className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-slate-900">Your Progress</h2>
-          <Link to="/skill-insights" className="text-sm font-medium text-blue-600">See all</Link>
+          <h2 className="text-lg font-bold text-slate-900">Your Themes</h2>
+          <Link to="/skill-insights" className="text-sm font-medium text-blue-600">See all →</Link>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {themes.slice(0, 4).map((theme) => (
-            <Link 
-              key={theme.name} 
-              to="/puzzle-play"
-              className="card p-4"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-slate-500">Level {theme.level}</span>
-                <span className="text-xs font-bold text-emerald-600">{theme.progress}%</span>
-              </div>
-              <h3 className="text-sm font-semibold text-slate-900">{theme.name}</h3>
-              <div className="mt-2 h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full"
-                  style={{ width: `${theme.progress}%` }}
-                />
-              </div>
-            </Link>
-          ))}
+          {recentThemes.map((theme) => {
+            const level = getThemeLevel(theme.id);
+            const themeData = progress.themes[theme.id];
+            
+            return (
+              <Link 
+                key={theme.id} 
+                to="/puzzle-play"
+                className="card p-4"
+              >
+                <div className="text-2xl mb-2">{theme.icon}</div>
+                <h3 className="text-sm font-semibold text-slate-900">{theme.name}</h3>
+                <p className="text-xs text-slate-500 mt-1">Level {level}</p>
+                <div className="mt-2 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full"
+                    style={{ width: `${level * 20}%` }}
+                  />
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
-      {/* What to Do */}
+      {/* Quick Links */}
       <section className="mb-6">
         <h2 className="text-lg font-bold text-slate-900 mb-4">What to do next</h2>
         <div className="space-y-3">
@@ -100,28 +126,28 @@ export function Dashboard() {
         </div>
       </section>
 
-      {/* Today's Session Flow */}
+      {/* Session Flow */}
       <section className="card p-5">
         <div className="flex items-center gap-2 mb-4">
           <Users className="w-5 h-5 text-blue-600" />
           <h3 className="font-semibold text-slate-900">Class Session</h3>
         </div>
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">1</div>
-            <p className="text-sm text-slate-600">Play a game</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="text-center p-3 bg-slate-50 rounded-xl">
+            <p className="text-xl font-bold text-blue-600">1</p>
+            <p className="text-xs text-slate-500">Play a game</p>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">2</div>
-            <p className="text-sm text-slate-600">Review one turning point</p>
+          <div className="text-center p-3 bg-slate-50 rounded-xl">
+            <p className="text-xl font-bold text-blue-600">2</p>
+            <p className="text-xs text-slate-500">Review move</p>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-full bg-emerald-500 text-white text-xs font-bold flex items-center justify-center">3</div>
-            <p className="text-sm text-slate-600">Complete 3 drills</p>
+          <div className="text-center p-3 bg-slate-50 rounded-xl">
+            <p className="text-xl font-bold text-emerald-600">3</p>
+            <p className="text-xs text-slate-500">3 drills</p>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-full bg-emerald-500 text-white text-xs font-bold flex items-center justify-center">4</div>
-            <p className="text-sm text-slate-600">Track your growth</p>
+          <div className="text-center p-3 bg-slate-50 rounded-xl">
+            <p className="text-xl font-bold text-emerald-600">4</p>
+            <p className="text-xs text-slate-500">Track growth</p>
           </div>
         </div>
       </section>
