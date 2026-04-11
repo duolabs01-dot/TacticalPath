@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BookOpen, Home, Puzzle, Target, User } from "lucide-react";
+import { BookOpen, Home, Puzzle, Target, User, Sword } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useLocation } from "react-router-dom";
 
@@ -9,6 +9,12 @@ const navItems = [
     icon: Home,
     label: "Home",
     matches: ["/dashboard"],
+  },
+  {
+    path: "/multiplayer",
+    icon: Sword,
+    label: "Play",
+    matches: ["/multiplayer"],
   },
   {
     path: "/puzzle-bank",

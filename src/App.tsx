@@ -10,6 +10,7 @@ import { Profile } from "./pages/Profile";
 import { SkillInsights } from "./pages/SkillInsights";
 import { PuzzleBank } from "./pages/PuzzleBank";
 import { PuzzlePlay } from "./pages/PuzzlePlay";
+import { Multiplayer } from "./pages/Multiplayer";
 import { Checkout } from "./pages/Checkout";
 import { CoachReview } from "./pages/CoachReview";
 import { CoachConnect } from "./pages/CoachConnect";
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/skill-insights" element={<SkillInsights />} />
           <Route path="/puzzle-bank" element={<PuzzleBank />} />
           <Route path="/puzzle-play" element={<PuzzlePlay />} />
+          <Route path="/multiplayer" element={<Multiplayer />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/coach-review" element={<CoachReview />} />
           <Route path="/coach-connect" element={<CoachConnect />} />
