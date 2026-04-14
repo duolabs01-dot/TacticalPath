@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { hashPictures } from '../lib/crypto';
 import type { Database } from '../lib/database.types';
 
 type Student = Database['public']['Tables']['students']['Row'];
@@ -176,10 +177,3 @@ function generateSlug(orgName: string, classroomName: string): string {
   return `${base}-${suffix}`;
 }
 
-async function hashPictures(pictures: string[]): Promise<string> {
-  const data = pictures.join('|');
-  const encoder = new TextEncoder();
-  const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data));
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
