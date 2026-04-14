@@ -12,6 +12,8 @@ const HEATMAP_DATA = [
   { theme: 'pins', name: 'Basic Pins', missRate: 61, emoji: '♝' },
 ];
 
+const THEME_MAP = Object.fromEntries(MOCK_THEMES.map(t => [t.id, t.name]));
+
 export function CoachClassroomDashboard() {
   const navigate = useNavigate();
   const { classroom } = useClassroom();
@@ -121,8 +123,10 @@ export function CoachClassroomDashboard() {
           </div>
           <div className="space-y-2">
             {onlineStudents.map((student) => {
-              const topTheme = Object.entries(student.mastery).sort((a, b) => b[1].xp - a[1].xp)[0];
-              const weakestTheme = Object.entries(student.mastery).sort((a, b) => a[1].xp - b[1].xp)[0];
+              const entries = Object.entries(student.mastery);
+              const sorted = [...entries].sort((a, b) => b[1].xp - a[1].xp);
+              const topTheme = sorted[0];
+              const weakestTheme = sorted[sorted.length - 1];
               return (
                 <div key={student.id} className="flex items-center justify-between py-3 px-4 bg-slate-50 rounded-xl">
                   <div className="flex items-center gap-3">
@@ -130,7 +134,7 @@ export function CoachClassroomDashboard() {
                     <div>
                       <p className="text-sm font-semibold text-slate-800">{student.displayName}</p>
                       <p className="text-xs text-slate-500">
-                        Best: {MOCK_THEMES.find(t => t.id === topTheme[0])?.name} · Needs work: {MOCK_THEMES.find(t => t.id === weakestTheme[0])?.name}
+                        Best: {THEME_MAP[topTheme[0]]} · Needs work: {THEME_MAP[weakestTheme[0]]}
                       </p>
                     </div>
                   </div>
