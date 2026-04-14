@@ -1,28 +1,22 @@
-import { Link } from "react-router-dom";
-import { Brain, Sword, Puzzle, Target, User } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { LayoutGrid, Sword, Target, User, Settings, Info } from "lucide-react";
 import { cn } from "../lib/utils";
-import { useLocation } from "react-router-dom";
 
 const navItems = [
   {
+    path: "/",
+    icon: LayoutGrid,
+    label: "Library",
+  },
+  {
     path: "/dashboard",
-    icon: Brain,
-    label: "Dashboard",
+    icon: Target,
+    label: "My Progress",
   },
   {
     path: "/multiplayer",
     icon: Sword,
-    label: "Play",
-  },
-  {
-    path: "/puzzle-bank",
-    icon: Puzzle,
-    label: "Practice",
-  },
-  {
-    path: "/skill-insights",
-    icon: Target,
-    label: "Progress",
+    label: "Multiplayer",
   },
   {
     path: "/profile",
@@ -35,49 +29,51 @@ export function SideNav() {
   const location = useLocation();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-screen bg-white border-r border-slate-200 fixed left-0 top-0">
+    <aside className="hidden md:flex flex-col w-64 h-screen bg-white border-r border-slate-200 fixed left-0 top-0 z-50">
       {/* Logo */}
-      <div className="p-6 border-b border-slate-100">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center text-white text-xl">♞</div>
+      <div className="p-8">
+        <Link to="/" className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg shadow-blue-100 font-bold">T</div>
           <div>
-            <p className="font-bold text-slate-900">TacticalPath</p>
-            <p className="text-xs text-slate-500">Chess Learning</p>
+            <p className="font-black text-slate-900 leading-none">TacticalPath</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Play & Learn</p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 px-4 space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname.startsWith(item.path);
+          const isActive = item.path === "/" ? location.pathname === "/" : location.pathname.startsWith(item.path);
 
           return (
             <Link
               key={item.path}
               to={item.path}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
+                "flex items-center gap-3 px-4 py-4 rounded-2xl transition-all duration-200 group",
                 isActive
-                  ? "bg-blue-50 text-blue-700 font-medium"
-                  : "text-slate-600 hover:bg-slate-50"
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-100 font-bold scale-[1.02]"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
               )}
             >
-              <Icon className="w-5 h-5" />
-              <span>{item.label}</span>
+              <Icon className={cn("w-5 h-5", isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600")} />
+              <span className="text-sm">{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-slate-100">
-        <div className="card p-4 bg-slate-50">
-          <p className="text-sm text-slate-600">
-            Practice puzzles to improve your chess skills!
-          </p>
-        </div>
+      {/* Bottom Actions */}
+      <div className="p-6 border-t border-slate-100">
+        <Link
+            to="/settings"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 transition-all text-sm font-medium"
+        >
+            <Settings className="w-5 h-5" />
+            Settings
+        </Link>
       </div>
     </aside>
   );

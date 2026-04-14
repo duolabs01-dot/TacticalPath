@@ -1,107 +1,151 @@
-import { useState, useEffect, createContext, useContext, useCallback, ReactNode } from 'react';
-import { Chess, Move } from 'chess.js';
+import { useState, createContext, useContext, useCallback, ReactNode } from 'react';
+import { Chess } from 'chess.js';
 import { v4 as uuidv4 } from 'uuid';
 
+export type GameType = 'chess' | 'tictactoe' | 'checkers' | 'morris' | 'solitaire';
 export type GameMode = 'puzzle' | 'play' | 'online';
-export type GameStatus = 'waiting' | 'playing' | 'checkmate' | 'draw' | 'stalemate';
+export type GameStatus = 'waiting' | 'playing' | 'checkmate' | 'draw' | 'stalemate' | 'finished';
+export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export interface GameState {
   id: string;
-  fen: string;
-  turn: 'w' | 'b';
+  type: GameType;
   mode: GameMode;
   status: GameStatus;
-  playerColor: 'w' | 'b';
-  moves: string[];
   startedAt: number;
-  theme?: string;
-  timeControl?: number;
+  data: any; // Type-specific state
+  moves: any[];
+  turn: string;
+  winner?: string;
+  difficulty: Difficulty;
 }
 
 interface GameContextType {
-  game: Chess | null;
   gameState: GameState | null;
-  isMyTurn: boolean;
-  startGame: (mode: GameMode, options?: { theme?: string; timeControl?: number }) => void;
-  makeMove: (move: { from: string; to: string; promotion?: string }) => boolean;
+  game: Chess | null; // Restored original name for compatibility
+  chessGame: Chess | null; // Keep as alias for newer components
+  startNewGame: (type: GameType, mode: GameMode, options?: { difficulty?: Difficulty; [key: string]: any }) => void;
+  updateGameState: (update: Partial<GameState>) => void;
   resetGame: () => void;
+  // Compatibility with old API
+  startGame: (mode: GameMode, options?: any) => void;
+  makeMove: (move: any) => boolean;
   undo: () => void;
+  isMyTurn: boolean;
 }
 
 const GameContext = createContext<GameContextType | null>(null);
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [game, setGame] = useState<Chess | null>(null);
   const [gameState, setGameState] = useState<GameState | null>(null);
-  const [playerColor] = useState<'w' | 'b'>('w');
+  const [chessGame, setChessGame] = useState<Chess | null>(null);
 
-  const isMyTurn = game?.turn() === playerColor;
+  const startNewGame = useCallback((type: GameType, mode: GameMode, options?: { difficulty?: Difficulty; [key: string]: any }) => {
+    let initialData: any = {};
+    let initialTurn: string = '1';
+    const difficulty = options?.difficulty || 'medium';
 
-  const startGame = useCallback((mode: GameMode, options?: { theme?: string; timeControl?: number }) => {
-    const newGame = new Chess();
+    if (type === 'chess') {
+      const chess = new Chess();
+      setChessGame(chess);
+      initialData = { fen: chess.fen() };
+      initialTurn = 'w';
+    } else if (type === 'tictactoe') {
+      initialData = { board: Array(9).fill(null) };
+    } else if (type === 'checkers') {
+      initialData = { board: setupCheckersBoard() };
+    } else if (type === 'morris') {
+      initialData = {
+          board: Array(24).fill(null),
+          stage: 'placement',
+          piecesPlaced: { "1": 0, "2": 0 },
+          piecesOnBoard: { "1": 0, "2": 0 }
+      };
+    }
+
     const newState: GameState = {
       id: uuidv4(),
-      fen: newGame.fen(),
-      turn: 'w',
+      type,
       mode,
       status: 'playing',
-      playerColor,
-      moves: [],
       startedAt: Date.now(),
-      theme: options?.theme,
-      timeControl: options?.timeControl,
+      data: initialData,
+      moves: [],
+      turn: initialTurn,
+      difficulty,
     };
-    setGame(newGame);
+
     setGameState(newState);
-  }, [playerColor]);
-
-  const makeMove = useCallback((move: { from: string; to: string; promotion?: string }): boolean => {
-    if (!game || !gameState) return false;
-
-    const gameCopy = new Chess(game.fen());
-    try {
-        const result = gameCopy.move(move);
-        if (result) {
-          setGame(gameCopy);
-          
-          let status: GameStatus = 'playing';
-          if (gameCopy.isCheckmate()) {
-            status = 'checkmate';
-          } else if (gameCopy.isDraw()) {
-            status = 'draw';
-          } else if (gameCopy.isStalemate()) {
-            status = 'stalemate';
-          }
-
-          setGameState(prev => prev ? {
-            ...prev,
-            fen: gameCopy.fen(),
-            turn: gameCopy.turn(),
-            status,
-            moves: [...prev.moves, result.san],
-          } : null);
-
-          return true;
-        }
-    } catch (e) {
-      return false;
-    }
-    return false;
-  }, [game, gameState]);
-
-  const resetGame = useCallback(() => {
-    setGame(null);
-    setGameState(null);
   }, []);
 
+  const updateGameState = useCallback((update: Partial<GameState>) => {
+    setGameState(prev => prev ? { ...prev, ...update } : null);
+  }, []);
+
+  const resetGame = useCallback(() => {
+    setGameState(null);
+    setChessGame(null);
+  }, []);
+
+  // Compatibility methods for existing components
+  const startGame = useCallback((mode: GameMode, options?: any) => {
+    startNewGame('chess', mode, options);
+  }, [startNewGame]);
+
+  const makeMove = useCallback((move: any): boolean => {
+    if (gameState?.type === 'chess' && chessGame) {
+      const chessCopy = new Chess(chessGame.fen());
+      try {
+        const result = chessCopy.move(move);
+        if (result) {
+          setChessGame(chessCopy);
+          let status: GameStatus = 'playing';
+          if (chessCopy.isCheckmate()) status = 'checkmate';
+          else if (chessCopy.isDraw()) status = 'draw';
+          else if (chessCopy.isStalemate()) status = 'stalemate';
+
+          updateGameState({
+            data: { fen: chessCopy.fen() },
+            status,
+            moves: [...gameState.moves, result.san],
+            turn: chessCopy.turn()
+          });
+          return true;
+        }
+      } catch (e) {
+        return false;
+      }
+    }
+    return false;
+  }, [gameState, chessGame, updateGameState]);
+
   const undo = useCallback(() => {
-    if (!game) return;
-    game.undo();
-    setGame(new Chess(game.fen()));
-  }, [game]);
+    if (gameState?.type === 'chess' && chessGame) {
+        chessGame.undo();
+        const newChess = new Chess(chessGame.fen());
+        setChessGame(newChess);
+        updateGameState({
+            data: { fen: newChess.fen() },
+            turn: newChess.turn()
+        });
+    }
+  }, [gameState, chessGame, updateGameState]);
+
+  const isMyTurn = gameState?.type === 'chess' && chessGame ? chessGame.turn() === 'w' : true;
 
   return (
-    <GameContext.Provider value={{ game, gameState, isMyTurn, startGame, makeMove, resetGame, undo }}>
+    <GameContext.Provider value={{
+        gameState,
+        chessGame,
+        game: chessGame, // Restored for compatibility
+        startNewGame,
+        updateGameState,
+        resetGame,
+        startGame,
+        makeMove,
+        undo,
+        isMyTurn
+    }}>
       {children}
     </GameContext.Provider>
   );
@@ -113,4 +157,20 @@ export function useGame() {
     throw new Error('useGame must be used within a GameProvider');
   }
   return context;
+}
+
+function setupCheckersBoard() {
+    const board = Array(64).fill(0);
+    // 1: red (bottom), 2: black (top)
+    for (let i = 0; i < 24; i++) {
+        const row = Math.floor(i / 8);
+        const col = i % 8;
+        if ((row + col) % 2 === 1) board[i] = 2;
+    }
+    for (let i = 40; i < 64; i++) {
+        const row = Math.floor(i / 8);
+        const col = i % 8;
+        if ((row + col) % 2 === 1) board[i] = 1;
+    }
+    return board;
 }
