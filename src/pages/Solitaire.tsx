@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, RotateCcw, Brain, Clock } from "lucide-react";
 
 export function Solitaire() {
-  const { gameState, startNewGame } = useGame();
+  const { startNewGame } = useGame();
 
   useEffect(() => {
     startNewGame("solitaire", "play");

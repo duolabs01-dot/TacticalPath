@@ -4,7 +4,6 @@ import { expect, test, mock } from "bun:test";
 mock.module("clsx", () => {
   return {
     clsx: (...inputs: any[]) => {
-      // Very simple shim of clsx for testing purposes
       const toVal = (mix: any): string => {
         let k, y, str = '';
         if (typeof mix === 'string' || typeof mix === 'number') {
@@ -45,12 +44,10 @@ mock.module("clsx", () => {
 mock.module("tailwind-merge", () => {
   return {
     twMerge: (input: string) => {
-      // Mock twMerge behavior: basic deduplication and simple conflict resolution
       const classes = input.split(/\s+/).filter(Boolean);
       const seen = new Map<string, string>();
 
       classes.forEach(cls => {
-        // Handle basic tailwind prefixes like 'p-', 'm-', 'bg-', etc.
         const match = cls.match(/^((?:.*:)?)([^-]+-).*/);
         if (match) {
           const prefix = match[1] + match[2];
@@ -89,7 +86,6 @@ test("cn handles array inputs", () => {
 });
 
 test("cn merges tailwind classes", () => {
-  // Our mock twMerge should handle 'p-2 p-4' by taking the last one
   expect(cn("p-2", "p-4")).toBe("p-4");
   expect(cn("bg-red-500", "bg-blue-500")).toBe("bg-blue-500");
 });
