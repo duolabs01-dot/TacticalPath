@@ -5,6 +5,7 @@ export interface CoachingInsight {
   type: 'hint' | 'feedback' | 'analysis';
   category?: 'missed win' | 'failed defense' | 'rushed move' | 'bad trade' | 'missed block' | 'poor setup' | 'threat blindness';
   turningPointIndex?: number;
+  highlightSquares?: number[];
 }
 
 export class CoachingService {
@@ -28,23 +29,36 @@ export class CoachingService {
 
   private static getTicTacToeInsight(state: GameState): CoachingInsight {
     const { board } = state.data;
-    if (!board[4]) return { message: "The center is the heart of the board. Try to take it!", type: 'hint' };
+    if (!board[4]) return {
+        message: "The center is the most valuable real estate. Grab it to control the board!",
+        type: 'hint',
+        highlightSquares: [4]
+    };
 
     const canWin = this.findWinningMove(board, 'X');
-    if (canWin !== null) return { message: "You have a winning move! Look closely.", type: 'hint', category: 'missed win' };
+    if (canWin !== null) return {
+        message: "You've built a winning line! Can you find the final square to seal the victory?",
+        type: 'hint',
+        category: 'missed win',
+        highlightSquares: [canWin]
+    };
 
     const mustBlock = this.findWinningMove(board, 'O');
-    if (mustBlock !== null) return { message: "The Robot is threatening to win. You must block it!", type: 'hint', category: 'threat blindness' };
+    if (mustBlock !== null) return {
+        message: "Danger! The Robot is about to win. You must block their path immediately.",
+        type: 'hint',
+        category: 'threat blindness',
+        highlightSquares: [mustBlock]
+    };
 
-    return { message: "Look for opportunities to create a 'fork' - two ways to win at once!", type: 'hint' };
+    return { message: "Try to create a 'double-threat' (fork) where the Robot can only block one of two winning lines!", type: 'hint' };
   }
 
   private static getTicTacToePostGame(state: GameState): CoachingInsight {
-      if (state.winner === 'X') return { message: "Strategic victory! You identified the winning path and executed perfectly.", type: 'analysis' };
-      if (state.winner === 'draw') return { message: "Perfect play from both sides. When neither side blunders, Tic Tac Toe always ends in a draw.", type: 'analysis' };
+      if (state.winner === 'X') return { message: "Masterful victory! You outmaneuvered the Robot with superior board awareness.", type: 'analysis' };
+      if (state.winner === 'draw') return { message: "A battle of wits! Neither side gave an inch. This is the theoretical limit of Tic Tac Toe.", type: 'analysis' };
 
-      // Analyze for a blunder if user lost
-      const moves = state.moves; // Array of {player, index}
+      const moves = state.moves;
       const board = Array(9).fill(null);
 
       for (let i = 0; i < moves.length; i++) {
@@ -53,26 +67,28 @@ export class CoachingService {
               const mustBlock = this.findWinningMove(board, 'O');
               if (mustBlock !== null && move.index !== mustBlock) {
                   return {
-                      message: `A critical moment at move ${i}! You missed a chance to block the Robot's winning line. Try rewatching this moment.`,
+                      message: `A tough loss, but look at Move ${i}. Blocking square ${mustBlock + 1} was required to stay in the game.`,
                       type: 'analysis',
                       category: 'threat blindness',
-                      turningPointIndex: i
+                      turningPointIndex: i,
+                      highlightSquares: [mustBlock]
                   };
               }
               const canWin = this.findWinningMove(board, 'X');
               if (canWin !== null && move.index !== canWin) {
                 return {
-                    message: `You had a victory in sight at move ${i} but took a different path. Identifying winning lines is key to mastery.`,
+                    message: `Victory was within reach at Move ${i}! Choosing square ${canWin + 1} would have won the game instantly.`,
                     type: 'analysis',
                     category: 'missed win',
-                    turningPointIndex: i
+                    turningPointIndex: i,
+                    highlightSquares: [canWin]
                 };
               }
           }
           board[move.index] = move.player;
       }
 
-      return { message: "The Robot outmaneuvered you this time. Let's try again and watch for double-threats!", type: 'analysis' };
+      return { message: "The Robot found a winning pattern. Watch for 'L' shapes and diagonals next time!", type: 'analysis' };
   }
 
   private static findWinningMove(board: (string|null)[], player: string): number | null {

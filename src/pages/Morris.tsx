@@ -49,7 +49,7 @@ export function Morris() {
 
   useEffect(() => {
     start();
-  }, []);
+  }, [start]);
 
   const checkMill = (board: (string | null)[], index: number) => {
     const player = board[index];
@@ -65,8 +65,14 @@ export function Morris() {
       if (board[i] === "2" && !checkMill(board, i)) {
         const newBoard = [...board];
         newBoard[i] = null;
+        const newOnBoard = { ...gameState.data.piecesOnBoard };
+        newOnBoard["2"]--;
+
         setIsCapturing(false);
-        updateGameState({ data: { ...gameState.data, board: newBoard }, turn: "2" });
+        updateGameState({
+            data: { ...gameState.data, board: newBoard, piecesOnBoard: newOnBoard },
+            turn: "2"
+        });
       }
       return;
     }
@@ -77,6 +83,8 @@ export function Morris() {
         newBoard[i] = "1";
         const newPlaced = { ...gameState.data.piecesPlaced };
         newPlaced["1"]++;
+        const newOnBoard = { ...gameState.data.piecesOnBoard };
+        newOnBoard["1"]++;
 
         const millCreated = checkMill(newBoard, i);
         const nextStage = newPlaced["1"] === 9 && newPlaced["2"] === 9 ? "moving" : "placement";
@@ -87,7 +95,7 @@ export function Morris() {
         }
 
         updateGameState({
-          data: { ...gameState.data, board: newBoard, piecesPlaced: newPlaced, stage: nextStage },
+          data: { ...gameState.data, board: newBoard, piecesPlaced: newPlaced, piecesOnBoard: newOnBoard, stage: nextStage },
           turn: millCreated ? "1" : "2",
         });
       }
@@ -95,11 +103,23 @@ export function Morris() {
         if (selected === null) {
             if (board[i] === "1") setSelected(i);
         } else {
-            if (board[i] === null && (neighbors[selected].includes(i) || gameState.data.piecesOnBoard["1"] === 3)) {
+            const isFlying = gameState.data.piecesOnBoard["1"] === 3;
+            if (board[i] === null && (neighbors[selected].includes(i) || isFlying)) {
                 const newBoard = [...board];
                 newBoard[i] = "1";
-                newBoard[selected] = 0;
-                // ... logic ...
+                newBoard[selected] = null;
+
+                const millCreated = checkMill(newBoard, i);
+
+                if (millCreated) {
+                    setIsCapturing(true);
+                    setCoachingMsg("Strategic Mill! Choose a piece to remove.");
+                }
+
+                updateGameState({
+                    data: { ...gameState.data, board: newBoard },
+                    turn: millCreated ? "1" : "2",
+                });
             }
             setSelected(null);
         }
@@ -114,22 +134,27 @@ export function Morris() {
           if (gameState.data.stage === "placement") {
               const available = board.map((v, i) => v === null ? i : null).filter(v => v !== null) as number[];
               const move = available[Math.floor(Math.random() * available.length)];
+              if (move === undefined) return;
+
               const newBoard = [...board];
               newBoard[move] = "2";
               const newPlaced = { ...gameState.data.piecesPlaced };
               newPlaced["2"]++;
+              const newOnBoard = { ...gameState.data.piecesOnBoard };
+              newOnBoard["2"]++;
+
               const millCreated = checkMill(newBoard, move);
 
               if (millCreated) {
-                  // AI Capture
                   const enemyPieces = newBoard.map((v, i) => v === "1" && !checkMill(newBoard, i) ? i : null).filter(v => v !== null) as number[];
                   if (enemyPieces.length > 0) {
-                      newBoard[enemyPieces[0]] = null;
+                      newBoard[enemyPieces[0]!] = null;
+                      newOnBoard["1"]--;
                   }
               }
 
               updateGameState({
-                  data: { ...gameState.data, board: newBoard, piecesPlaced: newPlaced },
+                  data: { ...gameState.data, board: newBoard, piecesPlaced: newPlaced, piecesOnBoard: newOnBoard },
                   turn: "1"
               });
           }
@@ -142,12 +167,12 @@ export function Morris() {
           const insight = CoachingService.getInsight("morris", gameState);
           if (!isCapturing) setCoachingMsg(insight.message);
       }
-  }, [gameState?.turn, isCapturing]);
+  }, [gameState?.turn, isCapturing, gameState, makeComputerMove]);
 
   if (!gameState || gameState.type !== "morris") return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center">
+    <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none">
       <header className="w-full max-w-md flex items-center justify-between mb-8">
         <Link to="/" className="p-2 hover:bg-slate-200 rounded-lg transition-colors">
           <ArrowLeft className="w-6 h-6" />
@@ -191,7 +216,8 @@ export function Morris() {
                 gameState.data.board[i] === null ? "bg-amber-100/80 hover:bg-amber-200 shadow-inner border border-amber-200" : (
                   gameState.data.board[i] === "1" ? "bg-slate-900 border-2 border-slate-700 shadow-lg" : "bg-white border-2 border-slate-300 shadow-lg"
                 ),
-                isCapturing && gameState.data.board[i] === "2" && "ring-4 ring-red-500 ring-offset-2 animate-pulse"
+                isCapturing && gameState.data.board[i] === "2" && "ring-4 ring-red-500 ring-offset-2 animate-pulse",
+                selected === i && "ring-4 ring-blue-500 ring-offset-2"
               )}
             >
                {gameState.data.board[i] === "1" && <div className="w-2 h-2 bg-slate-500 rounded-full opacity-30" />}
@@ -200,13 +226,13 @@ export function Morris() {
         </div>
 
         <div className="mt-8 grid grid-cols-2 gap-4">
-           <div className={cn("card p-4 text-center transition-all", gameState.turn === "1" ? "border-blue-500 bg-blue-50/30" : "opacity-50")}>
+           <div className={cn("card p-4 text-center transition-all", gameState.turn === "1" ? "border-blue-500 bg-blue-50/30 shadow-lg scale-105" : "opacity-50")}>
              <p className="text-[10px] text-slate-500 uppercase font-black">YOU</p>
-             <p className="text-xl font-bold">{9 - gameState.data.piecesPlaced["1"]} to place</p>
+             <p className="text-xl font-bold">{gameState.data.stage === 'placement' ? `${9 - gameState.data.piecesPlaced["1"]} to place` : `${gameState.data.piecesOnBoard["1"]} on board`}</p>
            </div>
-           <div className={cn("card p-4 text-center transition-all", gameState.turn === "2" ? "border-red-500 bg-red-50/30" : "opacity-50")}>
+           <div className={cn("card p-4 text-center transition-all", gameState.turn === "2" ? "border-red-500 bg-red-50/30 shadow-lg scale-105" : "opacity-50")}>
              <p className="text-[10px] text-slate-500 uppercase font-black">ROBOT</p>
-             <p className="text-xl font-bold">{9 - gameState.data.piecesPlaced["2"]} to place</p>
+             <p className="text-xl font-bold">{gameState.data.stage === 'placement' ? `${9 - gameState.data.piecesPlaced["2"]} to place` : `${gameState.data.piecesOnBoard["2"]} on board`}</p>
            </div>
         </div>
       </main>
