@@ -1,401 +1,395 @@
-# Tactical Path: Jules Build Brief
+# Tactical Path: Final Jules Build Brief
 
-Status: Active build brief
+Status: Final build brief
 Date: 2026-04-14
 Audience: [Jules](https://jules.google.com/)
 
-## 1. What This App Should Be
+## 1. Product Direction
 
-Tactical Path should be a mobile-friendly game platform for everyday players, families, and communities.
+Tactical Path should be a mobile-friendly strategy games platform.
 
-It should **not** behave like a coach-only classroom dashboard.
+It should not behave like a coach-only dashboard.
+It should not force normal users into a coach login flow.
+It should not present chess as the only game or the only reason the app exists.
 
-The product direction is:
+But it also should **not remove chess**.
 
-- public-first landing experience
-- simple player access
-- multiple classic strategy games
-- fast game selection
-- clean solo and local multiplayer play
-- room to add progression, AI, and competitive layers later
+The correct direction is:
 
-## 2. Current Problem To Fix First
+- keep chess
+- add more strategy games around it
+- make the product public-first
+- make the product game-first
+- stop making the public experience feel like classroom software
 
-Right now the app is effectively unusable for most people because the root route sends everyone into a coach-only flow.
+## 2. Non-Negotiable Correction
 
-Current blocking behavior:
+The current public behavior is wrong.
+
+Today, the app sends people to a coach flow by default:
 
 - [`src/App.tsx`](C:\Users\THEMBA\Downloads\TacticalPath\src\App.tsx) redirects `/` to `/coach/login`
 - wildcard routes also redirect to `/coach/login`
-- the current product spec in [`docs/tacticalpath-product-spec.md`](C:\Users\THEMBA\Downloads\TacticalPath\docs\tacticalpath-product-spec.md) is still chess-classroom-first
-- much of the current app language is coach/chess specific
 
-This is the wrong direction for the product we want now.
+This makes the app feel unusable to everyone except a coach.
 
-## 3. New Product Direction
+Jules must fix this first.
 
-Tactical Path should become a strategy games hub with this launch lineup:
+## 3. Core Product Thesis
 
-1. Morris family games, with South African relevance clearly supported
-   - Three Men's Morris
-   - Six Men's Morris
-   - Nine Men's Morris
-   - local framing for **Mlabalaba**
-2. Draft / Checkers
-3. Tic Tac Toe
-4. Solitaire
+Tactical Path should become a home for classic strategy games that are quick to access, easy to understand, and pleasant to play on mobile.
 
-Chess can remain in the codebase if useful, but it is no longer the product identity.
+The product should feel like:
 
-## 4. Product Principles
+- accessible
+- thoughtful
+- game-led
+- clean
+- modern
+- replayable
 
-Jules should rebuild toward these principles:
+Not like:
 
-- game-first, not coach-first
-- public landing page, not forced dashboard redirect
-- fun and accessible before advanced analytics
-- mobile-first layouts
-- fast time-to-play
-- clear local identity, especially for Mlabalaba / Morris family games
-- easy to extend with more games later
+- a coach admin dashboard
+- a classroom tool as the main product
+- a chess-only training system
 
-## 5. Primary Users
+## 4. Core Game Lineup
 
-### Player
+These are the core games Tactical Path should support:
 
-Someone who wants to open the app and play a familiar strategy game quickly.
+1. Chess
+2. Morris family / Mlabalaba
+3. Checkers / Draft
+4. Tic Tac Toe
+5. Solitaire
 
-Needs:
+Important:
 
-- clear game choices
-- solo mode
-- local pass-and-play or same-device options where sensible
-- easy onboarding
+- Chess stays in the product
+- Chess should not dominate the IA so much that the product still feels like a chess-only app
+- Morris / Mlabalaba should be treated as a flagship differentiator
 
-### Returning player
+## 5. Product Rules
 
-Someone who wants to continue where they left off, see recent games, and improve over time.
+Jules must follow these rules:
 
-Needs:
+1. Do not remove chess.
+2. Do not keep `/` redirecting to `/coach/login`.
+3. Do not make coach/classroom flows the default public experience.
+4. Do not describe Tactical Path as a coach platform first.
+5. Do make Tactical Path feel like a broader strategy games product.
+6. Do keep useful existing game infrastructure where it helps.
+7. Do add new games in a way that supports future expansion.
 
-- recent activity
-- saved progress where relevant
-- easy replay / restart
+## 6. What The App Should Be For
 
-### Admin / operator
+### Primary user
 
-Not a public-facing role.
+A normal player who wants to open Tactical Path and play a strategy game.
 
-This can exist later, but it must not dominate the product experience.
+They need:
 
-## 6. Hard Product Rules
+- a clear public landing page
+- a game library
+- easy entry into each game
+- mobile-friendly play
+- no coach friction at the front door
 
-Jules should follow these rules:
+### Secondary user
 
-1. Do **not** route `/` to `/coach/login`.
-2. Do **not** make coach/classroom flows the public default.
-3. Do **not** present Tactical Path as a chess coaching platform.
-4. Do **not** ship a home screen that assumes the user is a coach.
-5. Do **not** make chess the only or dominant game in the IA.
-6. Do **not** delete reusable patterns if they can be repurposed cleanly.
+A returning player who wants to continue playing or explore different game types.
 
-## 7. MVP Information Architecture
+They need:
 
-Jules should move the app to this route structure:
+- recent play access
+- simple replay loops
+- clear game categories
+
+### Legacy/internal user
+
+Coach/classroom flows may still exist in the codebase, but they should no longer define the product identity.
+
+## 7. Information Architecture
+
+Jules should move Tactical Path toward this structure.
 
 ### Public routes
 
 - `/`
-  - public landing page
-  - explains Tactical Path as a strategy games platform
-  - shows game lineup
-  - offers obvious CTA: Play Now
+  - real landing page
+  - explains the product as a multi-game strategy platform
+  - features the core games
+  - offers obvious play CTA
 - `/games`
-  - game library / chooser
+  - game library
+- `/games/chess`
 - `/games/morris`
-  - Morris family overview
 - `/games/checkers`
 - `/games/tic-tac-toe`
 - `/games/solitaire`
 
 ### Play routes
 
+- `/play/chess`
 - `/play/morris`
 - `/play/checkers`
 - `/play/tic-tac-toe`
 - `/play/solitaire`
 
-If a game has multiple variants, use nested selection inside the game route or routes such as:
+If Morris variants are split out, use routes such as:
 
 - `/play/morris/three-mens`
 - `/play/morris/six-mens`
 - `/play/morris/nine-mens`
 
-### Optional account routes
+### Optional player routes
 
 - `/login`
 - `/signup`
 - `/profile`
 
-These should support the player experience, not coach administration.
-
 ### Legacy routes
 
-Coach and classroom routes may remain temporarily, but they must be treated as legacy/internal and must not hijack the public experience.
+Coach and classroom routes may remain temporarily, but they must not own the public experience.
 
-## 8. MVP Screens Jules Should Build or Refactor
+## 8. MVP Screens Jules Should Build Or Refactor
 
-### A. New public landing page
+### A. Public landing page
 
-Purpose:
+The landing page should:
 
-- explain what Tactical Path is now
-- stop the coach-only confusion
-- showcase the game lineup
-- let users start playing immediately
+- stop the coach-dashboard confusion immediately
+- present Tactical Path as a strategy games platform
+- include Chess, Mlabalaba / Morris, Checkers, Tic Tac Toe, and Solitaire in the story
+- make “Play” the main action
 
 Required sections:
 
-- hero with clear headline
+- hero
 - featured games
-- “why Tactical Path” section
-- Mlabalaba / Morris callout
-- play now CTA
-
-### B. Game library screen
-
-Purpose:
-
-- display all supported games
-- make it obvious which games are available now
-- route cleanly into play screens
-
-Each game card should show:
-
-- name
-- short description
-- mode availability
-- status badge if needed
-
-### C. Morris family hub
-
-Purpose:
-
-- establish Morris as a first-class pillar of the product
-- explain variants
-- connect the product to Mlabalaba clearly and respectfully
-
-Required content:
-
-- what Morris / Mlabalaba is
-- variant chooser
+- why Tactical Path
+- Mlabalaba / Morris highlight
 - play CTA
 
-### D. Game play surfaces
+### B. Games library
 
-Each game should have a focused play surface with:
+The games library should:
 
-- board or layout
-- whose turn it is
-- restart control
-- rules/help entry point
+- show all core games
+- make the product feel broader than chess
+- let users choose a game quickly
+
+Each game card should include:
+
+- title
+- short description
+- play CTA
+- status if needed
+
+### C. Morris / Mlabalaba hub
+
+This should be a first-class surface.
+
+It should:
+
+- explain Morris family games simply
+- name Mlabalaba clearly and respectfully
+- show available variants
+- provide direct play entry
+
+### D. Play surfaces
+
+Each game should have a dedicated play surface with:
+
+- board or game layout
+- turn state
+- restart action
+- rules/help access
 - clear win/draw state
 
-### E. Minimal profile or recent activity surface
+## 9. Game Priorities
 
-Only if this can be done cleanly without slowing the pivot.
+### Keep and reuse
 
-## 9. Game Requirements
+#### Chess
 
-## Morris family / Mlabalaba
+Chess should remain playable.
+If existing chess logic and UI can be reused, reuse it.
+Do not rip chess out just because the product is expanding.
+
+### Add next
+
+#### Tic Tac Toe
+
+Should be the quickest clean win.
 
 Required:
 
-- support at least one Morris variant in MVP, preferably Nine Men's Morris first
-- structure the code so more Morris variants can be added cleanly
-- explicitly name the South African relevance in copy
+- polished board
+- fast same-device play
+- strong empty, active, win, and draw states
 
-Nice if feasible:
-
-- variant switcher
-- rules panel per variant
-
-## Checkers / Draft
+#### Checkers / Draft
 
 Required:
 
 - playable board
+- basic move and capture rules
 - turn handling
-- capture rules
-- end-state messaging
+- game-end state
 
-## Tic Tac Toe
-
-Required:
-
-- simple, polished, fast
-- clean same-device play
-- strong empty, playing, won, and draw states
-
-## Solitaire
+#### Morris / Mlabalaba
 
 Required:
 
-- clear MVP choice of solitaire variant
-- recommended: Klondike
+- at least one Morris variant in MVP
+- recommend Nine Men's Morris first if that fits existing architecture best
+- code should allow more variants later
+- copy should connect it clearly to Mlabalaba
 
-If solitaire is too large for the first build, Jules should scaffold the route and UI entry point cleanly while prioritizing the three competitive board games first.
+#### Solitaire
 
-## 10. Suggested Build Order
+Required:
+
+- include route and product slot in IA
+- preferred first variant: Klondike
+
+If Solitaire is too large for the first pass, Jules should scaffold it cleanly instead of blocking the rest of the pivot.
+
+## 10. Build Order
 
 Jules should build in this order:
 
 ### Phase 1: Fix product identity
 
-1. Replace root redirect behavior
-2. Add public landing page
-3. Add game library page
-4. Remove coach-first public framing
+1. Remove coach-login default routing
+2. Make `/` a real landing page
+3. Add `/games`
+4. Clean up public navigation and copy
 
-### Phase 2: Establish game architecture
+### Phase 2: Establish multi-game structure
 
 1. Create reusable game shell / play layout
-2. Introduce per-game route structure
-3. Add game metadata model for game cards and routing
+2. Introduce scalable game route structure
+3. Add game metadata or config model for cards and routing
 
-### Phase 3: Ship playable games
+### Phase 3: Ship and preserve gameplay
 
-1. Tic Tac Toe
-2. Checkers
-3. Morris / Mlabalaba
-4. Solitaire
+1. Preserve chess
+2. Add Tic Tac Toe
+3. Add Checkers
+4. Add Morris / Mlabalaba
+5. Add or scaffold Solitaire
 
-### Phase 4: Cleanup
+### Phase 4: Demote legacy product framing
 
-1. demote legacy coach routes
-2. remove broken or misleading nav links
-3. align copy, titles, and metadata
+1. demote coach-first surfaces
+2. remove misleading public labels
+3. stop the app from feeling like a classroom chess dashboard
 
 ## 11. Reuse Guidance
 
-Jules should reuse existing infrastructure where it helps, but not preserve the wrong product story.
+Jules should treat this as a product refactor, not a total restart.
 
 Safe reuse candidates:
 
-- routing structure
-- shared layout patterns
-- existing auth scaffolding if useful
-- styling primitives
-- any generic page shell patterns
+- existing routing shell patterns
+- shared layouts
+- existing auth structure if useful
+- current chess game logic
+- styling and component primitives
 
-Likely rewrite / heavy refactor candidates:
+Likely refactor targets:
 
 - [`src/App.tsx`](C:\Users\THEMBA\Downloads\TacticalPath\src\App.tsx)
-- chess-only landing copy
-- coach login as default entry
-- coach dashboard-first navigation
-- any nav labels or cards assuming “coach” is the primary user
+- coach-first public redirects
+- landing copy
+- coach-specific public navigation
+- pages whose existence makes the app feel like a coaching marketplace first
 
-## 12. Specific Changes Jules Should Make
+## 12. Copy Direction
 
-### Routing
+Replace public-facing copy that implies:
 
-- change `/` from redirect to real landing page
-- change `*` fallback away from coach login
-- add `/games`
-- add playable routes for each launch game
+- coach dashboard first
+- coaching marketplace first
+- classroom chess platform first
+- chess-only product identity
 
-### Product copy
+Replace it with copy that communicates:
 
-Replace copy that says or implies:
-
-- coach dashboard
-- coaching marketplace
-- chess-only learning platform
-- scholastic classroom-first positioning
-
-Replace it with:
-
-- strategy games platform
+- multi-game strategy platform
 - play classic games
 - mobile-friendly play
-- Morris / Mlabalaba as a featured title
+- chess plus Morris / Mlabalaba, Checkers, Tic Tac Toe, and Solitaire
 
-### Navigation
+## 13. Navigation Direction
 
-Primary nav should become:
+Primary public navigation should become something like:
 
 - Home
 - Games
 - Play
-- Profile (optional)
+- Profile
 
-Not:
+It should not lead with:
 
-- coach dashboard
-- coach connect
-- coach review
+- Coach Dashboard
+- Coach Connect
+- Coach Review
 
-## 13. Design Direction
+## 14. Design Direction
 
-Jules should target a product feel that is:
+The product should feel:
 
 - bright
-- clean
 - modern
-- mobile-friendly
-- playful but not childish
-- culturally grounded where relevant
+- mobile-first
+- welcoming
+- strategic
+- polished without feeling corporate
 
 Avoid:
 
-- enterprise dashboard feel
+- enterprise admin dashboard mood
 - classroom admin dominance
-- dark esports mood
-- overly chess-specific visuals
+- overly chess-specific branding
+- dark esports style
 
-## 14. Acceptance Criteria
+## 15. Acceptance Criteria
 
-This pivot is successful when all of the following are true:
+This pivot is successful when all of these are true:
 
-1. Visiting `/` no longer redirects to a coach dashboard or coach login
-2. A new user can understand the product without seeing “coach” first
-3. The landing page clearly presents Tactical Path as a multi-game strategy platform
-4. The app exposes Morris / Mlabalaba, Checkers, Tic Tac Toe, and Solitaire in the product IA
-5. At least Tic Tac Toe and one other non-chess game are playable in the first usable build
-6. Legacy coach flows no longer define the product
+1. Visiting `/` no longer redirects to `/coach/login`
+2. The landing page clearly presents Tactical Path as a multi-game strategy platform
+3. Chess is still part of the product
+4. The IA clearly includes Chess, Morris / Mlabalaba, Checkers, Tic Tac Toe, and Solitaire
+5. The public experience is no longer coach-first
+6. At least Tic Tac Toe and one other non-chess game are playable in the first useful build
+7. Legacy coach flows no longer define the app's identity
 
-## 15. What Jules Should Deprioritize
+## 16. What Jules Should Deprioritize
 
 Do not spend early time on:
 
 - coach marketplace features
 - classroom orchestration polish
-- deep analytics
 - billing
+- deep analytics
 - advanced multiplayer infrastructure
-- engine-like chess analysis
+- anything that delays the public game-platform pivot
 
-The main job is the product pivot:
+## 17. Final Build Request To Jules
 
-**from coach dashboard to public game platform**
+Please refactor Tactical Path into a public-facing strategy games platform that:
 
-## 16. Build Request to Jules
+1. keeps chess
+2. adds Morris / Mlabalaba, Checkers, Tic Tac Toe, and Solitaire
+3. removes coach-first default routing
+4. adds a proper landing page and game library
+5. leaves the app ready for more games later without another product identity rewrite
 
-Jules should treat this as a directed product refactor, not a greenfield app.
+## 18. One-Line Positioning
 
-Requested outcome:
-
-1. pivot Tactical Path away from coach-first routing and copy
-2. create a public landing page and game library
-3. introduce a scalable multi-game architecture
-4. ship the first playable versions of:
-   - Tic Tac Toe
-   - Checkers
-   - Morris / Mlabalaba
-   - Solitaire or a clean scaffold if Solitaire must land in a second pass
-5. leave the codebase in a state where more classic games can be added without another rewrite
-
-## 17. One-Line Product Positioning
-
-Tactical Path is a mobile-friendly strategy games platform where players can quickly jump into classic games like Mlabalaba, Checkers, Tic Tac Toe, and Solitaire without being forced through a coach-only experience.
+Tactical Path is a mobile-friendly strategy games platform where players can play chess, Mlabalaba, Checkers, Tic Tac Toe, and Solitaire without being forced into a coach-only experience.
