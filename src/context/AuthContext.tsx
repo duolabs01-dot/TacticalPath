@@ -7,6 +7,7 @@ import {
   ReactNode,
 } from 'react';
 import { supabase } from '../lib/supabase';
+import { hashPictures } from '../lib/crypto';
 import type { Database } from '../lib/database.types';
 
 type Coach = Database['public']['Tables']['coaches']['Row'];
@@ -203,14 +204,6 @@ export function useAuth() {
   return context;
 }
 
-// Hash picture selections for storage/comparison
-async function hashPictures(pictures: string[]): Promise<string> {
-  const data = pictures.join('|');
-  const encoder = new TextEncoder();
-  const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data));
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
 
 // Utility for coaches to generate picture password hash for a student
 export async function generatePictureHash(pictures: string[]): Promise<string> {
