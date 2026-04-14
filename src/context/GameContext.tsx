@@ -15,15 +15,17 @@ export interface GameState {
   startedAt: number;
   data: any; // Type-specific state
   moves: any[];
-  turn: string;
+  turn: string; // 'w'|'b' for chess, '1'|'2' for others
   winner?: string;
   difficulty: Difficulty;
+  // Compatibility properties
+  fen?: string;
 }
 
 interface GameContextType {
   gameState: GameState | null;
-  game: Chess | null; // Restored original name for compatibility
-  chessGame: Chess | null; // Keep as alias for newer components
+  game: Chess | null;
+  chessGame: Chess | null;
   startNewGame: (type: GameType, mode: GameMode, options?: { difficulty?: Difficulty; [key: string]: any }) => void;
   updateGameState: (update: Partial<GameState>) => void;
   resetGame: () => void;
@@ -43,6 +45,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const startNewGame = useCallback((type: GameType, mode: GameMode, options?: { difficulty?: Difficulty; [key: string]: any }) => {
     let initialData: any = {};
     let initialTurn: string = '1';
+    let initialFen: string | undefined = undefined;
     const difficulty = options?.difficulty || 'medium';
 
     if (type === 'chess') {
@@ -50,6 +53,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setChessGame(chess);
       initialData = { fen: chess.fen() };
       initialTurn = 'w';
+      initialFen = chess.fen();
     } else if (type === 'tictactoe') {
       initialData = { board: Array(9).fill(null) };
     } else if (type === 'checkers') {
@@ -73,13 +77,22 @@ export function GameProvider({ children }: { children: ReactNode }) {
       moves: [],
       turn: initialTurn,
       difficulty,
+      fen: initialFen,
     };
 
     setGameState(newState);
   }, []);
 
   const updateGameState = useCallback((update: Partial<GameState>) => {
-    setGameState(prev => prev ? { ...prev, ...update } : null);
+    setGameState(prev => {
+        if (!prev) return null;
+        const next = { ...prev, ...update };
+        // Sync fen compatibility
+        if (next.type === 'chess' && next.data?.fen) {
+            next.fen = next.data.fen;
+        }
+        return next;
+    });
   }, []);
 
   const resetGame = useCallback(() => {
