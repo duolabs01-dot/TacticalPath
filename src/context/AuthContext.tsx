@@ -7,8 +7,8 @@ import {
   ReactNode,
 } from 'react';
 import { supabase } from '../lib/supabase';
-import { hashPictures } from '../lib/crypto';
 import type { Database } from '../lib/database.types';
+import { hashPicturesWithSalt } from '../lib/auth-utils';
 
 type Coach = Database['public']['Tables']['coaches']['Row'];
 
@@ -137,8 +137,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: 'Select exactly 3 pictures', studentId: null };
     }
 
-    const hash = await hashPictures(pictures);
-
     // Find classroom by slug
     const { data: classroom } = await supabase
       .from('classrooms')
@@ -149,6 +147,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!classroom) {
       return { error: 'Classroom not found', studentId: null };
     }
+
+    const hash = await hashPicturesWithSalt(pictures, classroom.id);
 
     // Find student by picture password hash in this classroom
     const { data: student } = await supabase
@@ -204,8 +204,7 @@ export function useAuth() {
   return context;
 }
 
-
 // Utility for coaches to generate picture password hash for a student
-export async function generatePictureHash(pictures: string[]): Promise<string> {
-  return hashPictures(pictures);
+export async function generatePictureHash(pictures: string[], salt: string): Promise<string> {
+  return hashPicturesWithSalt(pictures, salt);
 }

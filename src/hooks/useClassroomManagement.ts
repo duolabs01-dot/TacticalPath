@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { hashPictures } from '../lib/crypto';
 import type { Database } from '../lib/database.types';
+import { hashPicturesWithSalt } from '../lib/auth-utils';
 
 type Student = Database['public']['Tables']['students']['Row'];
 type Classroom = Database['public']['Tables']['classrooms']['Row'];
@@ -48,7 +48,7 @@ export function useClassroomManagement() {
     picturePassword: string[], // 3 emojis
     avatarEmoji: string = '🎓'
   ) => {
-    const hash = await hashPictures(picturePassword);
+    const hash = await hashPicturesWithSalt(picturePassword, classroomId);
 
     const { data, error } = await supabase
       .from('students')
@@ -81,7 +81,7 @@ export function useClassroomManagement() {
         last_initial: s.lastInitial,
         avatar_emoji: s.avatarEmoji || '🎓',
         classroom_id: classroomId,
-        picture_password_hash: await hashPictures(s.picturePassword),
+        picture_password_hash: await hashPicturesWithSalt(s.picturePassword, classroomId),
       }))
     );
 
@@ -144,7 +144,16 @@ export function useClassroomManagement() {
 
   /** Reset a student's picture password */
   const resetPassword = useCallback(async (studentId: string, newPictures: string[]) => {
-    const hash = await hashPictures(newPictures);
+    // Need to get classroomId for salt
+    const { data: student } = await supabase
+      .from('students')
+      .select('classroom_id')
+      .eq('id', studentId)
+      .single();
+
+    if (!student) return { error: 'Student not found' };
+
+    const hash = await hashPicturesWithSalt(newPictures, student.classroom_id);
     const { error } = await supabase
       .from('students')
       .update({ picture_password_hash: hash })
@@ -176,4 +185,3 @@ function generateSlug(orgName: string, classroomName: string): string {
   const suffix = Math.random().toString(36).substring(2, 6);
   return `${base}-${suffix}`;
 }
-
