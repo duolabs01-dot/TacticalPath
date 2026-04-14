@@ -26,6 +26,10 @@ import { CoachReview } from "./pages/CoachReview";
 import { Assessment } from "./pages/Assessment";
 import { ItalianGame } from "./pages/ItalianGame";
 import { StudyPlan } from "./pages/StudyPlan";
+import { TicTacToe } from "./pages/TicTacToe";
+import { Checkers } from "./pages/Checkers";
+import { Morris } from "./pages/Morris";
+import { Solitaire } from "./pages/Solitaire";
 
 // Student routes
 import { StudentClassroomLogin } from "./pages/student/StudentClassroomLogin";
@@ -67,6 +71,10 @@ export default function App() {
                 <Route path="/assessment" element={<Assessment />} />
                 <Route path="/italian-game" element={<ItalianGame />} />
                 <Route path="/study-plan" element={<StudyPlan />} />
+                <Route path="/tictactoe" element={<TicTacToe />} />
+                <Route path="/checkers" element={<Checkers />} />
+                <Route path="/morris" element={<Morris />} />
+                <Route path="/solitaire" element={<Solitaire />} />
               </Route>
 
               {/* Coach routes */}
