@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 export type GameType = 'chess' | 'tictactoe' | 'checkers' | 'morris' | 'solitaire';
 export type GameMode = 'puzzle' | 'play' | 'online';
 export type GameStatus = 'waiting' | 'playing' | 'checkmate' | 'draw' | 'stalemate' | 'finished';
+export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export interface GameState {
   id: string;
@@ -12,16 +13,17 @@ export interface GameState {
   mode: GameMode;
   status: GameStatus;
   startedAt: number;
-  data: any; // Type-specific state (e.g., FEN for chess, board array for TicTacToe)
+  data: any; // Type-specific state
   moves: any[];
   turn: string;
   winner?: string;
+  difficulty: Difficulty;
 }
 
 interface GameContextType {
   gameState: GameState | null;
   chessGame: Chess | null;
-  startNewGame: (type: GameType, mode: GameMode, options?: any) => void;
+  startNewGame: (type: GameType, mode: GameMode, options?: { difficulty?: Difficulty; [key: string]: any }) => void;
   updateGameState: (update: Partial<GameState>) => void;
   resetGame: () => void;
   // Compatibility with old API
@@ -37,9 +39,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [chessGame, setChessGame] = useState<Chess | null>(null);
 
-  const startNewGame = useCallback((type: GameType, mode: GameMode, options?: any) => {
+  const startNewGame = useCallback((type: GameType, mode: GameMode, options?: { difficulty?: Difficulty; [key: string]: any }) => {
     let initialData: any = {};
     let initialTurn: string = '1';
+    const difficulty = options?.difficulty || 'medium';
 
     if (type === 'chess') {
       const chess = new Chess();
@@ -63,6 +66,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       data: initialData,
       moves: [],
       turn: initialTurn,
+      difficulty,
     };
 
     setGameState(newState);
@@ -77,7 +81,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setChessGame(null);
   }, []);
 
-  // Compatibility methods
+  // Compatibility methods for existing components
   const startGame = useCallback((mode: GameMode, options?: any) => {
     startNewGame('chess', mode, options);
   }, [startNewGame]);
@@ -150,16 +154,16 @@ export function useGame() {
 
 function setupCheckersBoard() {
     const board = Array(64).fill(0);
-    // 1: red, 2: black
+    // 1: red (bottom), 2: black (top)
     for (let i = 0; i < 24; i++) {
         const row = Math.floor(i / 8);
         const col = i % 8;
-        if ((row + col) % 2 === 1) board[i] = 2; // Black on top
+        if ((row + col) % 2 === 1) board[i] = 2;
     }
     for (let i = 40; i < 64; i++) {
         const row = Math.floor(i / 8);
         const col = i % 8;
-        if ((row + col) % 2 === 1) board[i] = 1; // Red on bottom
+        if ((row + col) % 2 === 1) board[i] = 1;
     }
     return board;
 }
