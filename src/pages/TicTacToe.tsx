@@ -1,32 +1,75 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useGame, Difficulty } from "../context/GameContext";
+import { cn } from "../lib/utils";
 import { Link } from "react-router-dom";
-import { ArrowLeft, RotateCcw, Brain, User, Monitor, History, PlayCircle, Trophy, Target, Sparkles, LayoutGrid } from "lucide-react";
+import { ArrowLeft, RotateCcw, Brain, User, Monitor, History, PlayCircle, Trophy, Target, Sparkles, LayoutGrid, PauseCircle } from "lucide-react";
 import { CoachingService, CoachingInsight } from "../lib/coaching-service";
 import { motion, AnimatePresence } from "motion/react";
 
 type BoardState = (string | null)[];
 
-const BOT_PROFILES: Record<Difficulty, { name: string; avatar: string; color: string; description: string }> = {
+const BOT_PROFILES: Record<Difficulty, { name: string; moods: { happy: string, worried: string, thinking: string }; color: string; description: string }> = {
   easy: {
     name: "Pixel the Pup",
-    avatar: "🐶",
+    moods: { happy: "🐶", worried: "🦮", thinking: "🦴" },
     color: "bg-emerald-500",
-    description: "I'm still learning! Sometimes I get distracted by squirrels."
+    description: "I love making patterns! I'm still learning the tricky parts of the game."
   },
   medium: {
     name: "Clever Cat",
-    avatar: "🐱",
+    moods: { happy: "🐱", worried: "🙀", thinking: "🧶" },
     color: "bg-amber-500",
-    description: "I watch for your mistakes. I'm ready for a challenge!"
+    description: "I'm a defensive player. I'll block your lines before I build my own."
   },
   hard: {
     name: "Strategic Sage",
-    avatar: "🦉",
+    moods: { happy: "🦉", worried: "🧐", thinking: "📖" },
     color: "bg-red-500",
-    description: "Every move is part of a grand plan. Can you outsmart me?"
+    description: "I calculate every outcome. I'm looking to trap you with a double-threat!"
   }
 };
+
+const XMark = () => (
+    <svg viewBox="0 0 100 100" className="w-4/5 h-4/5 text-blue-600">
+        <motion.path
+            d="M 25 25 L 75 75"
+            fill="transparent"
+            stroke="currentColor"
+            strokeWidth="14"
+            strokeLinecap="round"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+        />
+        <motion.path
+            d="M 75 25 L 25 75"
+            fill="transparent"
+            stroke="currentColor"
+            strokeWidth="14"
+            strokeLinecap="round"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.35, delay: 0.15, ease: "easeOut" }}
+        />
+    </svg>
+);
+
+const OMark = () => (
+    <svg viewBox="0 0 100 100" className="w-4/5 h-4/5 text-red-500">
+        <motion.circle
+            cx="50"
+            cy="50"
+            r="32"
+            fill="transparent"
+            stroke="currentColor"
+            strokeWidth="14"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, rotate: -90 }}
+            animate={{ pathLength: 1, rotate: 0 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+        />
+    </svg>
+);
 
 export function TicTacToe() {
   const { gameState, startNewGame, updateGameState } = useGame();
@@ -35,8 +78,16 @@ export function TicTacToe() {
   const [moveHistory, setMoveHistory] = useState<BoardState[]>([]);
   const [lastMoveIndex, setLastMoveIndex] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [isAutoplaying, setIsAutoplaying] = useState(false);
 
-  const bot = useMemo(() => BOT_PROFILES[gameState?.difficulty || 'medium'], [gameState?.difficulty]);
+  const profile = useMemo(() => BOT_PROFILES[gameState?.difficulty || 'medium'], [gameState?.difficulty]);
+
+  const botMood = useMemo(() => {
+    if (!gameState) return profile.moods.happy;
+    if (gameState.status === 'finished') return gameState.winner === 'O' ? profile.moods.happy : profile.moods.worried;
+    if (gameState.turn === '2') return profile.moods.thinking;
+    return profile.moods.happy;
+  }, [gameState, profile]);
 
   const start = useCallback((diff: Difficulty = 'medium') => {
     startNewGame("tictactoe", "play", { difficulty: diff });
@@ -45,6 +96,7 @@ export function TicTacToe() {
     setInsight(null);
     setLastMoveIndex(null);
     setShowResult(false);
+    setIsAutoplaying(false);
   }, [startNewGame]);
 
   useEffect(() => {
@@ -88,13 +140,44 @@ export function TicTacToe() {
     }
   };
 
+  const findWinningMove = (squares: BoardState, player: string): number | null => {
+    const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    for (let [a,b,c] of lines) {
+        if (squares[a] === player && squares[b] === player && squares[c] === null) return c;
+        if (squares[a] === player && squares[c] === player && squares[b] === null) return b;
+        if (squares[b] === player && squares[c] === player && squares[a] === null) return a;
+    }
+    return null;
+  };
+
   const getAIMove = (squares: BoardState, difficulty: Difficulty): number => {
     const available = squares.map((s, i) => s === null ? i : null).filter(s => s !== null) as number[];
-    const rand = Math.random();
 
-    if (difficulty === 'easy' && rand < 0.75) return available[Math.floor(Math.random() * available.length)];
-    if (difficulty === 'medium' && rand < 0.25) return available[Math.floor(Math.random() * available.length)];
+    // 1. Check for immediate win (Always take if Hard/Medium)
+    const winMove = findWinningMove(squares, 'O');
+    if (winMove !== null && difficulty !== 'easy') return winMove;
 
+    // 2. Check for immediate block (Always block if Hard/Medium)
+    const blockMove = findWinningMove(squares, 'X');
+    if (blockMove !== null && difficulty !== 'easy') return blockMove;
+
+    // Behavioral Strategy
+    if (difficulty === 'easy') {
+        // "Pixel the Pup" - Plays near existing pieces, ignores diagonals
+        const lastMove = lastMoveIndex || 4;
+        const local = available.filter(i => Math.abs(i - lastMove) <= 2);
+        if (local.length > 0 && Math.random() < 0.7) return local[Math.floor(Math.random() * local.length)];
+        return available[Math.floor(Math.random() * available.length)];
+    }
+
+    if (difficulty === 'medium') {
+        // "Clever Cat" - Defensive: prioritizes corners and center
+        const priority = [4, 0, 2, 6, 8].filter(i => squares[i] === null);
+        if (priority.length > 0 && Math.random() < 0.6) return priority[Math.floor(Math.random() * priority.length)];
+        return available[Math.floor(Math.random() * available.length)];
+    }
+
+    // "Strategic Sage" - Perfect Minimax
     let bestScore = -Infinity;
     let move = available[0];
     for (let i of available) {
@@ -131,13 +214,13 @@ export function TicTacToe() {
     });
 
     if (winner) {
-        setTimeout(() => setShowResult(true), 800);
+        setTimeout(() => setShowResult(true), 1200);
     }
   }, [gameState, moveHistory, updateGameState]);
 
   useEffect(() => {
     if (gameState?.turn === "2" && gameState.status === "playing") {
-      const delay = Math.random() * 800 + 400;
+      const delay = Math.random() * 800 + 600;
       const timer = setTimeout(() => {
         makeMove(getAIMove([...gameState.data.board], gameState.difficulty), 'O');
       }, delay);
@@ -151,6 +234,16 @@ export function TicTacToe() {
     }
   }, [gameState?.turn, gameState?.status, gameState]);
 
+  useEffect(() => {
+    if (isAutoplaying && reviewIndex !== null && reviewIndex < moveHistory.length - 1) {
+        const timer = setTimeout(() => {
+            setReviewIndex(reviewIndex + 1);
+            if (reviewIndex + 1 === moveHistory.length - 1) setIsAutoplaying(false);
+        }, 800);
+        return () => clearTimeout(timer);
+    }
+  }, [isAutoplaying, reviewIndex, moveHistory.length]);
+
   if (!gameState || gameState.type !== "tictactoe") return null;
 
   const currentBoard = reviewIndex !== null ? moveHistory[reviewIndex] : gameState.data.board;
@@ -162,9 +255,9 @@ export function TicTacToe() {
           <ArrowLeft className="w-6 h-6 text-slate-600" />
         </Link>
         <div className="text-center group">
-            <h1 className="text-2xl font-black italic tracking-tighter text-slate-900 group-hover:scale-105 transition-transform">TIC TAC TOE</h1>
+            <h1 className="text-2xl font-black italic tracking-tighter text-slate-900 group-hover:scale-105 transition-transform uppercase">Tic Tac Toe</h1>
             <div className="flex items-center gap-1 justify-center mt-0.5">
-                <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", bot.color)} />
+                <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", profile.color)} />
                 <span className="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em]">{gameState.difficulty} MODE</span>
             </div>
         </div>
@@ -197,10 +290,10 @@ export function TicTacToe() {
                     </p>
                     {gameState.status === 'finished' && insight?.turningPointIndex !== undefined && (
                         <button
-                            onClick={() => setReviewIndex(insight.turningPointIndex!)}
+                            onClick={() => { setReviewIndex(0); setIsAutoplaying(true); }}
                             className="mt-4 flex items-center gap-2 text-xs bg-white/10 hover:bg-white/20 active:scale-95 px-4 py-2 rounded-xl transition-all font-black uppercase tracking-widest border border-white/5"
                         >
-                            <PlayCircle className="w-4 h-4" /> Rewatch Key Move
+                            <PlayCircle className="w-4 h-4" /> Watch Match Story
                         </button>
                     )}
                 </div>
@@ -212,7 +305,10 @@ export function TicTacToe() {
             </motion.div>
         </AnimatePresence>
 
-        <div className="bg-white p-5 rounded-[2.5rem] shadow-xl border-4 border-slate-200 relative mb-10 overflow-hidden">
+        <motion.div
+            animate={gameState.status === 'finished' && gameState.winner !== 'draw' && gameState.winner !== 'X' ? { x: [-2, 2, -2, 2, 0] } : {}}
+            className="bg-white p-5 rounded-[2.5rem] shadow-xl border-4 border-slate-200 relative mb-10 overflow-hidden"
+        >
             <div className="grid grid-cols-3 gap-4 aspect-square">
                 {currentBoard.map((cell: string | null, i: number) => {
                     const isHighlighted = reviewIndex !== null && insight?.highlightSquares?.includes(i);
@@ -227,8 +323,8 @@ export function TicTacToe() {
                             className={cn(
                                 "bg-slate-100 rounded-3xl text-6xl font-black flex items-center justify-center transition-all duration-300 relative group overflow-hidden",
                                 !cell && gameState.status === "playing" && gameState.turn === "1" && "hover:bg-blue-50 hover:shadow-inner",
-                                cell === "X" && "text-blue-600 bg-white shadow-md",
-                                cell === "O" && "text-red-500 bg-white shadow-md",
+                                cell === "X" && "bg-white shadow-md",
+                                cell === "O" && "bg-white shadow-md",
                                 reviewIndex !== null && "opacity-80 scale-95",
                                 lastMoveIndex === i && gameState.status === 'playing' && "ring-4 ring-blue-200",
                                 isSuggested && "ring-4 ring-blue-400 animate-pulse bg-blue-50",
@@ -236,15 +332,8 @@ export function TicTacToe() {
                             )}
                         >
                             <AnimatePresence>
-                                {cell && (
-                                    <motion.span
-                                        initial={{ scale: 0, rotate: -45 }}
-                                        animate={{ scale: 1, rotate: 0 }}
-                                        className="z-10"
-                                    >
-                                        {cell}
-                                    </motion.span>
-                                )}
+                                {cell === 'X' && <XMark />}
+                                {cell === 'O' && <OMark />}
                             </AnimatePresence>
                         </motion.button>
                     );
@@ -263,11 +352,11 @@ export function TicTacToe() {
                             <motion.div animate={{ height: [12, 4, 12] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-1 bg-red-400 rounded-full" />
                             <motion.div animate={{ height: [4, 12, 4] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-1 bg-red-400 rounded-full" />
                          </div>
-                         <span className="text-xs font-black text-slate-800 uppercase tracking-widest">{bot.name} is thinking...</span>
+                         <span className="text-xs font-black text-slate-800 uppercase tracking-widest">{profile.name} thinking...</span>
                     </div>
                 </motion.div>
             )}
-        </div>
+        </motion.div>
 
         <AnimatePresence>
             {showResult && (
@@ -283,7 +372,7 @@ export function TicTacToe() {
                             transition={{ type: 'spring', damping: 10 }}
                             className={cn(
                                 "w-24 h-24 mx-auto rounded-full flex items-center justify-center text-4xl shadow-2xl border-4 border-white",
-                                gameState.winner === 'X' ? "bg-emerald-500" : (gameState.winner === 'draw' ? "bg-blue-500" : "bg-red-500")
+                                gameState.winner === 'X' ? "bg-emerald-500 text-white" : (gameState.winner === 'draw' ? "bg-blue-500 text-white" : "bg-red-500 text-white")
                             )}
                         >
                             {gameState.winner === 'X' ? "🏆" : (gameState.winner === 'draw' ? "🤝" : "💀")}
@@ -292,13 +381,13 @@ export function TicTacToe() {
                             <h2 className="text-5xl font-black italic tracking-tighter text-slate-900 leading-none">
                                 {gameState.winner === "draw" ? "DRAW!" : (gameState.winner === 'X' ? "VICTORY!" : "DEFEAT!")}
                             </h2>
-                            <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Game Evaluation Complete</p>
+                            <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Tactical Performance Reviewed</p>
                         </div>
                         <button
                             onClick={() => setShowResult(false)}
-                            className="px-8 py-3 bg-slate-900 text-white font-black rounded-2xl shadow-xl hover:scale-105 transition-all uppercase tracking-widest text-xs"
+                            className="px-8 py-4 bg-slate-900 text-white font-black rounded-2xl shadow-xl hover:scale-105 transition-all uppercase tracking-widest text-xs"
                         >
-                            View Post-Game Review
+                            Analyze Match History
                         </button>
                     </div>
                 </motion.div>
@@ -312,7 +401,7 @@ export function TicTacToe() {
                 </div>
                 <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Strategist</p>
-                    <p className="text-xl font-black text-slate-900 leading-none">YOU (X)</p>
+                    <p className="text-xl font-black text-slate-900 leading-none uppercase">YOU (X)</p>
                 </div>
             </div>
 
@@ -321,10 +410,10 @@ export function TicTacToe() {
             <div className={cn("flex items-center gap-4 text-right transition-all duration-500", gameState.turn !== "2" && "opacity-20 scale-90 grayscale")}>
                 <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{gameState.difficulty}</p>
-                    <p className="text-xl font-black text-slate-900 leading-none">{bot.name} (O)</p>
+                    <p className="text-xl font-black text-slate-900 leading-none uppercase">{profile.name} (O)</p>
                 </div>
-                <div className={cn("w-16 h-16 rounded-3xl flex items-center justify-center text-3xl shadow-xl border-2 border-white", bot.color)}>
-                    {bot.avatar}
+                <div className={cn("w-16 h-16 rounded-3xl flex items-center justify-center text-3xl shadow-xl border-2 border-white transition-transform duration-500", profile.color, gameState.turn === '2' && "scale-110")}>
+                    {botMood}
                 </div>
             </div>
         </div>
@@ -336,14 +425,25 @@ export function TicTacToe() {
             className="space-y-8 pb-10"
            >
               <div className="flex flex-col items-center gap-4">
-                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <Sparkles className="w-3 h-3 text-blue-500" /> Interactive Review
-                 </p>
+                 <div className="flex items-center justify-between w-full">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <Sparkles className="w-3 h-3 text-blue-500" /> Interactive Review
+                    </p>
+                    {isAutoplaying ? (
+                        <button onClick={() => setIsAutoplaying(false)} className="text-[10px] font-bold text-red-500 uppercase flex items-center gap-1">
+                            <PauseCircle className="w-3 h-3" /> Stop
+                        </button>
+                    ) : (
+                        <button onClick={() => { setReviewIndex(0); setIsAutoplaying(true); }} className="text-[10px] font-bold text-blue-500 uppercase flex items-center gap-1">
+                            <PlayCircle className="w-3 h-3" /> Replay
+                        </button>
+                    )}
+                 </div>
                  <div className="flex items-center justify-center flex-wrap gap-2">
                     {moveHistory.map((_, idx) => (
                         <button
                             key={idx}
-                            onClick={() => setReviewIndex(idx === moveHistory.length - 1 ? null : idx)}
+                            onClick={() => { setReviewIndex(idx === moveHistory.length - 1 ? null : idx); setIsAutoplaying(false); }}
                             className={cn(
                                 "w-12 h-12 rounded-2xl font-black text-sm transition-all duration-300 flex items-center justify-center border-b-4",
                                 (reviewIndex === idx || (reviewIndex === null && idx === moveHistory.length - 1))
@@ -351,7 +451,7 @@ export function TicTacToe() {
                                     : "bg-white text-slate-400 border-slate-200 hover:border-blue-200"
                             )}
                         >
-                            {idx === 0 ? "START" : idx}
+                            {idx === 0 ? "ST" : idx}
                         </button>
                     ))}
                  </div>
@@ -372,7 +472,7 @@ export function TicTacToe() {
                             onClick={() => start(d)}
                             className="py-5 bg-white border-4 border-slate-200 text-slate-700 font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
                         >
-                            <Target className="w-4 h-4" /> Next Level: {d}
+                            <Target className="w-4 h-4" /> Try {d}
                         </button>
                     ))}
                  </div>
