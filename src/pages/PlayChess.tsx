@@ -18,15 +18,14 @@ export function PlayChess() {
     start();
   }, []);
 
-  const onDrop = (sourceSquare: string, targetSquare: string) => {
-    if (gameState?.turn !== 'w' || gameState.status !== 'playing') return false;
+  const onDrop = ({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string | null }) => {
+    if (!targetSquare || gameState?.turn !== 'w' || gameState.status !== 'playing') return false;
 
-    const move = makeMove({
+    return makeMove({
       from: sourceSquare,
       to: targetSquare,
       promotion: "q",
     });
-    return move;
   };
 
   const makeComputerMove = useCallback(() => {
@@ -71,9 +70,14 @@ export function PlayChess() {
         <div className="lg:col-span-7 flex flex-col gap-4">
             <div className="bg-white p-3 rounded-[2.5rem] shadow-2xl border-8 border-slate-100 overflow-hidden aspect-square relative">
                 <Chessboard
-                    position={chessGame.fen()}
-                    onPieceDrop={onDrop}
-                    boardOrientation="white"
+                    options={{
+                        position: chessGame.fen(),
+                        onPieceDrop: onDrop,
+                        boardOrientation: "white",
+                        animationDurationInMs: 200,
+                        darkSquareStyle: { backgroundColor: '#739552' },
+                        lightSquareStyle: { backgroundColor: '#ebecd0' },
+                    }}
                     customBoardStyle={{
                         borderRadius: '1.5rem',
                     }}
