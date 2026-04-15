@@ -9,7 +9,7 @@ export function StudentWaitingRoom() {
 
   if (!currentStudent) return null;
 
-  const totalXP = Object.values(currentStudent.mastery).reduce((sum, m) => sum + m.xp, 0);
+  const totalXP = (Object.values(currentStudent.mastery) as Array<{ level: number; xp: number }>).reduce((sum, m) => sum + m.xp, 0);
 
   return (
     <div className="min-h-screen flex flex-col">

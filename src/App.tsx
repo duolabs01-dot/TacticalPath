@@ -56,6 +56,7 @@ export default function App() {
               {/* General routes */}
               <Route element={<Layout />}>
                 <Route path="/" element={<Landing />} />
+                <Route path="/play" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/dashboard" element={<Dashboard />} />

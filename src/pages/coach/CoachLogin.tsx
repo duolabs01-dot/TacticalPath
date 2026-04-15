@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useClassroom, MOCK_THEMES } from '../../context/ClassroomContext';
 import { Users, Play, Square, ChevronRight, BarChart3, LogOut } from 'lucide-react';
@@ -8,7 +8,7 @@ export function CoachLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e: FormEvent) => {
     e.preventDefault();
     // Prototype: accept any login
     navigate('/coach/dashboard');

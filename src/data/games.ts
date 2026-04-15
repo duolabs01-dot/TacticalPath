@@ -10,6 +10,9 @@ export interface TacticalGame {
   coachFocus: string;
   modes: string[];
   status: 'live' | 'in-progress';
+  sessionLabel: string;
+  energy: string;
+  multiplayerStatus: string;
 }
 
 export const gameLibrary: TacticalGame[] = [
@@ -23,6 +26,9 @@ export const gameLibrary: TacticalGame[] = [
     coachFocus: 'Planning, tactics, defense, and timing.',
     modes: ['vs computer', 'puzzles', 'friend play next'],
     status: 'live',
+    sessionLabel: 'Deep session',
+    energy: 'Best for full-focus matches and the biggest improvement spikes.',
+    multiplayerStatus: 'Pass-and-play works now. Friend invites are next.',
   },
   {
     id: 'checkers',
@@ -34,6 +40,9 @@ export const gameLibrary: TacticalGame[] = [
     coachFocus: 'Trading, tempo, promotion pressure.',
     modes: ['vs computer', 'local multiplayer'],
     status: 'live',
+    sessionLabel: 'Momentum match',
+    energy: 'Quick swings, satisfying captures, and easy rematches.',
+    multiplayerStatus: 'Strong local multiplayer lane today.',
   },
   {
     id: 'morris',
@@ -45,6 +54,9 @@ export const gameLibrary: TacticalGame[] = [
     coachFocus: 'Setup, blocking, pattern recognition.',
     modes: ['vs computer', 'local multiplayer'],
     status: 'live',
+    sessionLabel: 'Pattern grind',
+    energy: 'Ideal when you want slower pressure and smart setup battles.',
+    multiplayerStatus: 'Best shared on one device while online rooms are still being built.',
   },
   {
     id: 'tictactoe',
@@ -56,6 +68,9 @@ export const gameLibrary: TacticalGame[] = [
     coachFocus: 'Threat detection, forks, and discipline.',
     modes: ['vs computer', 'local multiplayer'],
     status: 'live',
+    sessionLabel: 'Quick warm-up',
+    energy: 'Fastest route from tap to rematch in the current app.',
+    multiplayerStatus: 'Perfect for same-device passes between friends.',
   },
   {
     id: 'solitaire',
@@ -67,5 +82,8 @@ export const gameLibrary: TacticalGame[] = [
     coachFocus: 'Sequencing, space management, patience.',
     modes: ['solo', 'coach review next'],
     status: 'in-progress',
+    sessionLabel: 'Solo reset',
+    energy: 'A lower-pressure lane for players who want rhythm over rivalry.',
+    multiplayerStatus: 'Solo only for now.',
   },
 ];

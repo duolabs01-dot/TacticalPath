@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, type ComponentProps } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Chess } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
@@ -50,6 +50,18 @@ export function StudentLiveGame() {
     navigate(`/c/${slug}/lesson/${gameId}`);
   };
 
+  const boardOptions: ComponentProps<typeof Chessboard>['options'] = {
+    position: game.fen(),
+    onPieceDrop: ({ sourceSquare, targetSquare }) => onDrop(sourceSquare, targetSquare ?? ''),
+    boardOrientation: 'white',
+    boardStyle: {
+      borderRadius: '12px',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+    },
+    darkSquareStyle: { backgroundColor: '#b7d7e8' },
+    lightSquareStyle: { backgroundColor: '#eaf4f9' },
+  };
+
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -76,17 +88,7 @@ export function StudentLiveGame() {
       {/* Board */}
       <div className="flex-1 flex items-center justify-center px-4 py-2">
         <div className="w-full max-w-[400px]">
-          <Chessboard
-            position={game.fen()}
-            onPieceDrop={onDrop}
-            boardOrientation="white"
-            customBoardStyle={{
-              borderRadius: '12px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-            }}
-            customDarkSquareStyle={{ backgroundColor: '#b7d7e8' }}
-            customLightSquareStyle={{ backgroundColor: '#eaf4f9' }}
-          />
+          <Chessboard options={boardOptions} />
         </div>
       </div>
 

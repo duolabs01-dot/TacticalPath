@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ComponentProps } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Chessboard } from 'react-chessboard';
 import { ArrowRight, Lightbulb } from 'lucide-react';
@@ -21,6 +21,19 @@ export function StudentPostGameLesson() {
   const { slug, gameId } = useParams<{ slug: string; gameId: string }>();
   const navigate = useNavigate();
   const [showExplanation, setShowExplanation] = useState(false);
+  const boardOptions: ComponentProps<typeof Chessboard>['options'] = {
+    position: TURNING_POINT.fen,
+    boardOrientation: 'white',
+    allowDragging: false,
+    boardStyle: {
+      borderRadius: '0',
+    },
+    darkSquareStyle: { backgroundColor: '#b7d7e8' },
+    lightSquareStyle: { backgroundColor: '#eaf4f9' },
+    squareStyles: {
+      d4: { backgroundColor: 'rgba(239, 68, 68, 0.4)', borderRadius: '4px' },
+    },
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -49,19 +62,7 @@ export function StudentPostGameLesson() {
           </div>
 
           <div className="rounded-2xl overflow-hidden shadow-lg">
-            <Chessboard
-              position={TURNING_POINT.fen}
-              boardOrientation="white"
-              arePiecesDraggable={false}
-              customBoardStyle={{
-                borderRadius: '0',
-              }}
-              customDarkSquareStyle={{ backgroundColor: '#b7d7e8' }}
-              customLightSquareStyle={{ backgroundColor: '#eaf4f9' }}
-              customSquareStyles={{
-                d4: { backgroundColor: 'rgba(239, 68, 68, 0.4)', borderRadius: '4px' },
-              }}
-            />
+            <Chessboard options={boardOptions} />
           </div>
 
           {/* Highlighted piece callout */}

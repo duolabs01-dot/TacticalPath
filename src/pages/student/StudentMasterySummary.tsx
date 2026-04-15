@@ -18,7 +18,7 @@ export function StudentMasterySummary() {
     level: Math.floor((updatedMastery.hanging.xp + xpGained) / 50) + 1,
   };
 
-  const totalXP = Object.values(updatedMastery).reduce((sum, m) => sum + m.xp, 0);
+  const totalXP = (Object.values(updatedMastery) as Array<{ level: number; xp: number }>).reduce((sum, m) => sum + m.xp, 0);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-sky-50 via-white to-emerald-50">

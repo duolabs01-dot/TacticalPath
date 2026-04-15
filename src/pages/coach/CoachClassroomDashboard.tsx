@@ -123,7 +123,7 @@ export function CoachClassroomDashboard() {
           </div>
           <div className="space-y-2">
             {onlineStudents.map((student) => {
-              const entries = Object.entries(student.mastery);
+              const entries = Object.entries(student.mastery) as Array<[string, { level: number; xp: number }]>;
               const sorted = [...entries].sort((a, b) => b[1].xp - a[1].xp);
               const topTheme = sorted[0];
               const weakestTheme = sorted[sorted.length - 1];

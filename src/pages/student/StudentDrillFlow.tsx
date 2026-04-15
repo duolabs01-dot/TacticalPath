@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, type ComponentProps } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Chess } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
@@ -43,6 +43,14 @@ export function StudentDrillFlow() {
   const currentPuzzle = DRILL_PUZZLES[currentPuzzleIndex];
   const totalPuzzles = DRILL_PUZZLES.length;
   const completedCount = completedPuzzles.length;
+  const boardOptions: ComponentProps<typeof Chessboard>['options'] = {
+    position: game.fen(),
+    onPieceDrop: ({ sourceSquare, targetSquare }) => onDrop(sourceSquare, targetSquare ?? ''),
+    boardOrientation: 'white',
+    boardStyle: { borderRadius: '0' },
+    darkSquareStyle: { backgroundColor: '#b7d7e8' },
+    lightSquareStyle: { backgroundColor: '#eaf4f9' },
+  };
 
   const onDrop = useCallback((sourceSquare: string, targetSquare: string) => {
     if (puzzleState !== 'solving') return false;
@@ -116,14 +124,7 @@ export function StudentDrillFlow() {
       <div className="flex-1 flex items-center justify-center px-4">
         <div className="w-full max-w-[360px]">
           <div className="rounded-2xl overflow-hidden shadow-lg">
-            <Chessboard
-              position={game.fen()}
-              onPieceDrop={onDrop}
-              boardOrientation="white"
-              customBoardStyle={{ borderRadius: '0' }}
-              customDarkSquareStyle={{ backgroundColor: '#b7d7e8' }}
-              customLightSquareStyle={{ backgroundColor: '#eaf4f9' }}
-            />
+            <Chessboard options={boardOptions} />
           </div>
         </div>
       </div>
