@@ -113,7 +113,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
         if (result) {
           setChessGame(chessCopy);
           let status: GameStatus = 'playing';
-          if (chessCopy.isCheckmate()) status = 'checkmate';
+          let winner: string | undefined = undefined;
+
+          if (chessCopy.isCheckmate()) {
+              status = 'checkmate';
+              winner = chessCopy.turn() === 'w' ? 'b' : 'w';
+          }
           else if (chessCopy.isDraw()) status = 'draw';
           else if (chessCopy.isStalemate()) status = 'stalemate';
 
@@ -121,7 +126,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
             data: { fen: chessCopy.fen() },
             status,
             moves: [...gameState.moves, result.san],
-            turn: chessCopy.turn()
+            turn: chessCopy.turn(),
+            winner
           });
           return true;
         }
@@ -134,12 +140,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const undo = useCallback(() => {
     if (gameState?.type === 'chess' && chessGame) {
+        const movesCopy = [...gameState.moves];
+        movesCopy.pop();
+
         chessGame.undo();
         const newChess = new Chess(chessGame.fen());
         setChessGame(newChess);
         updateGameState({
             data: { fen: newChess.fen() },
-            turn: newChess.turn()
+            turn: newChess.turn(),
+            moves: movesCopy,
+            status: 'playing'
         });
     }
   }, [gameState, chessGame, updateGameState]);
