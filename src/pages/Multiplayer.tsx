@@ -1,268 +1,114 @@
-import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Users, Clock, Crown, Sword, RefreshCw, Trophy, Flag } from "lucide-react";
-import { Chess } from "chess.js";
-import { Chessboard } from "react-chessboard";
+import { ArrowLeft, Swords, Smartphone, Users, Zap, ShieldCheck, Sparkles } from "lucide-react";
+import { gameLibrary } from "../data/games";
 
-interface GameRoom {
-  id: string;
-  name: string;
-  players: number;
-  status: 'waiting' | 'playing' | 'finished';
-}
+const socialGames = gameLibrary.filter((game) => game.id !== "solitaire");
 
 export function Multiplayer() {
-  const [game, setGame] = useState<Chess | null>(null);
-  const [selectedRoom, setSelectedRoom] = useState<GameRoom | null>(null);
-  const [gameStatus, setGameStatus] = useState<'lobby' | 'playing' | 'finished'>('lobby');
-  const [turn, setTurn] = useState<'white' | 'black'>('white');
-  const [winner, setWinner] = useState<'white' | 'black' | null>(null);
-  const [moveCount, setMoveCount] = useState(0);
-
-  const rooms: GameRoom[] = [
-    { id: '1', name: 'Quick Match', players: 2, status: 'waiting' },
-    { id: '2', name: 'Practice Room', players: 1, status: 'waiting' },
-    { id: '3', name: 'Club Tournament', players: 4, status: 'playing' },
-  ];
-
-  const startGame = (room: GameRoom) => {
-    setSelectedRoom(room);
-    setGame(new Chess());
-    setGameStatus('playing');
-    setTurn('white');
-    setMoveCount(0);
-    setWinner(null);
-  };
-
-  const makeMove = (move: { from: string; to: string; promotion?: string }) => {
-    if (!game || gameStatus !== 'playing') return false;
-
-    const gameCopy = new Chess(game.fen());
-    try {
-      const result = gameCopy.move(move);
-      if (result) {
-        setGame(gameCopy);
-        setTurn(prev => prev === 'white' ? 'black' : 'white');
-        setMoveCount(prev => prev + 1);
-
-        if (gameCopy.isCheckmate()) {
-          setGameStatus('finished');
-          setWinner(turn === 'white' ? 'black' : 'white');
-        } else if (gameCopy.isDraw()) {
-          setGameStatus('finished');
-        }
-        return true;
-      }
-    } catch (e) {
-      return false;
-    }
-    return false;
-  };
-
-  const onDrop = ({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string | null }) => {
-    if (!targetSquare) return false;
-    return makeMove({ from: sourceSquare, to: targetSquare, promotion: "q" });
-  };
-
-  const restartGame = () => {
-    if (selectedRoom) {
-      startGame(selectedRoom);
-    }
-  };
-
-  const getGameOverMessage = () => {
-    if (!game) return '';
-    if (game.isCheckmate()) return `Checkmate! ${winner === 'white' ? 'White' : 'Black'} wins!`;
-    if (game.isDraw()) return 'Draw!';
-    if (game.isStalemate()) return 'Stalemate!';
-    if (game.isThreefoldRepetition()) return 'Threefold repetition!';
-    return '';
-  };
-
-  if (gameStatus === 'lobby') {
-    return (
-      <div className="px-4 py-6 md:p-8 max-w-5xl mx-auto">
-        <header className="mb-6">
-          <div className="flex items-center gap-3">
-            <Link to="/dashboard" className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center md:hidden">
-              <ArrowLeft className="w-5 h-5 text-slate-600" />
-            </Link>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-blue-600">Play</p>
-              <h1 className="text-xl font-bold text-slate-900 md:text-2xl">Multiplayer</h1>
-            </div>
-          </div>
-        </header>
-
-        <div className="card p-5 mb-6 bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-          <div className="flex items-center gap-3 mb-3">
-            <Users className="w-6 h-6" />
-            <h2 className="font-bold text-lg">Find a Game</h2>
-          </div>
-          <p className="text-sm text-purple-100">Play against classmates in real-time</p>
-        </div>
-
-        <h3 className="text-lg font-bold text-slate-900 mb-4">Available Rooms</h3>
-        <div className="space-y-3">
-          {rooms.map((room) => (
-            <button
-              key={room.id}
-              onClick={() => startGame(room)}
-              className="card w-full p-4 flex items-center justify-between hover:border-blue-300 transition"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
-                  <Sword className="w-6 h-6 text-purple-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold text-slate-900">{room.name}</h3>
-                  <p className="text-sm text-slate-500">{room.players} players</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${room.status === 'waiting' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
-                <span className="text-sm font-medium text-slate-600">{room.status === 'waiting' ? 'Join' : 'Spectate'}</span>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-6">
-          <h3 className="text-lg font-bold text-slate-900 mb-4">Or Play Locally</h3>
-          <button
-            onClick={() => startGame({ id: 'local', name: 'Local Game', players: 2, status: 'playing' })}
-            className="card w-full p-4 flex items-center justify-between hover:border-blue-300 transition"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
-                <Sword className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="text-left">
-                <h3 className="font-semibold text-slate-900">Play vs Friend</h3>
-                <p className="text-sm text-slate-500">Hotseat on same device</p>
-              </div>
-            </div>
-            <span className="text-sm font-medium text-blue-600">Start</span>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (gameStatus === 'finished') {
-    return (
-      <div className="px-4 py-6 md:p-8 max-w-5xl mx-auto">
-        <header className="mb-6">
-          <div className="flex items-center gap-3">
-            <Link to="/multiplayer" className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
-              <ArrowLeft className="w-5 h-5 text-slate-600" />
-            </Link>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-blue-600">Game Over</p>
-              <h1 className="text-xl font-bold text-slate-900">{selectedRoom?.name}</h1>
-            </div>
-          </div>
-        </header>
-
-        <div className="card p-8 text-center">
-          <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Trophy className="w-10 h-10 text-amber-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">{getGameOverMessage()}</h2>
-          <p className="text-slate-600 mb-6">{moveCount} moves played</p>
-
-          <div className="flex gap-3">
-            <button
-              onClick={restartGame}
-              className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-600 text-white font-semibold rounded-xl"
-            >
-              <RefreshCw className="w-5 h-5" />
-              Play Again
-            </button>
-            <Link
-              to="/multiplayer"
-              className="flex-1 flex items-center justify-center gap-2 py-3 bg-slate-100 text-slate-700 font-semibold rounded-xl"
-            >
-              Back to Lobby
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="px-4 py-4 bg-white border-b border-slate-200">
-        <div className="flex items-center gap-3">
-          <Link to="/dashboard" className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
-            <ArrowLeft className="w-5 h-5 text-slate-600" />
-          </Link>
-          <div className="flex-1">
-            <h1 className="font-bold text-slate-900">{selectedRoom?.name}</h1>
-            <p className="text-xs text-slate-500">{moveCount} moves • {turn === 'white' ? "White's" : "Black's"} turn</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className={`px-3 py-1 rounded-full text-xs font-medium ${turn === 'white' ? 'bg-slate-200 text-slate-700' : 'bg-slate-800 text-white'}`}>
-              White
-            </div>
-            <div className={`px-3 py-1 rounded-full text-xs font-medium ${turn === 'black' ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-700'}`}>
-              Black
-            </div>
-          </div>
+    <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">
+      <header className="mb-8 flex items-start gap-4">
+        <Link to="/dashboard" className="rounded-2xl bg-white p-3 shadow-sm transition-colors hover:bg-slate-50">
+          <ArrowLeft className="h-5 w-5 text-slate-600" />
+        </Link>
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-600">Friends</p>
+          <h1 className="mt-1 text-3xl font-black tracking-tight text-slate-900 md:text-4xl">Play together without the fake lobby</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 md:text-base">
+            This screen is now honest about where Tactical Path really is: same-device play works today, smart invite flow is next,
+            and the product should feel trustworthy instead of pretending we already have live rooms everywhere.
+          </p>
         </div>
       </header>
 
-      <div className="p-4 flex justify-center">
-        <div className="w-full max-w-md aspect-square">
-          <Chessboard
-            options={{
-              position: game?.fen() || 'start',
-              onPieceDrop: onDrop,
-              boardOrientation: turn === 'white' ? 'white' : 'black',
-              darkSquareStyle: { backgroundColor: '#739552' },
-              lightSquareStyle: { backgroundColor: '#ebecd0' },
-              animationDurationInMs: 200,
-            }}
-          />
-        </div>
-      </div>
-
-      <div className="px-4 pb-24">
-        <div className="card p-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-slate-600">Game Info</span>
-            <span className="text-xs text-slate-500">Move {moveCount + 1}</span>
+      <section className="mb-8 rounded-[2rem] bg-gradient-to-br from-emerald-600 via-emerald-700 to-slate-900 p-6 text-white shadow-2xl shadow-emerald-200">
+        <div className="grid gap-6 md:grid-cols-[1.5fr,1fr] md:items-end">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-emerald-50">
+              <Swords className="h-4 w-4" /> Social play lane
+            </div>
+            <h2 className="text-2xl font-black md:text-3xl">Start local now. Add friend invites next.</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-emerald-50 md:text-base">
+              The clean sequence is: make each game fun on one device first, then layer in invite links, guest join, reconnect, and real online turns.
+            </p>
           </div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-2 gap-3 rounded-3xl bg-white/10 p-4 backdrop-blur">
             <div>
-              <p className="text-slate-500">White</p>
-              <p className="font-semibold text-slate-900">Player 1</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-100">Playable today</p>
+              <p className="mt-1 text-2xl font-black">Local matches</p>
             </div>
             <div>
-              <p className="text-slate-500">Black</p>
-              <p className="font-semibold text-slate-900">Player 2</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-100">Next build</p>
+              <p className="mt-1 text-2xl font-black">Friend invites</p>
             </div>
           </div>
         </div>
+      </section>
 
-        <div className="flex gap-3 mt-4">
-          <button
-            onClick={restartGame}
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl"
-          >
-            <RefreshCw className="w-5 h-5" />
-            Restart
-          </button>
-          <Link
-            to="/dashboard"
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-slate-100 text-slate-700 font-semibold rounded-xl"
-          >
-            <Flag className="w-5 h-5" />
-            Resign
+      <section className="mb-8">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-black text-slate-900">Pick a game for local play</h2>
+            <p className="text-sm text-slate-500">Use the strongest working loop now instead of a pretend online room.</p>
+          </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {socialGames.map((game) => (
+            <Link key={game.id} to={game.path} className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl text-2xl text-white ${game.accentClass}`}>{game.icon}</div>
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Hotseat</span>
+              </div>
+              <h3 className="text-xl font-black text-slate-900">{game.name}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{game.summary}</p>
+              <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-emerald-700">
+                Open game <Zap className="h-4 w-4" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-8 grid gap-4 md:grid-cols-3">
+        <div className="rounded-[1.75rem] bg-white p-5 shadow-sm">
+          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+            <Users className="h-5 w-5" />
+          </div>
+          <h3 className="text-lg font-black text-slate-900">Invite flow next</h3>
+          <p className="mt-2 text-sm text-slate-600">Send a link, let a friend join with a profile or guest pass, then drop both players into the correct board instantly.</p>
+        </div>
+        <div className="rounded-[1.75rem] bg-white p-5 shadow-sm">
+          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+            <Smartphone className="h-5 w-5" />
+          </div>
+          <h3 className="text-lg font-black text-slate-900">Trust over theatre</h3>
+          <p className="mt-2 text-sm text-slate-600">It is better to show the real state of multiplayer than fake live rooms that break confidence the moment someone clicks in.</p>
+        </div>
+        <div className="rounded-[1.75rem] bg-white p-5 shadow-sm">
+          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
+          <h3 className="text-lg font-black text-slate-900">Guest-friendly join</h3>
+          <p className="mt-2 text-sm text-slate-600">The online version should be light: choose name, join room, play, then convert to profile only when the experience earns it.</p>
+        </div>
+      </section>
+
+      <section className="rounded-[1.75rem] border border-dashed border-slate-300 bg-slate-100/70 p-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+              <Sparkles className="h-3.5 w-3.5" /> Coming next
+            </div>
+            <h2 className="text-xl font-black text-slate-900">Friend invite architecture</h2>
+            <p className="mt-2 max-w-2xl text-sm text-slate-600">
+              Invite code, guest join, reconnect support, and game-aware rooms should be the next real multiplayer pass. Not a fake lobby. A reliable one.
+            </p>
+          </div>
+          <Link to="/dashboard" className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-slate-800">
+            Back to arcade
           </Link>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

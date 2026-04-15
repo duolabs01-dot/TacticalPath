@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutGrid, Sword, Target, User, Settings, Info } from "lucide-react";
+import { LayoutGrid, Swords, Sparkles, User, Settings } from "lucide-react";
 import { cn } from "../lib/utils";
 
 const navItems = [
@@ -10,13 +10,13 @@ const navItems = [
   },
   {
     path: "/dashboard",
-    icon: Target,
-    label: "My Progress",
+    icon: Sparkles,
+    label: "Arcade",
   },
   {
     path: "/multiplayer",
-    icon: Sword,
-    label: "Multiplayer",
+    icon: Swords,
+    label: "Friends",
   },
   {
     path: "/profile",
@@ -29,50 +29,49 @@ export function SideNav() {
   const location = useLocation();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-screen bg-white border-r border-slate-200 fixed left-0 top-0 z-50">
-      {/* Logo */}
+    <aside className="fixed left-0 top-0 z-50 hidden h-screen w-64 flex-col border-r border-slate-200 bg-white md:flex">
       <div className="p-8">
         <Link to="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg shadow-blue-100 font-bold">T</div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-xl font-bold text-white shadow-lg shadow-blue-100">T</div>
           <div>
-            <p className="font-black text-slate-900 leading-none">TacticalPath</p>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Play & Learn</p>
+            <p className="leading-none font-black text-slate-900">TacticalPath</p>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Play. Learn. Rematch.</p>
           </div>
         </Link>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-4 space-y-1">
+      <nav className="flex-1 space-y-1 px-4">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = item.path === "/" ? location.pathname === "/" : location.pathname.startsWith(item.path);
+          const isActive = item.path === "/"
+            ? location.pathname === "/"
+            : location.pathname === item.path || location.pathname.startsWith(`${item.path}/`) || (item.path === "/dashboard" && ["/play/chess", "/tictactoe", "/checkers", "/morris", "/solitaire"].includes(location.pathname));
 
           return (
             <Link
               key={item.path}
               to={item.path}
               className={cn(
-                "flex items-center gap-3 px-4 py-4 rounded-2xl transition-all duration-200 group",
+                "group flex items-center gap-3 rounded-2xl px-4 py-4 transition-all duration-200",
                 isActive
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-100 font-bold scale-[1.02]"
+                  ? "scale-[1.02] bg-blue-600 font-bold text-white shadow-lg shadow-blue-100"
                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
               )}
             >
-              <Icon className={cn("w-5 h-5", isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600")} />
+              <Icon className={cn("h-5 w-5", isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600")} />
               <span className="text-sm">{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Bottom Actions */}
-      <div className="p-6 border-t border-slate-100">
+      <div className="border-t border-slate-100 p-6">
         <Link
-            to="/settings"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 transition-all text-sm font-medium"
+          to="/settings"
+          className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-500 transition-all hover:bg-slate-50"
         >
-            <Settings className="w-5 h-5" />
-            Settings
+          <Settings className="h-5 w-5" />
+          Settings
         </Link>
       </div>
     </aside>

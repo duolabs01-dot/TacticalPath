@@ -1,153 +1,114 @@
 import { Link } from "react-router-dom";
-import { Sword, Brain, Play, Users, Layout } from "lucide-react";
+import { Brain, Play, Users } from "lucide-react";
+import { gameLibrary } from "../data/games";
 
-const games = [
-  {
-    id: "chess",
-    name: "Chess",
-    description: "The classic game of kings. Master strategy and tactics with AI-powered analysis.",
-    icon: "♞",
-    path: "/play/chess",
-    color: "bg-blue-600",
-  },
-  {
-    id: "checkers",
-    name: "Checkers",
-    description: "Simple rules, deep strategy. Leap to victory and crown your pieces.",
-    icon: "●",
-    path: "/checkers",
-    color: "bg-red-600",
-  },
-  {
-    id: "morris",
-    name: "Morris / Mlabalaba",
-    description: "Ancient strategy game of alignment and capture. Build mills to win.",
-    icon: "◎",
-    path: "/morris",
-    color: "bg-emerald-600",
-  },
-  {
-    id: "tictactoe",
-    name: "Tic Tac Toe",
-    description: "The ultimate game of logic. Outsmart our AI in this perfect-information classic.",
-    icon: "✕",
-    path: "/tictactoe",
-    color: "bg-amber-600",
-  },
-  {
-    id: "solitaire",
-    name: "Solitaire",
-    description: "Classic single-player card game. Test your patience and organizational skills.",
-    icon: "🂠",
-    path: "/solitaire",
-    color: "bg-purple-600",
-  },
-];
+const games = gameLibrary;
 
 export function Landing() {
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Hero Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-16">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl text-white text-3xl mb-6 shadow-xl shadow-blue-200">
+      <header className="border-b border-slate-200 bg-white px-6 py-16">
+        <div className="mx-auto max-w-5xl text-center">
+          <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-3xl text-white shadow-xl shadow-blue-200">
             ♞
           </div>
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-6xl mb-4">
-            Tactical Path
-          </h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Become a better thinker. Play world-class strategy games against smart AI and improve with real-time coaching.
+          <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl">Tactical Path</h1>
+          <p className="mx-auto max-w-2xl text-xl text-slate-600">
+            Become a better thinker through playable strategy games, smart bot opponents, and coaching that tells you what actually mattered.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-             <Link to="/signup" className="px-8 py-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all">
-                Get Started
-             </Link>
-             <Link to="/login" className="px-8 py-4 bg-white text-slate-700 font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all">
-                Sign In
-             </Link>
+            <Link to="/dashboard" className="rounded-2xl bg-blue-600 px-8 py-4 font-bold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-700">
+              Enter the arcade
+            </Link>
+            <Link to="/multiplayer" className="rounded-2xl border border-slate-200 bg-white px-8 py-4 font-bold text-slate-700 transition-all hover:bg-slate-50">
+              Play with friends
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Games Library */}
-      <main className="max-w-5xl mx-auto px-6 py-16">
-        <div className="flex items-center justify-between mb-12">
+      <main className="mx-auto max-w-5xl px-6 py-16">
+        <div className="mb-12 flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900">Games Library</h2>
-            <p className="text-slate-500 mt-1">Select a game to start playing vs Computer</p>
+            <h2 className="text-3xl font-bold text-slate-900">Games library</h2>
+            <p className="mt-1 text-slate-500">Start with the board that matches your mood, then let the coach sharpen the lesson.</p>
           </div>
-          <div className="hidden sm:flex gap-3">
-             <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-xl text-sm font-semibold">
-               <Brain className="w-4 h-4" /> AI Coaching
-             </div>
-             <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-semibold">
-               <Users className="w-4 h-4" /> Multiplayer
-             </div>
+          <div className="hidden gap-3 sm:flex">
+            <div className="flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
+              <Brain className="h-4 w-4" /> AI coaching
+            </div>
+            <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+              <Users className="h-4 w-4" /> Friend play
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {games.map((game) => (
-            <div key={game.id} className="group relative bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-              <div className={`w-16 h-16 ${game.color} rounded-2xl flex items-center justify-center text-white text-3xl mb-6 shadow-lg shadow-${game.id}-100`}>
+            <div key={game.id} className="group relative rounded-3xl border border-slate-200 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+              <div className={`mb-6 flex h-16 w-16 items-center justify-center rounded-2xl text-3xl text-white shadow-lg ${game.accentClass}`}>
                 {game.icon}
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">{game.name}</h3>
-              <p className="text-slate-600 mb-8 leading-relaxed">
-                {game.description}
-              </p>
-              <div className="flex items-center justify-between mt-auto">
-                <Link
-                  to={game.path}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-semibold rounded-xl hover:bg-slate-800 transition-colors"
-                >
-                  <Play className="w-4 h-4" />
-                  Play
+              <div className="mb-3 flex items-center justify-between gap-4">
+                <h3 className="text-2xl font-bold text-slate-900">{game.name}</h3>
+                <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${game.status === 'live' ? 'bg-emerald-50 text-emerald-700' : 'bg-violet-50 text-violet-700'}`}>
+                  {game.status === 'live' ? 'Live' : 'Improving'}
+                </span>
+              </div>
+              <p className="leading-relaxed text-slate-600">{game.summary}</p>
+              <p className="mt-4 text-xs font-bold uppercase tracking-widest text-slate-400">Why it matters</p>
+              <p className="mt-1 text-sm text-slate-700">{game.coachFocus}</p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {game.modes.map((mode) => (
+                  <span key={mode} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                    {mode}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-8 flex items-center justify-between">
+                <Link to={game.path} className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 font-semibold text-white transition-colors hover:bg-slate-800">
+                  <Play className="h-4 w-4" /> Play
                 </Link>
-                <div className="flex gap-2">
-                   <button className="p-3 bg-slate-100 rounded-xl text-slate-600 hover:bg-slate-200 transition-colors" title="Invite Friend">
-                     <Users className="w-4 h-4" />
-                   </button>
-                </div>
+                <Link to="/multiplayer" className="rounded-xl bg-slate-100 p-3 text-slate-600 transition-colors hover:bg-slate-200" title="Friend play">
+                  <Users className="h-4 w-4" />
+                </Link>
               </div>
             </div>
           ))}
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="max-w-5xl mx-auto px-6 py-16 border-t border-slate-200">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-           <div className="col-span-1">
-             <div className="flex items-center gap-2 mb-4">
-               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">T</div>
-               <span className="font-bold text-xl text-slate-900">TacticalPath</span>
-             </div>
-             <p className="text-slate-500 text-sm leading-relaxed">
-               The ultimate strategy playground. Built for thinkers, players, and lifelong learners.
-             </p>
-           </div>
-           <div>
-             <h4 className="font-bold text-slate-900 mb-4">Platform</h4>
-             <ul className="space-y-2 text-sm text-slate-500">
-               <li><Link to="/dashboard" className="hover:text-blue-600">Home Dashboard</Link></li>
-               <li><Link to="/skill-insights" className="hover:text-blue-600">Progress Tracking</Link></li>
-               <li><Link to="/puzzle-bank" className="hover:text-blue-600">Training Library</Link></li>
-             </ul>
-           </div>
-           <div>
-             <h4 className="font-bold text-slate-900 mb-4">Support</h4>
-             <ul className="space-y-2 text-sm text-slate-500">
-               <li><Link to="/settings" className="hover:text-blue-600">Account Settings</Link></li>
-               <li><Link to="/coach/login" className="hover:text-blue-600">Coach Dashboard</Link></li>
-               <li><Link to="/about" className="hover:text-blue-600">Our Mission</Link></li>
-             </ul>
-           </div>
+      <footer className="mx-auto max-w-5xl border-t border-slate-200 px-6 py-16">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+          <div className="col-span-1">
+            <div className="mb-4 flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">T</div>
+              <span className="text-xl font-bold text-slate-900">TacticalPath</span>
+            </div>
+            <p className="text-sm leading-relaxed text-slate-500">
+              A strategy playground built around real play, fast rematches, and coaching that helps you think more clearly.
+            </p>
+          </div>
+          <div>
+            <h4 className="mb-4 font-bold text-slate-900">Play</h4>
+            <ul className="space-y-2 text-sm text-slate-500">
+              <li><Link to="/dashboard" className="hover:text-blue-600">Arcade</Link></li>
+              <li><Link to="/play/chess" className="hover:text-blue-600">Chess</Link></li>
+              <li><Link to="/tictactoe" className="hover:text-blue-600">Tic Tac Toe</Link></li>
+              <li><Link to="/checkers" className="hover:text-blue-600">Checkers</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-4 font-bold text-slate-900">Learn</h4>
+            <ul className="space-y-2 text-sm text-slate-500">
+              <li><Link to="/multiplayer" className="hover:text-blue-600">Friend play</Link></li>
+              <li><Link to="/skill-insights" className="hover:text-blue-600">Progress tracking</Link></li>
+              <li><Link to="/puzzle-bank" className="hover:text-blue-600">Training library</Link></li>
+              <li><Link to="/settings" className="hover:text-blue-600">Settings</Link></li>
+            </ul>
+          </div>
         </div>
-        <div className="mt-16 text-center text-slate-400 text-xs">
-          © 2026 TacticalPath. Elevate your game with AI strategy.
-        </div>
+        <div className="mt-16 text-center text-xs text-slate-400">© 2026 TacticalPath. Play sharper. Think deeper.</div>
       </footer>
     </div>
   );

@@ -1,154 +1,119 @@
 import { Link } from "react-router-dom";
-import { ChevronRight, Puzzle, Target, Users, Trophy, Flame } from "lucide-react";
+import { Brain, Sparkles, Zap } from "lucide-react";
 import { useProgress } from "../hooks/useProgress";
-import { puzzleThemes } from "../data/puzzles";
+import { gameLibrary } from "../data/games";
 
 export function Dashboard() {
-  const { progress, getThemeLevel, getOverallLevel } = useProgress();
-
-  const recentThemes = [...puzzleThemes]
-    .sort((a, b) => getThemeLevel(b.id) - getThemeLevel(a.id))
-    .slice(0, 4);
+  const { progress } = useProgress();
 
   return (
-    <div className="px-4 py-6 md:p-8 max-w-5xl mx-auto">
-      {/* Header */}
-      <header className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-blue-600">Welcome back</p>
-            <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">{progress.username}</h1>
+    <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">
+      <header className="mb-8 rounded-[2rem] bg-gradient-to-br from-slate-950 via-slate-900 to-blue-900 px-6 py-8 text-white shadow-2xl shadow-slate-300">
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-blue-200">Arcade</p>
+        <div className="mt-3 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <h1 className="text-3xl font-black tracking-tight md:text-5xl">Ready for your next good decision, {progress.username}?</h1>
+            <p className="mt-3 text-sm leading-relaxed text-slate-200 md:text-base">
+              Tactical Path works best when every session has a clear loop: play a smart match, spot one turning point,
+              and go straight into the rematch while the lesson is still fresh.
+            </p>
           </div>
-          <div className="flex items-center gap-2 bg-emerald-100 px-3 py-1.5 rounded-full">
-            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-            <span className="text-xs font-semibold text-emerald-700">Ready to Practice</span>
+          <div className="grid grid-cols-3 gap-3 rounded-3xl bg-white/10 p-4 backdrop-blur md:min-w-[280px]">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-blue-100">Training reps</p>
+              <p className="mt-1 text-2xl font-black">{progress.totalPuzzlesSolved}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-blue-100">Streak</p>
+              <p className="mt-1 text-2xl font-black">{progress.streak}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-blue-100">Mode</p>
+              <p className="mt-1 text-2xl font-black capitalize">{progress.difficulty}</p>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
-        <div className="card p-3 text-center">
-          <Trophy className="w-5 h-5 text-amber-500 mx-auto mb-1" />
-          <p className="text-lg font-bold text-slate-900">{progress.totalPuzzlesSolved}</p>
-          <p className="text-xs text-slate-500">Solved</p>
-        </div>
-        <div className="card p-3 text-center">
-          <Flame className="w-5 h-5 text-orange-500 mx-auto mb-1" />
-          <p className="text-lg font-bold text-slate-900">{progress.streak}</p>
-          <p className="text-xs text-slate-500">Streak</p>
-        </div>
-        <div className="card p-3 text-center">
-          <Target className="w-5 h-5 text-blue-500 mx-auto mb-1" />
-          <p className="text-lg font-bold text-slate-900">Level {getOverallLevel()}</p>
-          <p className="text-xs text-slate-500">Mastery</p>
-        </div>
-        <div className="card p-3 text-center">
-          <span className="text-lg font-bold text-emerald-600">{progress.difficulty}</span>
-          <p className="text-xs text-slate-500">Difficulty</p>
-        </div>
-      </div>
+      <section className="mb-8 grid gap-4 md:grid-cols-3">
+        <Link to="/play/chess" className="rounded-[1.75rem] bg-white p-5 shadow-lg shadow-slate-200 transition-transform hover:-translate-y-1">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-2xl text-white">♞</div>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-600">Start here</p>
+          <h2 className="mt-2 text-xl font-black text-slate-900">Play chess vs computer</h2>
+          <p className="mt-2 text-sm text-slate-600">Open a full game, not just a puzzle. Use this when you want the deepest match loop right now.</p>
+        </Link>
 
-      {/* Quick Action Card */}
-      <Link 
-        to="/puzzle-play" 
-        className="block card p-5 mb-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-      >
-        <div className="flex items-center justify-between">
+        <Link to="/tictactoe" className="rounded-[1.75rem] bg-white p-5 shadow-lg shadow-slate-200 transition-transform hover:-translate-y-1">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-2xl text-white">✕</div>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-600">Fastest loop</p>
+          <h2 className="mt-2 text-xl font-black text-slate-900">Warm up with Tic Tac Toe</h2>
+          <p className="mt-2 text-sm text-slate-600">Quick rematches, bot personalities, and the clearest coaching loop in the app so far.</p>
+        </Link>
+
+        <Link to="/multiplayer" className="rounded-[1.75rem] bg-white p-5 shadow-lg shadow-slate-200 transition-transform hover:-translate-y-1">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-2xl text-white">⚔</div>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-600">Play together</p>
+          <h2 className="mt-2 text-xl font-black text-slate-900">Set up local or friend play</h2>
+          <p className="mt-2 text-sm text-slate-600">Choose the social mode honestly instead of wandering through old coach-era screens.</p>
+        </Link>
+      </section>
+
+      <section className="mb-8">
+        <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-blue-100">Quick Practice</p>
-            <h2 className="text-xl font-bold mt-1">Play a Puzzle</h2>
-            <p className="text-sm text-blue-100 mt-1">Keep sharp while you wait</p>
+            <h2 className="text-2xl font-black text-slate-900">Game lineup</h2>
+            <p className="text-sm text-slate-500">Every game should help you think better, not just fill the screen.</p>
           </div>
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <Puzzle className="w-6 h-6" />
-          </div>
+          <Link to="/" className="text-sm font-bold text-blue-600">Back to library</Link>
         </div>
-      </Link>
-
-      {/* Theme Progress */}
-      <section className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-slate-900">Your Themes</h2>
-          <Link to="/skill-insights" className="text-sm font-medium text-blue-600">See all →</Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {recentThemes.map((theme) => {
-            const level = getThemeLevel(theme.id);
-            const themeData = progress.themes[theme.id];
-            
-            return (
-              <Link 
-                key={theme.id} 
-                to="/puzzle-play"
-                className="card p-4"
-              >
-                <div className="text-2xl mb-2">{theme.icon}</div>
-                <h3 className="text-sm font-semibold text-slate-900">{theme.name}</h3>
-                <p className="text-xs text-slate-500 mt-1">Level {level}</p>
-                <div className="mt-2 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full"
-                    style={{ width: `${level * 20}%` }}
-                  />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {gameLibrary.map((game) => (
+            <Link key={game.id} to={game.path} className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl text-2xl text-white ${game.accentClass}`}>
+                  {game.icon}
                 </div>
-              </Link>
-            );
-          })}
+                <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${game.status === 'live' ? 'bg-emerald-50 text-emerald-700' : 'bg-violet-50 text-violet-700'}`}>
+                  {game.status === 'live' ? 'Live now' : 'Building up'}
+                </span>
+              </div>
+              <h3 className="text-xl font-black text-slate-900">{game.name}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{game.summary}</p>
+              <p className="mt-4 text-xs font-bold uppercase tracking-widest text-slate-400">Coach focus</p>
+              <p className="mt-1 text-sm font-medium text-slate-700">{game.coachFocus}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {game.modes.map((mode) => (
+                  <span key={mode} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                    {mode}
+                  </span>
+                ))}
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
-      {/* Quick Links */}
-      <section className="mb-6">
-        <h2 className="text-lg font-bold text-slate-900 mb-4">What to do next</h2>
-        <div className="space-y-3">
-          <Link to="/skill-insights" className="card p-4 flex items-center gap-4">
-            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-              <Target className="w-5 h-5 text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-slate-900">Check your progress</h3>
-              <p className="text-sm text-slate-500">See which themes you're mastering</p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-slate-400" />
-          </Link>
-          
-          <Link to="/puzzle-bank" className="card p-4 flex items-center gap-4">
-            <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
-              <Puzzle className="w-5 h-5 text-emerald-600" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-slate-900">Practice drills</h3>
-              <p className="text-sm text-slate-500">Work on themes you need</p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-slate-400" />
-          </Link>
+      <section className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-[1.75rem] bg-white p-5 shadow-sm">
+          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <h3 className="text-lg font-black text-slate-900">Play first</h3>
+          <p className="mt-2 text-sm text-slate-600">The app should drop you into a strong match loop quickly, not bury you in old dashboard leftovers.</p>
         </div>
-      </section>
-
-      {/* Session Flow */}
-      <section className="card p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Users className="w-5 h-5 text-blue-600" />
-          <h3 className="font-semibold text-slate-900">Class Session</h3>
+        <div className="rounded-[1.75rem] bg-white p-5 shadow-sm">
+          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+            <Brain className="h-5 w-5" />
+          </div>
+          <h3 className="text-lg font-black text-slate-900">One sharp lesson</h3>
+          <p className="mt-2 text-sm text-slate-600">Coaching should tell you the one thing that changed the game, then get out of the way.</p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="text-center p-3 bg-slate-50 rounded-xl">
-            <p className="text-xl font-bold text-blue-600">1</p>
-            <p className="text-xs text-slate-500">Play a game</p>
+        <div className="rounded-[1.75rem] bg-white p-5 shadow-sm">
+          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+            <Zap className="h-5 w-5" />
           </div>
-          <div className="text-center p-3 bg-slate-50 rounded-xl">
-            <p className="text-xl font-bold text-blue-600">2</p>
-            <p className="text-xs text-slate-500">Review move</p>
-          </div>
-          <div className="text-center p-3 bg-slate-50 rounded-xl">
-            <p className="text-xl font-bold text-emerald-600">3</p>
-            <p className="text-xs text-slate-500">3 drills</p>
-          </div>
-          <div className="text-center p-3 bg-slate-50 rounded-xl">
-            <p className="text-xl font-bold text-emerald-600">4</p>
-            <p className="text-xs text-slate-500">Track growth</p>
-          </div>
+          <h3 className="text-lg font-black text-slate-900">Rematch fast</h3>
+          <p className="mt-2 text-sm text-slate-600">Replay should be immediate. Momentum matters more than extra menus when someone is trying to improve.</p>
         </div>
       </section>
     </div>
