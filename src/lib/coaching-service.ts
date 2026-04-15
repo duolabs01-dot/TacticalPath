@@ -6,38 +6,69 @@ export interface CoachingInsight {
   category?: 'missed win' | 'failed defense' | 'rushed move' | 'bad trade' | 'missed block' | 'poor setup' | 'threat blindness';
   turningPointIndex?: number;
   highlightSquares?: number[];
+  evalScore?: number;
 }
 
 export class CoachingService {
   static getInsight(gameType: GameType, state: GameState): CoachingInsight {
-    if (state.status === 'finished') {
+    if (state.status === 'finished' || state.status === 'checkmate' || state.status === 'draw' || state.status === 'stalemate') {
        if (gameType === 'tictactoe') return this.getTicTacToePostGame(state);
+       if (gameType === 'chess' && state.data.analysis) return this.getChessPostGame(state);
+
        return {
-           message: `Game over! ${state.winner === 'draw' ? "It was a hard-fought draw." : "Great game!"}`,
+           message: `Game over! ${state.winner === 'draw' || state.status === 'draw' || state.status === 'stalemate' ? "It was a hard-fought draw." : (state.winner === 'w' || state.winner === 'X' || state.winner === '1' ? "Great win! You played strategically." : "The Robot won this time. Let's analyze why.")}`,
            type: 'analysis'
        };
     }
 
     switch (gameType) {
-      case 'chess': return { message: "Focus on development and king safety.", type: 'hint' };
+      case 'chess': return this.getChessInsight(state);
       case 'tictactoe': return this.getTicTacToeInsight(state);
-      case 'checkers': return { message: "Try to control the center.", type: 'hint' };
-      case 'morris': return { message: "Build mills and block your opponent.", type: 'hint' };
+      case 'checkers': return { message: "Try to control the center squares and look for double-jumps.", type: 'hint' };
+      case 'morris': return { message: "Build mills (three in a row) to capture pieces and block your opponent.", type: 'hint' };
       default: return { message: "Think carefully about your next move.", type: 'hint' };
     }
+  }
+
+  private static getChessInsight(state: GameState): CoachingInsight {
+      const movesCount = state.moves.length;
+      if (movesCount === 0) return { message: "Good luck! Control the center and develop your pieces.", type: 'hint' };
+
+      const lastMove = state.moves[movesCount - 1];
+      const isCheck = typeof lastMove === 'string' ? lastMove.includes('+') : lastMove?.san?.includes('+');
+
+      if (isCheck) return { message: "Check! You've got the opponent on the run. Look for follow-up attacks.", type: 'hint' };
+
+      if (movesCount < 10) return { message: "Opening phase: Focus on king safety and developing your minor pieces.", type: 'hint' };
+      if (movesCount < 30) return { message: "Middle game: Look for tactical opportunities and coordinate your pieces.", type: 'hint' };
+
+      return { message: "Endgame: Use your king actively and look to promote your pawns.", type: 'hint' };
+  }
+
+  private static getChessPostGame(state: GameState): CoachingInsight {
+      const analysis = state.data.analysis;
+      if (!analysis) return { message: "Game review complete.", type: 'analysis' };
+
+      const turnText = analysis.criticalMoveNumber % 2 === 1 ? "White" : "Black";
+
+      return {
+          message: `The turning point was at move ${analysis.criticalMoveNumber}. ${turnText} played ${analysis.playedMove}, but ${analysis.bestMove} would have been stronger.`,
+          type: 'analysis',
+          turningPointIndex: analysis.criticalMoveNumber,
+      };
   }
 
   private static getTicTacToeInsight(state: GameState): CoachingInsight {
     const { board } = state.data;
     if (!board[4]) return {
-        message: "The center is the most valuable real estate. Grab it to control the board!",
+        message: "The center is the heart of the board. Strategic players aim for it early!",
         type: 'hint',
         highlightSquares: [4]
     };
 
     const canWin = this.findWinningMove(board, 'X');
     if (canWin !== null) return {
-        message: "You've built a winning line! Can you find the final square to seal the victory?",
+        message: "Victory is just one move away. Can you spot the winning line?",
         type: 'hint',
         category: 'missed win',
         highlightSquares: [canWin]
@@ -45,18 +76,18 @@ export class CoachingService {
 
     const mustBlock = this.findWinningMove(board, 'O');
     if (mustBlock !== null) return {
-        message: "Danger! The Robot is about to win. You must block their path immediately.",
+        message: "Watch out! The Robot is about to complete a line. Defense is your priority.",
         type: 'hint',
         category: 'threat blindness',
         highlightSquares: [mustBlock]
     };
 
-    return { message: "Try to create a 'double-threat' (fork) where the Robot can only block one of two winning lines!", type: 'hint' };
+    return { message: "Look for 'fork' opportunities - moves that create two winning threats at the same time!", type: 'hint' };
   }
 
   private static getTicTacToePostGame(state: GameState): CoachingInsight {
-      if (state.winner === 'X') return { message: "Masterful victory! You outmaneuvered the Robot with superior board awareness.", type: 'analysis' };
-      if (state.winner === 'draw') return { message: "A battle of wits! Neither side gave an inch. This is the theoretical limit of Tic Tac Toe.", type: 'analysis' };
+      if (state.winner === 'X') return { message: "Strategic victory! You navigated the board with precision and seized the win.", type: 'analysis' };
+      if (state.winner === 'draw') return { message: "Perfect play. When both sides maintain awareness, Tic Tac Toe finds its natural balance in a draw.", type: 'analysis' };
 
       const moves = state.moves;
       const board = Array(9).fill(null);
@@ -67,7 +98,7 @@ export class CoachingService {
               const mustBlock = this.findWinningMove(board, 'O');
               if (mustBlock !== null && move.index !== mustBlock) {
                   return {
-                      message: `A tough loss, but look at Move ${i}. Blocking square ${mustBlock + 1} was required to stay in the game.`,
+                      message: `Move ${i} was the turning point. You had to block the Robot at square ${mustBlock + 1}.`,
                       type: 'analysis',
                       category: 'threat blindness',
                       turningPointIndex: i,
@@ -77,7 +108,7 @@ export class CoachingService {
               const canWin = this.findWinningMove(board, 'X');
               if (canWin !== null && move.index !== canWin) {
                 return {
-                    message: `Victory was within reach at Move ${i}! Choosing square ${canWin + 1} would have won the game instantly.`,
+                    message: `You missed a winning opportunity at move ${i}. Square ${canWin + 1} would have finished the game.`,
                     type: 'analysis',
                     category: 'missed win',
                     turningPointIndex: i,
@@ -88,7 +119,7 @@ export class CoachingService {
           board[move.index] = move.player;
       }
 
-      return { message: "The Robot found a winning pattern. Watch for 'L' shapes and diagonals next time!", type: 'analysis' };
+      return { message: "The Robot outplayed you by creating simultaneous threats. Study the patterns of 'forks' to improve!", type: 'analysis' };
   }
 
   private static findWinningMove(board: (string|null)[], player: string): number | null {
