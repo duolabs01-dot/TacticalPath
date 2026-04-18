@@ -3,9 +3,8 @@
  * Player 1 (room creator) plays White; Player 2 plays Black.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Chess } from 'chess.js';
+import { Chess, Square } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
 import { motion, AnimatePresence } from 'motion/react';
 import { RefreshCcw } from 'lucide-react';
@@ -62,11 +61,10 @@ export function OnlineChess() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [guestName, setGuestName] = useState(readName);
   const [draftCode, setDraftCode] = useState(() => sanitizeRoomCode(searchParams.get('room') ?? ''));
-  const [roomState, setRoomState] = useState<OnlineChessState | null>(null);
-  const [players, setPlayers] = useState<RoomPresence[]>([]);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('idle');
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
+  const [moveFrom, setMoveFrom] = useState<string | null>(null);
 
   const roomCode = sanitizeRoomCode(searchParams.get('room') ?? '');
   const playerId = useMemo(() => crypto.randomUUID(), []);
@@ -115,17 +113,34 @@ export function OnlineChess() {
     });
     channelRef.current = ch;
     return () => { ch.teardown(); channelRef.current = null; };
-  }, [roomCode, playerId, resolvedName, joinedAt]);
+  const handleSquareClick = useCallback((square: string) => {
+    if (!roomState || !isMyTurn) return;
 
-  const handleDrop = useCallback(({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string | null }) => {
-    if (!targetSquare || !roomState || !isMyTurn) return false;
-    const next = applyMove(roomState, sourceSquare, targetSquare);
-    if (!next) return false;
-    stateRef.current = next;
-    setRoomState(next);
-    channelRef.current?.push(next);
-    return true;
-  }, [roomState, isMyTurn]);
+    if (!moveFrom) {
+      // Tap on player's own piece to select
+      const game = new Chess(roomState.fen);
+      const piece = game.get(square as Square);
+      if (piece && piece.color === myRole) setMoveFrom(square);
+      return;
+    }
+
+    const next = applyMove(roomState, moveFrom, square);
+    if (next) {
+      stateRef.current = next;
+      setRoomState(next);
+      channelRef.current?.push(next);
+      setMoveFrom(null);
+    } else {
+      // Invalid move; re-select if player clicked another of their own pieces
+      const game = new Chess(roomState.fen);
+      const piece = game.get(square as Square);
+      if (piece && piece.color === myRole) {
+        setMoveFrom(square);
+      } else {
+        setMoveFrom(null);
+      }
+    }
+  }, [roomState, isMyTurn, myRole, moveFrom]);
 
   const handleRematch = () => {
     const next = createInitialState();
@@ -179,7 +194,7 @@ export function OnlineChess() {
   const game = roomState ? new Chess(roomState.fen) : null;
   const isCheck = game?.isCheck() && roomState?.status === 'playing';
   const roleLabel = myRole === 'w' ? 'You are White' : myRole === 'b' ? 'You are Black' : myRole === 'spectator' ? 'Watching' : 'Waiting for seat';
-  const roleHint = (myRole === 'w' || myRole === 'b') ? (isMyTurn ? 'Your turn. Drag a piece to move.' : 'Waiting for opponent…') : 'Share the room code to invite someone.';
+  const roleHint = (myRole === 'w' || myRole === 'b') ? (isMyTurn ? 'Your turn. Tap a piece to move.' : 'Waiting for opponent…') : 'Share the room code to invite someone.';
 
   if (!roomCode) {
     return (
@@ -221,15 +236,15 @@ export function OnlineChess() {
           {/* Chess board */}
           <div className="relative rounded-[2.5rem] bg-white p-4 shadow-xl border-4 border-slate-200 overflow-hidden">
             <Chessboard
-              options={{
-                position: roomState?.fen ?? 'start',
-                onPieceDrop: handleDrop,
-                boardOrientation,
-                animationDurationInMs: 350,
-                boardStyle: { borderRadius: '1.5rem' },
-                darkSquareStyle: { backgroundColor: '#739552' },
-                lightSquareStyle: { backgroundColor: '#ebecd0' },
-              }}
+              position={roomState?.fen ?? 'start'}
+              boardOrientation={boardOrientation}
+              animationDuration={350}
+              arePiecesDraggable={false}
+              onSquareClick={handleSquareClick}
+              customSquareStyles={moveFrom ? { [moveFrom]: { backgroundColor: "rgba(255, 255, 0, 0.4)" } } : {}}
+              customBoardStyle={{ borderRadius: '1.5rem' }}
+              customDarkSquareStyle={{ backgroundColor: '#739552' }}
+              customLightSquareStyle={{ backgroundColor: '#ebecd0' }}
             />
             {!roomState && <WaitingOverlay />}
             <AnimatePresence>

@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { useGame, Difficulty } from "../context/GameContext";
 import { Link } from "react-router-dom";
-import { ArrowLeft, RotateCcw, Brain, Monitor, Trophy, LayoutGrid } from "lucide-react";
+import { ArrowLeft, RotateCcw, Brain, Monitor, Trophy, LayoutGrid, Circle } from "lucide-react";
 import { cn } from "../lib/utils";
-import { CoachingService } from "../lib/coaching-service";
+import { CoachingInsight, CoachingService } from "../lib/coaching-service";
 import { motion, AnimatePresence } from "motion/react";
-import { isPlayerPiece, isBotPiece } from "../utils/checkers";
-import { useBoardDrag } from "../hooks/useBoardDrag";
 import { playMoveSound, playCaptureSound, playWinSound } from "../lib/audio";
+import { GameSetup } from "../components/GameSetup";
+import { isPlayerPiece, isBotPiece } from "../utils/checkers";
 
 type CheckersMove = { from: number; to: number; capture: number | null };
 
@@ -128,7 +128,9 @@ export function Checkers() {
     setKingFlash(null);
   }, [difficulty, startNewGame]);
 
-  useEffect(() => { start(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    // Rely on GameSetup to handle start
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const checkGameEnd = useCallback((board: number[]) => {
     const pp = board.filter(isPlayerPiece).length;
@@ -188,18 +190,7 @@ export function Checkers() {
     setTimeout(() => checkGameEnd(nextBoard), 100);
   }, [checkGameEnd, forcedSource, gameState, updateGameState]);
 
-  const { dragState, startDrag, shouldSuppressClick } = useBoardDrag({
-    enabled: Boolean(gameState?.status === "playing" && gameState?.turn === "1"),
-    getValidTargets: (source) => {
-      if (!gameState) return [];
-      if (forcedSource !== null && source !== forcedSource) return [];
-      return getMovesForPiece(gameState.data.board as number[], source, true).map((m) => m.to);
-    },
-    onDrop: (source, target) => attemptPlayerMove(source, target),
-  });
-
   const handleCellClick = (i: number) => {
-    if (shouldSuppressClick()) return;
     if (!gameState || gameState.status !== "playing" || gameState.turn !== "1") return;
     const board = gameState.data.board as number[];
     const piece = board[i];
@@ -270,7 +261,9 @@ export function Checkers() {
     if (gameState) setCoachingMsg(CoachingService.getInsight("checkers", gameState).message);
   }, [gameState, makeComputerMove]);
 
-  if (!gameState || gameState.type !== "checkers") return null;
+  if (!gameState || gameState.status === "waiting" || gameState.type !== "checkers") {
+    return <GameSetup gameId="checkers" gameName="Checkers" icon={<Circle className="h-6 w-6 fill-current"/>} onPlayBot={start as any} />;
+  }
 
   const board = gameState.data.board as number[];
   const isGameOver = gameState.status === "finished";

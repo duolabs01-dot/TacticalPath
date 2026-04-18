@@ -5,7 +5,7 @@ import { Chess } from 'chess.js';
 export type GameType = 'chess' | 'tictactoe' | 'checkers' | 'morris';
 export type GameMode = 'puzzle' | 'play' | 'online';
 export type GameStatus = 'waiting' | 'playing' | 'checkmate' | 'draw' | 'stalemate' | 'finished';
-export type Difficulty = 'easy' | 'medium' | 'hard';
+export type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
 
 export interface GameState {
   id: string;

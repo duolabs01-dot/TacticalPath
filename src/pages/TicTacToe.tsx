@@ -2,9 +2,10 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useGame, Difficulty } from "../context/GameContext";
 import { cn } from "../lib/utils";
 import { Link } from "react-router-dom";
-import { ArrowLeft, RotateCcw, Brain, User, Monitor, History, PlayCircle, Trophy, Target, Sparkles, LayoutGrid, PauseCircle } from "lucide-react";
+import { ArrowLeft, RotateCcw, Brain, User, Monitor, History, PlayCircle, Trophy, Target, Sparkles, LayoutGrid, PauseCircle, X } from "lucide-react";
 import { CoachingService, CoachingInsight } from "../lib/coaching-service";
 import { motion, AnimatePresence } from "motion/react";
+import { GameSetup } from "../components/GameSetup";
 
 type BoardState = (string | null)[];
 
@@ -26,6 +27,12 @@ const BOT_PROFILES: Record<Difficulty, { name: string; moods: { happy: string, w
     moods: { happy: "🦉", worried: "🧐", thinking: "📖" },
     color: "bg-red-500",
     description: "I calculate every outcome. I'm looking to trap you with a double-threat!"
+  },
+  expert: {
+    name: "Matrix Master",
+    moods: { happy: "🤖", worried: "🔌", thinking: "🔢" },
+    color: "bg-purple-600",
+    description: "I play perfect Tic Tac Toe. A draw is the best you can hope for."
   }
 };
 
@@ -100,7 +107,8 @@ export function TicTacToe() {
   }, [startNewGame]);
 
   useEffect(() => {
-    start();
+    // Only auto-start on mount if it's NOT Tic Tac Toe (e.g., leaving a game). 
+    // Instead we let the user pick via GameSetup.
   }, []); // Only run once on mount
 
   const checkWinner = (squares: BoardState) => {
@@ -263,7 +271,9 @@ export function TicTacToe() {
     setReviewIndex(null);
   };
 
-  if (!gameState || gameState.type !== "tictactoe") return null;
+  if (!gameState || gameState.status === "waiting" || gameState.type !== "tictactoe") {
+    return <GameSetup gameId="tictactoe" gameName="Tic Tac Toe" icon={<X className="h-6 w-6"/>} onPlayBot={start as any} />;
+  }
 
   const currentBoard = reviewIndex !== null ? moveHistory[reviewIndex] : gameState.data.board;
 

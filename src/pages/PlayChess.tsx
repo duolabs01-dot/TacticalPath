@@ -8,6 +8,8 @@ import { useGame } from "../context/GameContext";
 import { CoachingService, CoachingInsight } from "../lib/coaching-service";
 import { getStockfish } from "../lib/stockfish";
 import { cn } from "../lib/utils";
+import { GameSetup } from "../components/GameSetup";
+import { Square } from "chess.js";
 
 type BotPersona = "gambiter" | "positional" | "tactical";
 
@@ -132,6 +134,7 @@ export function PlayChess() {
   const [isThinking, setIsThinking] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [evaluation, setEvaluation] = useState(0);
+  const [moveFrom, setMoveFrom] = useState<string | null>(null);
   const reviewRef = useRef<HTMLDivElement | null>(null);
 
   const bot = useMemo(() => CHESS_BOTS[persona], [persona]);
@@ -145,14 +148,47 @@ export function PlayChess() {
       setIsThinking(false);
       setIsAnalyzing(false);
       setEvaluation(0);
+      setMoveFrom(null);
     },
     [startNewGame]
   );
 
   useEffect(() => {
-    start("tactical");
+    // GameSetup will invoke start
   }, [start]);
 
+  const handleSquareClick = useCallback((square: string) => {
+    if (!gameState || !chessGame) return;
+    if (gameState.turn !== "w" || gameState.status !== "playing" || isThinking) return;
+
+    if (!moveFrom) {
+      // Tap on player's own piece to select
+      const piece = chessGame.get(square as Square);
+      if (piece && piece.color === "w") setMoveFrom(square);
+      return;
+    }
+
+    // Move is pending
+    const result = makeMove({
+      from: moveFrom,
+      to: square,
+      promotion: "q",
+    });
+
+    if (result) {
+      setMoveFrom(null);
+    } else {
+      // Invalid move, maybe they clicked another of their own pieces
+      const piece = chessGame.get(square as Square);
+      if (piece && piece.color === "w") {
+        setMoveFrom(square);
+      } else {
+        setMoveFrom(null);
+      }
+    }
+  }, [chessGame, gameState, isThinking, makeMove, moveFrom]);
+
+  // Deprecated Drag Support
   const onDrop = useCallback(
     ({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string | null }) => {
       console.log("[onDrop] called", { sourceSquare, targetSquare, gameState: gameState?.status, turn: gameState?.turn, chessGame: !!chessGame, isThinking });
@@ -243,10 +279,12 @@ export function PlayChess() {
       if (!gameState.data.analysis) {
         runAnalysis();
       }
-    }
-  }, [chessGame, gameState, requestEngineMove, requestEvaluation, runAnalysis, showResult]);
-
-  if (!gameState || gameState.type !== "chess" || !chessGame) return null;
+    if (!gameState || gameState.status === "waiting" || gameState.type !== "chess" || !chessGame) {
+    return <GameSetup gameId="chess" gameName="Chess" icon={<span className="text-xl">♞</span>} onPlayBot={
+      // map generic difficulty string to BotPersona
+      (d) => start(d === 'hard' || d === 'expert' ? 'tactical' : d === 'medium' ? 'positional' : 'gambiter')
+    } />;
+  }
 
   const isCheck = chessGame.isCheck() && gameState.status === "playing";
   const result = getResultSummary(gameState.winner, gameState.status);
@@ -301,17 +339,17 @@ export function PlayChess() {
             </div>
 
             <div className="bg-white p-4 rounded-[3rem] shadow-2xl border-4 border-slate-200 relative overflow-hidden">
-            <Chessboard
-              options={{
-                position: chessGame.fen(),
-                onPieceDrop: onDrop,
-                boardOrientation: "white",
-                animationDurationInMs: 400,
-                boardStyle: { borderRadius: "2rem" },
-                darkSquareStyle: { backgroundColor: "#739552" },
-                lightSquareStyle: { backgroundColor: "#ebecd0" },
-              }}
-            />
+              <Chessboard
+                position={chessGame.fen()}
+                boardOrientation="white"
+                animationDuration={400}
+                arePiecesDraggable={false}
+                onSquareClick={handleSquareClick}
+                customSquareStyles={moveFrom ? { [moveFrom]: { backgroundColor: "rgba(255, 255, 0, 0.4)" } } : {}}
+                customBoardStyle={{ borderRadius: "2rem" }}
+                customDarkSquareStyle={{ backgroundColor: "#739552" }}
+                customLightSquareStyle={{ backgroundColor: "#ebecd0" }}
+              />
               <AnimatePresence>
                 {isCheck && (
                   <motion.div

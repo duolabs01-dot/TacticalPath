@@ -5,8 +5,8 @@ import { ArrowLeft, RotateCcw, Brain, Trophy, LayoutGrid } from "lucide-react";
 import { cn } from "../lib/utils";
 import { CoachingInsight, CoachingService } from "../lib/coaching-service";
 import { motion, AnimatePresence } from "motion/react";
-import { useBoardDrag } from "../hooks/useBoardDrag";
 import { playMoveSound, playCaptureSound, playWinSound } from "../lib/audio";
+import { GameSetup } from "../components/GameSetup";
 
 type MorrisPlayer = "1" | "2";
 
@@ -155,7 +155,9 @@ export function Morris() {
     setIsBotThinking(false);
   }, [difficulty, startNewGame]);
 
-  useEffect(() => { start(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    // Rely on GameSetup
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const checkGameOver = useCallback((
     board: (string | null)[],
@@ -217,32 +219,17 @@ export function Morris() {
     if (!millCreated) setTimeout(() => checkGameOver(nextBoard, piecesPlaced, piecesOnBoard, "moving"), 100);
   }, [checkGameOver, gameState, updateGameState]);
 
-  const { dragState, startDrag, shouldSuppressClick } = useBoardDrag({
-    enabled: Boolean(
-      gameState?.status === "playing" &&
-      gameState?.turn === "1" &&
-      gameState?.data.stage === "moving" &&
-      !isCapturing
-    ),
-    getValidTargets: (source) => {
-      if (!gameState) return [];
-      return getMovesForPiece(
-        gameState.data.board as (string | null)[],
-        gameState.data.piecesOnBoard as Record<MorrisPlayer, number>,
-        source,
-        "1"
-      );
-    },
-    onDrop: (source, target) => attemptMovingPhaseMove(source, target),
-  });
+  if (!gameState || gameState.status === "waiting" || gameState.type !== "morris") {
+    return <GameSetup gameId="morris" gameName="Morabaraba" icon={<Target className="h-6 w-6"/>} onPlayBot={start as any} />;
+  }
+
+  const board        = gameState.data.board        as (string | null)[];
+  const stage        = gameState.data.stage        as "placement" | "moving";
+  const piecesPlaced = gameState.data.piecesPlaced  as Record<MorrisPlayer, number>;
+  const piecesOnBoard= gameState.data.piecesOnBoard as Record<MorrisPlayer, number>;
 
   const handlePointClick = (i: number) => {
-    if (shouldSuppressClick()) return;
     if (!gameState || gameState.status !== "playing" || gameState.turn !== "1") return;
-    const board        = gameState.data.board        as (string | null)[];
-    const stage        = gameState.data.stage        as "placement" | "moving";
-    const piecesPlaced = gameState.data.piecesPlaced  as Record<MorrisPlayer, number>;
-    const piecesOnBoard= gameState.data.piecesOnBoard as Record<MorrisPlayer, number>;
 
     // ── Capture mode ─────────────────────────────────────────────────────────
     if (isCapturing) {

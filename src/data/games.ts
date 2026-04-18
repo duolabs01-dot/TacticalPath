@@ -1,4 +1,4 @@
-export type TacticalGameId = 'chess' | 'checkers' | 'morris' | 'tictactoe';
+export type TacticalGameId = 'chess' | 'checkers' | 'morris' | 'tictactoe' | 'fourinarow';
 
 export interface TacticalGame {
   id: TacticalGameId;
@@ -67,6 +67,20 @@ export const gameLibrary: TacticalGame[] = [
     accentClass: 'bg-rose-600',
     summary: 'Classic captures and king chases. Leap, trap, and promote.',
     coachFocus: 'Trading, tempo, promotion pressure.',
+    modes: ['vs computer', 'online rooms'],
+    multiplayerStatus: 'Live online rooms with invite codes.',
+    status: 'live',
+    tier: 'quick',
+  },
+  {
+    id: 'fourinarow',
+    name: 'Four in a Row',
+    icon: '🔴',
+    path: '/fourinarow',
+    onlinePath: '/multiplayer/fourinarow',
+    accentClass: 'bg-indigo-500',
+    summary: 'Connect 4 pieces vertically, horizontally, or diagonally. Simple rules, deep strategy.',
+    coachFocus: 'Pattern recognition, forks, central control.',
     modes: ['vs computer', 'online rooms'],
     multiplayerStatus: 'Live online rooms with invite codes.',
     status: 'live',
