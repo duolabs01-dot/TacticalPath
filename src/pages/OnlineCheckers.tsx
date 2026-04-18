@@ -289,7 +289,7 @@ export function OnlineCheckers() {
                       'flex items-center justify-center relative transition-all',
                       isDark ? 'bg-slate-700 hover:bg-slate-600' : 'bg-orange-50 cursor-default',
                       isSelected && 'ring-4 ring-blue-400 ring-inset',
-                      isValid && 'after:content-[""] after:w-4 after:h-4 after:bg-blue-400/60 after:rounded-full',
+                      isValid && 'after:content-[""] after:absolute after:w-4 after:h-4 after:bg-blue-400/60 after:rounded-full',
                     )}
                   >
                     {cell !== 0 && (

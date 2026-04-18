@@ -403,8 +403,8 @@ export function Morris() {
       ? getAllMoves(gameState.data.board as (string | null)[], gameState.data.piecesOnBoard as Record<MorrisPlayer, number>, "1").map((m) => m.from)
       : []
   );
-  const highlightedMoves    = dragState?.validTargets ?? validMoves;
-  const highlightedSelected = dragState?.source ?? selected;
+  const highlightedMoves    = validMoves;
+  const highlightedSelected = selected;
 
   const pp = (gameState.data.piecesOnBoard as Record<string, number>)["1"] ?? 0;
   const bp = (gameState.data.piecesOnBoard as Record<string, number>)["2"] ?? 0;
@@ -508,19 +508,11 @@ export function Morris() {
                   isSelectable && selected === null && "ring-2 ring-blue-200 ring-offset-2",
                   (isValid || highlightedMoves.includes(i)) && "ring-4 ring-blue-400 ring-offset-2 scale-110",
                   isCapturable && "ring-4 ring-red-500 ring-offset-2 animate-pulse",
-                  highlightedSelected === i && "ring-4 ring-blue-500 ring-offset-2",
-                  dragState?.hovered === i && "ring-4 ring-amber-300 ring-offset-2"
+                  highlightedSelected === i && "ring-4 ring-blue-500 ring-offset-2"
                 )}
               >
                 {cell === "1" && (
-                  <div
-                    onPointerDown={
-                      isSelectable && gameState.data.stage === "moving" && !isCapturing
-                        ? (event) => startDrag(i, event, { label: "●", className: "bg-slate-900 border-slate-700 text-white" })
-                        : undefined
-                    }
-                    className="flex h-full w-full items-center justify-center"
-                  >
+                  <div className="flex h-full w-full items-center justify-center">
                     <div className="w-2 h-2 bg-slate-500 rounded-full opacity-30" />
                   </div>
                 )}
@@ -541,17 +533,7 @@ export function Morris() {
           )}
         </div>
 
-        {/* Drag ghost */}
-        {dragState && (
-          <div
-            className="pointer-events-none fixed z-[120] -translate-x-1/2 -translate-y-1/2"
-            style={{ left: dragState.pointer.x, top: dragState.pointer.y }}
-          >
-            <div className={cn("flex h-12 w-12 items-center justify-center rounded-full border-2 shadow-2xl", dragState.preview.className)}>
-              <span className={cn("text-2xl font-black", dragState.preview.labelClassName)}>{dragState.preview.label}</span>
-            </div>
-          </div>
-        )}
+        {/* Drag ghost removed */}
 
         {/* Player strips with piece count */}
         <div className="mt-6 grid grid-cols-2 gap-4">

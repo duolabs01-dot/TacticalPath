@@ -278,8 +278,8 @@ export function Checkers() {
       ? forcedSource !== null ? [forcedSource] : getAllValidMoves(board, true).map((m) => m.from)
       : []
   );
-  const highlightedMoves    = dragState?.validTargets ?? validMoves;
-  const highlightedSelected = dragState?.source ?? selected;
+  const highlightedMoves    = validMoves;
+  const highlightedSelected = selected;
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none">
@@ -350,21 +350,12 @@ export function Checkers() {
                   isDark ? "bg-slate-700 hover:bg-slate-600/90" : "bg-orange-50 cursor-default",
                   highlightedSelected === i && "ring-4 ring-blue-400 ring-inset",
                   isSelectable && selected === null && "ring-2 ring-white/30 ring-inset",
-                  isValid && "after:content-[''] after:w-4 after:h-4 after:bg-blue-400/60 after:rounded-full",
-                  dragState?.hovered === i && "ring-4 ring-amber-300 ring-inset",
+                  isValid && "after:content-[''] after:absolute after:w-4 after:h-4 after:bg-blue-400/60 after:rounded-full",
                   isKingFlash && "ring-4 ring-yellow-400 ring-inset animate-pulse"
                 )}
               >
                 {cell !== 0 && (
                   <div
-                    onPointerDown={
-                      isPlayerPiece(cell) && isSelectable && gameState.turn === "1" && gameState.status === "playing"
-                        ? (event) => startDrag(i, event, {
-                            label: cell === PLAYER_KING ? "👑" : "●",
-                            className: "bg-red-500 border-red-700 text-white",
-                          })
-                        : undefined
-                    }
                     className={cn(
                       "w-4/5 h-4/5 rounded-full shadow-lg border-b-4 transform active:scale-95 transition-transform flex items-center justify-center",
                       isPlayerPiece(cell) ? "bg-red-500 border-red-700" : "bg-slate-900 border-black",
@@ -400,18 +391,6 @@ export function Checkers() {
             </div>
           )}
         </div>
-
-        {/* Drag ghost */}
-        {dragState && (
-          <div
-            className="pointer-events-none fixed z-[120] -translate-x-1/2 -translate-y-1/2"
-            style={{ left: dragState.pointer.x, top: dragState.pointer.y }}
-          >
-            <div className={cn("flex h-14 w-14 items-center justify-center rounded-full border-b-4 shadow-2xl", dragState.preview.className)}>
-              <span className={cn("text-2xl font-black", dragState.preview.labelClassName)}>{dragState.preview.label}</span>
-            </div>
-          </div>
-        )}
 
         {/* Player strips with piece count */}
         <div className="mt-6 flex items-center justify-between w-full px-4">
