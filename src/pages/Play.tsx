@@ -75,7 +75,7 @@ export function Play() {
           </div>
         </div>
         <p className="mt-3 max-w-lg text-sm leading-7 text-slate-600">
-          Start with live Tic Tac Toe rooms now. The heavier boards stay local-first until their rules and sync are ready.
+          Chess, Checkers, Morabaraba, and Tic Tac Toe all have live rooms. Create a room, share the code, play with anyone — no account needed.
         </p>
         <div className="mt-5 inline-flex items-center gap-2 font-black text-emerald-700 transition group-hover:gap-3">
           Open multiplayer <ArrowRight className="h-4 w-4" />

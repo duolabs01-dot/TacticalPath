@@ -72,12 +72,26 @@ export function Lobby({
           <p className="mt-3 max-w-lg text-sm leading-relaxed text-blue-50">
             No lobby list. No fake matchmaking. Just a live room that works on any device.
           </p>
-          <button
-            onClick={onCreateRoom}
-            className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-blue-900 transition hover:bg-blue-50"
-          >
-            <Swords className="h-4 w-4" /> Create new room
-          </button>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <button
+              onClick={onCreateRoom}
+              className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-blue-900 transition hover:bg-blue-50"
+            >
+              <Swords className="h-4 w-4" /> Create & join
+            </button>
+            <button
+              onClick={async () => {
+                const code = generateRoomCode();
+                onDraftCodeChange(code);
+                try {
+                  await navigator.clipboard.writeText(code);
+                } catch { /* ignore */ }
+              }}
+              className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-black text-white transition hover:bg-white/20"
+            >
+              <Copy className="h-4 w-4" /> Generate & copy code
+            </button>
+          </div>
         </div>
 
         <div className="rounded-[2rem] bg-white p-6 shadow-sm">

@@ -77,26 +77,28 @@ export function Dashboard() {
       {/* Daily Board stub + Chess hero */}
       <section className="mb-8 grid gap-4 lg:grid-cols-[1.1fr,0.9fr]">
         {/* Daily Board placeholder */}
-        <div className="rounded-[2rem] border-2 border-dashed border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-950/30">
+        <Link
+          to="/daily"
+          className="rounded-[2rem] bg-gradient-to-br from-amber-500 to-orange-600 p-6 text-white shadow-xl shadow-amber-200 transition hover:-translate-y-0.5 dark:shadow-none"
+        >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-600 dark:text-blue-400">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-100">
                 Daily Board
               </p>
-              <h2 className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
-                Your daily chess puzzle
+              <h2 className="mt-2 text-2xl font-black">
+                Today's puzzle
               </h2>
             </div>
-            <Target className="h-8 w-8 text-blue-400" />
+            <Target className="h-8 w-8 text-amber-200" />
           </div>
-          <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
-            A new chess position every day. Find the strongest move. Build your
-            streak. Launching next week.
+          <p className="mt-3 text-sm leading-7 text-amber-50">
+            One chess position pulled from Lichess every day. Find the best move, build your streak.
           </p>
-          <div className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-blue-100 px-5 py-3 text-sm font-bold text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
-            <Sparkles className="h-4 w-4" /> Coming soon
+          <div className="mt-4 inline-flex items-center gap-2 text-sm font-black text-white/90">
+            Solve it <ArrowRight className="h-4 w-4" />
           </div>
-        </div>
+        </Link>
 
         {/* Chess — primary game card */}
         <Link

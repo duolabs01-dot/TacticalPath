@@ -18,14 +18,11 @@ import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import {
   OnlineTicTacToeState,
   TicTacToeMark,
-  TicTacToeRoomPresence,
   TicTacToeWinner,
   applyOnlineMove,
   createEmptyOnlineTicTacToeState,
-  generateRoomCode,
-  sanitizeRoomCode,
-  sortRoomPlayers,
 } from "../lib/tictactoe-online";
+import { RoomPresence, sortRoomPlayers, generateRoomCode, sanitizeRoomCode } from "../lib/online-room";
 
 const GUEST_NAME_KEY = "tp:guest-name";
 
@@ -53,7 +50,7 @@ function readSavedGuestName() {
   return window.localStorage.getItem(GUEST_NAME_KEY) ?? "";
 }
 
-function getRoleForPlayer(players: TicTacToeRoomPresence[], playerId: string): PlayerRole {
+function getRoleForPlayer(players: RoomPresence[], playerId: string): PlayerRole {
   const index = players.findIndex((player) => player.playerId === playerId);
   if (index === 0) return "X";
   if (index === 1) return "O";
@@ -73,7 +70,7 @@ export function OnlineTicTacToe() {
   const [draftRoomCode, setDraftRoomCode] = useState(() => sanitizeRoomCode(searchParams.get("room") ?? ""));
   const [guestName, setGuestName] = useState(() => readSavedGuestName());
   const [roomState, setRoomState] = useState<OnlineTicTacToeState | null>(null);
-  const [players, setPlayers] = useState<TicTacToeRoomPresence[]>([]);
+  const [players, setPlayers] = useState<RoomPresence[]>([]);
   const [connectionStatus, setConnectionStatus] = useState("idle");
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
@@ -193,7 +190,7 @@ export function OnlineTicTacToe() {
       .on("presence", { event: "sync" }, () => {
         if (!isActive) return;
 
-        const presenceState = channel.presenceState<TicTacToeRoomPresence>();
+        const presenceState = channel.presenceState<RoomPresence>();
         const nextPlayers = sortRoomPlayers(
           Object.values(presenceState)
             .flat()

@@ -1,10 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Target, Play, BarChart3 } from "lucide-react";
+import { Home, Play, BarChart3, Wifi } from "lucide-react";
 
 const navItems = [
   { to: "/dashboard", icon: Home, label: "Home" },
-  { to: "/daily", icon: Target, label: "Daily" },
-  { to: "/play", icon: Play, label: "Play" },
+  { to: "/play", icon: Play, label: "Solo" },
+  { to: "/multiplayer", icon: Wifi, label: "Online" },
   { to: "/progress", icon: BarChart3, label: "Stats" },
 ];
 

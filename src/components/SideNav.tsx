@@ -1,10 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Target, Play, BarChart3, Settings, User } from "lucide-react";
+import { Home, Target, Play, BarChart3, Settings, User, Wifi } from "lucide-react";
 
 const mainNav = [
   { to: "/dashboard", icon: Home, label: "Home" },
   { to: "/daily", icon: Target, label: "Daily Board" },
-  { to: "/play", icon: Play, label: "Play" },
+  { to: "/play", icon: Play, label: "Play Solo" },
+  { to: "/multiplayer", icon: Wifi, label: "Multiplayer" },
   { to: "/progress", icon: BarChart3, label: "Stats" },
 ];
 
