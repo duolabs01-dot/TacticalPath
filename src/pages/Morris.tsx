@@ -42,16 +42,13 @@ const mills = [
 function checkMill(board: (string | null)[], index: number) {
   const player = board[index];
   if (!player) return false;
-  return mills.some((mill) => mill.includes(index) && mill.every((point) => board[point] === player));
+  return mills.some((mill) => mill.includes(index) && mill.every((p) => board[p] === player));
 }
 
 function getCapturablePieces(board: (string | null)[], player: MorrisPlayer) {
-  const pieces = board
-    .map((value, index) => (value === player ? index : null))
-    .filter((value): value is number => value !== null);
-
-  const outsideMill = pieces.filter((index) => !checkMill(board, index));
-  return outsideMill.length > 0 ? outsideMill : pieces;
+  const pieces = board.map((v, i) => (v === player ? i : null)).filter((v): v is number => v !== null);
+  const outside = pieces.filter((i) => !checkMill(board, i));
+  return outside.length > 0 ? outside : pieces;
 }
 
 function getMovesForPiece(
@@ -61,14 +58,10 @@ function getMovesForPiece(
   player: MorrisPlayer
 ) {
   if (board[index] !== player) return [] as number[];
-
   if (piecesOnBoard[player] === 3) {
-    return board
-      .map((value, point) => (value === null ? point : null))
-      .filter((value): value is number => value !== null);
+    return board.map((v, i) => (v === null ? i : null)).filter((v): v is number => v !== null);
   }
-
-  return neighbors[index].filter((point) => board[point] === null);
+  return neighbors[index].filter((p) => board[p] === null);
 }
 
 function getAllMoves(
@@ -76,31 +69,92 @@ function getAllMoves(
   piecesOnBoard: Record<MorrisPlayer, number>,
   player: MorrisPlayer
 ) {
-  return board.flatMap((value, index) => {
-    if (value !== player) return [];
-    return getMovesForPiece(board, piecesOnBoard, index, player).map((to) => ({ from: index, to }));
+  return board.flatMap((v, i) => {
+    if (v !== player) return [];
+    return getMovesForPiece(board, piecesOnBoard, i, player).map((to) => ({ from: i, to }));
   });
 }
 
+// ── Smart bot ─────────────────────────────────────────────────────────────────
+
+/** Count how many mills the player could complete from `index` (potential mills). */
+function countPotentialMills(board: (string | null)[], index: number, player: MorrisPlayer): number {
+  return mills.filter((mill) => {
+    if (!mill.includes(index)) return false;
+    const others = mill.filter((p) => p !== index);
+    return others.every((p) => board[p] === player || board[p] === null) &&
+           others.filter((p) => board[p] === player).length >= 1;
+  }).length;
+}
+
+function scorePlacement(board: (string | null)[], index: number, player: MorrisPlayer): number {
+  const opponent = player === "1" ? "2" : "1";
+  let score = 0;
+
+  // Immediately simulate the placement
+  board[index] = player;
+  if (checkMill(board, index)) score += 100;          // complete mill → capture immediately
+  board[index] = null;
+
+  // Count potential mills after placing
+  board[index] = player;
+  score += countPotentialMills(board, index, player) * 20;
+  board[index] = null;
+
+  // Block opponent's almost-complete mill
+  board[index] = opponent;
+  if (checkMill(board, index)) score += 60;           // blocking opponent mill
+  board[index] = null;
+
+  // Junction points are inherently valuable
+  score += neighbors[index].length * 3;
+
+  return score;
+}
+
+function scoreMovePhase(
+  board: (string | null)[],
+  piecesOnBoard: Record<MorrisPlayer, number>,
+  from: number,
+  to: number,
+  player: MorrisPlayer
+): number {
+  let score = 0;
+  const next = [...board];
+  next[from] = null;
+  next[to]   = player;
+  if (checkMill(next, to))            score += 100;   // creates mill
+  score += countPotentialMills(next, to, player) * 15;
+  score += neighbors[to].length * 2;                  // prefer junctions
+  if (piecesOnBoard[player] === 3) score += 5;        // flying — any move ok
+  return score;
+}
+
+const DIFFICULTY_LABELS: Record<Difficulty, string> = { easy: "Easy", medium: "Medium", hard: "Hard" };
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function Morris() {
-  const { gameState, startNewGame, updateGameState } = useGame();
-  const [selected, setSelected] = useState<number | null>(null);
-  const [validMoves, setValidMoves] = useState<number[]>([]);
+  const { gameState, startNewGame, updateGameState, recordResult } = useGame();
+  const [selected, setSelected]       = useState<number | null>(null);
+  const [validMoves, setValidMoves]   = useState<number[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [coachingMsg, setCoachingMsg] = useState("Placement phase: Place your 9 pieces to form mills.");
-  const [showResult, setShowResult] = useState(false);
+  const [showResult, setShowResult]   = useState(false);
+  const [difficulty, setDifficulty]   = useState<Difficulty>("medium");
+  const [isBotThinking, setIsBotThinking] = useState(false);
 
-  const start = useCallback((diff: Difficulty = "medium") => {
+  const start = useCallback((diff: Difficulty = difficulty) => {
+    setDifficulty(diff);
     startNewGame("morris", "play", { difficulty: diff });
     setSelected(null);
     setValidMoves([]);
     setIsCapturing(false);
     setShowResult(false);
-  }, [startNewGame]);
+    setIsBotThinking(false);
+  }, [difficulty, startNewGame]);
 
-  useEffect(() => {
-    start();
-  }, [start]);
+  useEffect(() => { start(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const checkGameOver = useCallback((
     board: (string | null)[],
@@ -109,72 +163,61 @@ export function Morris() {
     stage: "placement" | "moving"
   ) => {
     if (piecesPlaced["1"] === 9 && piecesOnBoard["1"] < 3) {
-      updateGameState({ status: "finished", winner: "2" });
-      setTimeout(() => setShowResult(true), 800);
+      updateGameState({ status: "finished", winner: "Robot" });
+      recordResult?.("morris", false);
+      setTimeout(() => setShowResult(true), 500);
       return;
     }
-
     if (piecesPlaced["2"] === 9 && piecesOnBoard["2"] < 3) {
-      updateGameState({ status: "finished", winner: "1" });
-      setTimeout(() => setShowResult(true), 800);
+      updateGameState({ status: "finished", winner: "Player" });
+      recordResult?.("morris", true);
+      setTimeout(() => setShowResult(true), 500);
       return;
     }
-
     if (stage === "moving") {
-      const playerMoves = getAllMoves(board, piecesOnBoard, "1");
-      const botMoves = getAllMoves(board, piecesOnBoard, "2");
-
-      if (playerMoves.length === 0) {
-        updateGameState({ status: "finished", winner: "2" });
-        setTimeout(() => setShowResult(true), 800);
+      if (getAllMoves(board, piecesOnBoard, "1").length === 0) {
+        updateGameState({ status: "finished", winner: "Robot" });
+        recordResult?.("morris", false);
+        setTimeout(() => setShowResult(true), 500);
         return;
       }
-
-      if (botMoves.length === 0) {
-        updateGameState({ status: "finished", winner: "1" });
-        setTimeout(() => setShowResult(true), 800);
+      if (getAllMoves(board, piecesOnBoard, "2").length === 0) {
+        updateGameState({ status: "finished", winner: "Player" });
+        recordResult?.("morris", true);
+        setTimeout(() => setShowResult(true), 500);
       }
     }
-  }, [updateGameState]);
+  }, [updateGameState, recordResult]);
 
   const attemptMovingPhaseMove = useCallback((source: number, destination: number) => {
     if (!gameState || gameState.status !== "playing" || gameState.turn !== "1") return;
-
     const board = gameState.data.board as (string | null)[];
-    const piecesPlaced = gameState.data.piecesPlaced as Record<MorrisPlayer, number>;
+    const piecesPlaced  = gameState.data.piecesPlaced  as Record<MorrisPlayer, number>;
     const piecesOnBoard = gameState.data.piecesOnBoard as Record<MorrisPlayer, number>;
 
     if (!getMovesForPiece(board, piecesOnBoard, source, "1").includes(destination)) return;
 
     const nextBoard = [...board];
     nextBoard[destination] = "1";
-    nextBoard[source] = null;
+    nextBoard[source]      = null;
     const millCreated = checkMill(nextBoard, destination);
 
     setSelected(null);
     setValidMoves([]);
-
     if (millCreated) {
       setIsCapturing(true);
-      setCoachingMsg("Mill formed. Capture one of the highlighted robot pieces.");
+      setCoachingMsg("Mill formed! Capture one of the highlighted robot pieces.");
     }
 
-    updateGameState({
-      data: { ...gameState.data, board: nextBoard },
-      turn: millCreated ? "1" : "2",
-    });
-
-    if (!millCreated) {
-      setTimeout(() => checkGameOver(nextBoard, piecesPlaced, piecesOnBoard, "moving"), 100);
-    }
+    updateGameState({ data: { ...gameState.data, board: nextBoard }, turn: millCreated ? "1" : "2" });
+    if (!millCreated) setTimeout(() => checkGameOver(nextBoard, piecesPlaced, piecesOnBoard, "moving"), 100);
   }, [checkGameOver, gameState, updateGameState]);
 
   const { dragState, startDrag, shouldSuppressClick } = useBoardDrag({
     enabled: Boolean(
-      gameState &&
-      gameState.status === "playing" &&
-      gameState.turn === "1" &&
-      gameState.data.stage === "moving" &&
+      gameState?.status === "playing" &&
+      gameState?.turn === "1" &&
+      gameState?.data.stage === "moving" &&
       !isCapturing
     ),
     getValidTargets: (source) => {
@@ -186,229 +229,186 @@ export function Morris() {
         "1"
       );
     },
-    onDrop: (source, target) => {
-      attemptMovingPhaseMove(source, target);
-    },
+    onDrop: (source, target) => attemptMovingPhaseMove(source, target),
   });
 
   const handlePointClick = (i: number) => {
     if (shouldSuppressClick()) return;
     if (!gameState || gameState.status !== "playing" || gameState.turn !== "1") return;
+    const board        = gameState.data.board        as (string | null)[];
+    const stage        = gameState.data.stage        as "placement" | "moving";
+    const piecesPlaced = gameState.data.piecesPlaced  as Record<MorrisPlayer, number>;
+    const piecesOnBoard= gameState.data.piecesOnBoard as Record<MorrisPlayer, number>;
 
-    const board = gameState.data.board as (string | null)[];
-    const stage = gameState.data.stage as "placement" | "moving";
-    const piecesPlaced = gameState.data.piecesPlaced as Record<MorrisPlayer, number>;
-    const piecesOnBoard = gameState.data.piecesOnBoard as Record<MorrisPlayer, number>;
-
+    // ── Capture mode ─────────────────────────────────────────────────────────
     if (isCapturing) {
-      const capturablePieces = getCapturablePieces(board, "2");
-      if (!capturablePieces.includes(i)) return;
-
+      const capturable = getCapturablePieces(board, "2");
+      if (!capturable.includes(i)) return;
       const nextBoard = [...board];
       nextBoard[i] = null;
       const nextOnBoard = { ...piecesOnBoard, "2": piecesOnBoard["2"] - 1 };
-
       setIsCapturing(false);
       setSelected(null);
       setValidMoves([]);
-      updateGameState({
-        data: { ...gameState.data, board: nextBoard, piecesOnBoard: nextOnBoard },
-        turn: "2",
-      });
+      updateGameState({ data: { ...gameState.data, board: nextBoard, piecesOnBoard: nextOnBoard }, turn: "2" });
       setTimeout(() => checkGameOver(nextBoard, piecesPlaced, nextOnBoard, stage), 100);
       return;
     }
 
+    // ── Placement ─────────────────────────────────────────────────────────────
     if (stage === "placement") {
       if (board[i] !== null || piecesPlaced["1"] >= 9) return;
-
-      const nextBoard = [...board];
-      nextBoard[i] = "1";
-
-      const nextPlaced = { ...piecesPlaced, "1": piecesPlaced["1"] + 1 };
-      const nextOnBoard = { ...piecesOnBoard, "1": piecesOnBoard["1"] + 1 };
-      const nextStage = nextPlaced["1"] === 9 && nextPlaced["2"] === 9 ? "moving" : "placement";
-      const millCreated = checkMill(nextBoard, i);
-
+      const nextBoard    = [...board];
+      nextBoard[i]       = "1";
+      const nextPlaced   = { ...piecesPlaced,  "1": piecesPlaced["1"] + 1 };
+      const nextOnBoard  = { ...piecesOnBoard, "1": piecesOnBoard["1"] + 1 };
+      const nextStage    = nextPlaced["1"] === 9 && nextPlaced["2"] === 9 ? "moving" : "placement";
+      const millCreated  = checkMill(nextBoard, i);
       if (millCreated) {
         setIsCapturing(true);
-        setCoachingMsg("Mill formed. Capture one of the highlighted robot pieces.");
+        setCoachingMsg("Mill formed! Capture one of the highlighted robot pieces.");
       }
-
-      updateGameState({
-        data: {
-          ...gameState.data,
-          board: nextBoard,
-          piecesPlaced: nextPlaced,
-          piecesOnBoard: nextOnBoard,
-          stage: nextStage,
-        },
-        turn: millCreated ? "1" : "2",
-      });
-
-      if (!millCreated) {
-        setTimeout(() => checkGameOver(nextBoard, nextPlaced, nextOnBoard, nextStage), 100);
-      }
-
+      updateGameState({ data: { ...gameState.data, board: nextBoard, piecesPlaced: nextPlaced, piecesOnBoard: nextOnBoard, stage: nextStage }, turn: millCreated ? "1" : "2" });
+      if (!millCreated) setTimeout(() => checkGameOver(nextBoard, nextPlaced, nextOnBoard, nextStage), 100);
       return;
     }
 
+    // ── Moving ────────────────────────────────────────────────────────────────
     if (selected === null) {
       const moves = getMovesForPiece(board, piecesOnBoard, i, "1");
-      if (moves.length > 0) {
-        setSelected(i);
-        setValidMoves(moves);
-      }
+      if (moves.length > 0) { setSelected(i); setValidMoves(moves); }
       return;
     }
-
-    if (i === selected) {
-      setSelected(null);
-      setValidMoves([]);
-      return;
-    }
-
+    if (i === selected) { setSelected(null); setValidMoves([]); return; }
     if (board[i] === "1") {
       const moves = getMovesForPiece(board, piecesOnBoard, i, "1");
-      if (moves.length > 0) {
-        setSelected(i);
-        setValidMoves(moves);
-      }
+      if (moves.length > 0) { setSelected(i); setValidMoves(moves); }
       return;
     }
-
-    if (!validMoves.includes(i)) {
-      setSelected(null);
-      setValidMoves([]);
-      return;
-    }
-
+    if (!validMoves.includes(i)) { setSelected(null); setValidMoves([]); return; }
     attemptMovingPhaseMove(selected, i);
   };
 
   const makeComputerMove = useCallback(() => {
     if (!gameState || gameState.status !== "playing" || gameState.turn !== "2" || isCapturing) return;
+    const delay = difficulty === "easy" ? 1200 : difficulty === "medium" ? 900 : 600;
 
+    setIsBotThinking(true);
     setTimeout(() => {
-      const board = gameState.data.board as (string | null)[];
-      const stage = gameState.data.stage as "placement" | "moving";
-      const piecesPlaced = gameState.data.piecesPlaced as Record<MorrisPlayer, number>;
-      const piecesOnBoard = gameState.data.piecesOnBoard as Record<MorrisPlayer, number>;
+      const board        = gameState.data.board        as (string | null)[];
+      const stage        = gameState.data.stage        as "placement" | "moving";
+      const piecesPlaced = gameState.data.piecesPlaced  as Record<MorrisPlayer, number>;
+      const piecesOnBoard= gameState.data.piecesOnBoard as Record<MorrisPlayer, number>;
 
       if (stage === "placement") {
-        const available = board
-          .map((value, index) => (value === null ? index : null))
-          .filter((value): value is number => value !== null);
+        const available = board.map((v, i) => (v === null ? i : null)).filter((v): v is number => v !== null);
+        if (!available.length) { setIsBotThinking(false); return; }
 
-        const move = available[Math.floor(Math.random() * available.length)];
-        if (move === undefined) return;
+        // Score each available point; add randomness for easy
+        const scored = available.map((idx) => ({
+          idx,
+          score: scorePlacement([...board], idx, "2") + (difficulty === "easy" ? Math.random() * 30 : 0),
+        }));
+        scored.sort((a, b) => b.score - a.score);
+        const move = scored[0].idx;
 
-        const nextBoard = [...board];
-        nextBoard[move] = "2";
-
-        const nextPlaced = { ...piecesPlaced, "2": piecesPlaced["2"] + 1 };
+        const nextBoard   = [...board];
+        nextBoard[move]   = "2";
+        const nextPlaced  = { ...piecesPlaced,  "2": piecesPlaced["2"] + 1 };
         const nextOnBoard = { ...piecesOnBoard, "2": piecesOnBoard["2"] + 1 };
-        const nextStage = nextPlaced["1"] === 9 && nextPlaced["2"] === 9 ? "moving" : "placement";
+        const nextStage   = nextPlaced["1"] === 9 && nextPlaced["2"] === 9 ? "moving" : "placement";
         const millCreated = checkMill(nextBoard, move);
 
         if (millCreated) {
           const capturable = getCapturablePieces(nextBoard, "1");
           if (capturable.length > 0) {
-            const captured = capturable[Math.floor(Math.random() * capturable.length)];
-            nextBoard[captured] = null;
+            // Pick weakest / least strategic capture (most potential mills)
+            const cap = capturable.sort((a, b) =>
+              countPotentialMills(nextBoard, a, "1") - countPotentialMills(nextBoard, b, "1")
+            )[0];
+            nextBoard[cap] = null;
             nextOnBoard["1"] -= 1;
           }
         }
 
-        updateGameState({
-          data: {
-            ...gameState.data,
-            board: nextBoard,
-            piecesPlaced: nextPlaced,
-            piecesOnBoard: nextOnBoard,
-            stage: nextStage,
-          },
-          turn: "1",
-        });
-        setSelected(null);
-        setValidMoves([]);
+        updateGameState({ data: { ...gameState.data, board: nextBoard, piecesPlaced: nextPlaced, piecesOnBoard: nextOnBoard, stage: nextStage }, turn: "1" });
+        setSelected(null); setValidMoves([]);
+        setIsBotThinking(false);
         setTimeout(() => checkGameOver(nextBoard, nextPlaced, nextOnBoard, nextStage), 100);
         return;
       }
 
+      // Moving phase
       const allMoves = getAllMoves(board, piecesOnBoard, "2");
-      if (allMoves.length === 0) {
-        updateGameState({ status: "finished", winner: "1" });
-        setTimeout(() => setShowResult(true), 800);
+      if (!allMoves.length) {
+        updateGameState({ status: "finished", winner: "Player" });
+        recordResult?.("morris", true);
+        setIsBotThinking(false);
+        setTimeout(() => setShowResult(true), 500);
         return;
       }
 
-      const move = allMoves[Math.floor(Math.random() * allMoves.length)];
-      const nextBoard = [...board];
-      nextBoard[move.to] = "2";
-      nextBoard[move.from] = null;
+      // Score moves; add randomness for easy
+      const scored = allMoves.map((m) => ({
+        m,
+        score: scoreMovePhase([...board], piecesOnBoard, m.from, m.to, "2") + (difficulty === "easy" ? Math.random() * 25 : 0),
+      }));
+      scored.sort((a, b) => b.score - a.score);
+      const move = scored[0].m;
 
-      const nextOnBoard = { ...piecesOnBoard };
+      const nextBoard = [...board];
+      nextBoard[move.to]   = "2";
+      nextBoard[move.from] = null;
+      const nextOnBoard    = { ...piecesOnBoard };
+
       if (checkMill(nextBoard, move.to)) {
         const capturable = getCapturablePieces(nextBoard, "1");
         if (capturable.length > 0) {
-          const captured = capturable[Math.floor(Math.random() * capturable.length)];
-          nextBoard[captured] = null;
+          const cap = capturable.sort((a, b) =>
+            countPotentialMills(nextBoard, a, "1") - countPotentialMills(nextBoard, b, "1")
+          )[0];
+          nextBoard[cap] = null;
           nextOnBoard["1"] -= 1;
         }
       }
 
-      updateGameState({
-        data: { ...gameState.data, board: nextBoard, piecesOnBoard: nextOnBoard },
-        turn: "1",
-      });
-      setSelected(null);
-      setValidMoves([]);
+      updateGameState({ data: { ...gameState.data, board: nextBoard, piecesOnBoard: nextOnBoard }, turn: "1" });
+      setSelected(null); setValidMoves([]);
+      setIsBotThinking(false);
       setTimeout(() => checkGameOver(nextBoard, piecesPlaced, nextOnBoard, "moving"), 100);
-    }, 1000);
-  }, [gameState, updateGameState, isCapturing, checkGameOver]);
+    }, delay);
+  }, [gameState, difficulty, updateGameState, isCapturing, checkGameOver, recordResult]);
 
   useEffect(() => {
-    if (gameState?.turn === "2") makeComputerMove();
-
+    if (gameState?.turn === "2" && !isBotThinking) makeComputerMove();
     if (!gameState) return;
-
-    if (isCapturing) {
-      setCoachingMsg("Mill formed. Capture one of the highlighted robot pieces.");
-      return;
-    }
-
-    if (gameState.data.stage === "moving") {
-      setCoachingMsg(
-        selected === null
-          ? "Moving phase: tap one of your cows, then tap a connected open point."
-          : "Now tap one of the highlighted points to move there."
-      );
-      return;
-    }
-
-    const insight = CoachingService.getInsight("morris", gameState);
-    setCoachingMsg(insight.message);
-  }, [gameState, makeComputerMove, isCapturing, selected]);
+    if (isCapturing) { setCoachingMsg("Mill formed! Capture one of the highlighted robot pieces."); return; }
+    setCoachingMsg(CoachingService.getInsight("morris", gameState).message);
+  }, [gameState, makeComputerMove, isCapturing, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!gameState || gameState.type !== "morris") return null;
 
-  const isGameOver = gameState.status === "finished";
-  const resultTitle = gameState.winner === "1" ? "You Win" : gameState.winner === "2" ? "Bot Wins" : "Draw";
-  const resultEmoji = gameState.winner === "1" ? "🏆" : gameState.winner === "2" ? "💀" : "🤝";
-  const resultTone = gameState.winner === "1" ? "bg-emerald-500" : gameState.winner === "2" ? "bg-rose-500" : "bg-sky-500";
+  const isGameOver    = gameState.status === "finished";
+  const playerWon     = gameState.winner === "Player";
+  const resultTone    = playerWon ? "bg-emerald-500" : gameState.status === "draw" ? "bg-sky-500" : "bg-rose-500";
+  const resultEmoji   = playerWon ? "🏆" : gameState.status === "draw" ? "🤝" : "💀";
+  const resultTitle   = playerWon ? "You Win" : gameState.status === "draw" ? "Draw" : "Bot Wins";
+
   const capturablePieces = new Set(isCapturing ? getCapturablePieces(gameState.data.board as (string | null)[], "2") : []);
   const selectablePieces = new Set(
     gameState.data.stage === "moving" && gameState.turn === "1"
-      ? getAllMoves(gameState.data.board as (string | null)[], gameState.data.piecesOnBoard as Record<MorrisPlayer, number>, "1").map((move) => move.from)
+      ? getAllMoves(gameState.data.board as (string | null)[], gameState.data.piecesOnBoard as Record<MorrisPlayer, number>, "1").map((m) => m.from)
       : []
   );
-  const highlightedMoves = dragState?.validTargets ?? validMoves;
+  const highlightedMoves    = dragState?.validTargets ?? validMoves;
   const highlightedSelected = dragState?.source ?? selected;
+
+  const pp = (gameState.data.piecesOnBoard as Record<string, number>)["1"] ?? 0;
+  const bp = (gameState.data.piecesOnBoard as Record<string, number>)["2"] ?? 0;
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none">
-      <header className="w-full max-w-md flex items-center justify-between mb-8">
+      <header className="w-full max-w-md flex items-center justify-between mb-6">
         <Link to="/dashboard" className="p-2 hover:bg-slate-200 rounded-2xl transition-colors">
           <ArrowLeft className="w-6 h-6" />
         </Link>
@@ -423,14 +423,31 @@ export function Morris() {
         </button>
       </header>
 
+      {/* Difficulty selector */}
+      <div className="w-full max-w-md flex gap-2 mb-5">
+        {(["easy", "medium", "hard"] as Difficulty[]).map((d) => (
+          <button
+            key={d}
+            onClick={() => start(d)}
+            className={cn(
+              "flex-1 py-2 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all",
+              difficulty === d
+                ? "bg-emerald-600 text-white shadow-md"
+                : "bg-white text-slate-500 border border-slate-200 hover:border-emerald-300"
+            )}
+          >
+            {DIFFICULTY_LABELS[d]}
+          </button>
+        ))}
+      </div>
+
       <main className="w-full max-w-md">
-        <div
-          className={cn(
-            "rounded-[2rem] p-6 text-white mb-8 shadow-lg flex items-start gap-4 transition-colors duration-500",
-            isCapturing ? "bg-red-600 shadow-red-200" : isGameOver ? "bg-slate-800" : "bg-emerald-600 shadow-emerald-200"
-          )}
-        >
-          <Brain className="w-6 h-6 shrink-0 mt-0.5" />
+        {/* Coach card */}
+        <div className={cn(
+          "rounded-[2rem] p-5 text-white mb-6 shadow-lg flex items-start gap-4 transition-colors duration-500",
+          isCapturing ? "bg-red-600 shadow-red-200" : isGameOver ? "bg-slate-800" : "bg-emerald-600 shadow-emerald-200"
+        )}>
+          <Brain className="w-5 h-5 shrink-0 mt-0.5" />
           <div>
             <p className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
               {isGameOver ? "Post-game coaching" : "Game coach"}
@@ -439,6 +456,23 @@ export function Morris() {
           </div>
         </div>
 
+        {/* Placement progress bar */}
+        {gameState.data.stage === "placement" && (
+          <div className="mb-4 px-1">
+            <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+              <span>Your placement</span>
+              <span>{(gameState.data.piecesPlaced as Record<string, number>)["1"] ?? 0}/9</span>
+            </div>
+            <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-emerald-500 rounded-full transition-all"
+                style={{ width: `${(((gameState.data.piecesPlaced as Record<string, number>)["1"] ?? 0) / 9) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Board */}
         <div className="relative aspect-square bg-amber-50 rounded-3xl border-4 border-amber-200 shadow-xl p-4 overflow-hidden">
           <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full stroke-amber-800 stroke-[0.8] fill-none opacity-40">
             <rect x="10" y="10" width="80" height="80" />
@@ -451,11 +485,10 @@ export function Morris() {
           </svg>
 
           {positions.map((pos, i) => {
-            const cell = (gameState.data.board as (string | null)[])[i];
+            const cell        = (gameState.data.board as (string | null)[])[i];
             const isSelectable = selectablePieces.has(i);
-            const isValid = validMoves.includes(i);
+            const isValid      = highlightedMoves.includes(i);
             const isCapturable = capturablePieces.has(i);
-
             return (
               <button
                 key={i}
@@ -470,7 +503,7 @@ export function Morris() {
                       ? "bg-slate-900 border-2 border-slate-700 shadow-lg"
                       : "bg-white border-2 border-slate-300 shadow-lg",
                   isSelectable && selected === null && "ring-2 ring-blue-200 ring-offset-2",
-                  (highlightedMoves.includes(i) || isValid) && "ring-4 ring-blue-400 ring-offset-2 scale-110",
+                  (isValid || highlightedMoves.includes(i)) && "ring-4 ring-blue-400 ring-offset-2 scale-110",
                   isCapturable && "ring-4 ring-red-500 ring-offset-2 animate-pulse",
                   highlightedSelected === i && "ring-4 ring-blue-500 ring-offset-2",
                   dragState?.hovered === i && "ring-4 ring-amber-300 ring-offset-2"
@@ -480,10 +513,7 @@ export function Morris() {
                   <div
                     onPointerDown={
                       isSelectable && gameState.data.stage === "moving" && !isCapturing
-                        ? (event) => startDrag(i, event, {
-                            label: "●",
-                            className: "bg-slate-900 border-slate-700 text-white",
-                          })
+                        ? (event) => startDrag(i, event, { label: "●", className: "bg-slate-900 border-slate-700 text-white" })
                         : undefined
                     }
                     className="flex h-full w-full items-center justify-center"
@@ -494,8 +524,21 @@ export function Morris() {
               </button>
             );
           })}
+
+          {/* Bot thinking overlay */}
+          {isBotThinking && gameState.status === "playing" && (
+            <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px] flex items-center justify-center rounded-3xl">
+              <div className="bg-white px-4 py-2 rounded-full shadow-xl flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:0ms]" />
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:150ms]" />
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:300ms]" />
+                <span className="text-xs font-bold text-slate-700 ml-1">Robot thinking...</span>
+              </div>
+            </div>
+          )}
         </div>
 
+        {/* Drag ghost */}
         {dragState && (
           <div
             className="pointer-events-none fixed z-[120] -translate-x-1/2 -translate-y-1/2"
@@ -507,21 +550,22 @@ export function Morris() {
           </div>
         )}
 
-        <div className="mt-8 grid grid-cols-2 gap-4">
+        {/* Player strips with piece count */}
+        <div className="mt-6 grid grid-cols-2 gap-4">
           <div className={cn("rounded-[1.5rem] bg-white p-4 text-center transition-all shadow-sm", gameState.turn === "1" && !isGameOver ? "ring-2 ring-blue-500 bg-blue-50/30 shadow-lg scale-105" : "opacity-60")}>
             <p className="text-[10px] text-slate-500 uppercase font-black">YOU</p>
             <p className="text-xl font-bold">
               {gameState.data.stage === "placement"
-                ? `${9 - gameState.data.piecesPlaced["1"]} to place`
-                : `${gameState.data.piecesOnBoard["1"]} on board`}
+                ? `${9 - (gameState.data.piecesPlaced as Record<string,number>)["1"]} to place`
+                : `${pp} on board`}
             </p>
           </div>
           <div className={cn("rounded-[1.5rem] bg-white p-4 text-center transition-all shadow-sm", gameState.turn === "2" && !isGameOver ? "ring-2 ring-red-500 bg-red-50/30 shadow-lg scale-105" : "opacity-60")}>
             <p className="text-[10px] text-slate-500 uppercase font-black">ROBOT</p>
             <p className="text-xl font-bold">
               {gameState.data.stage === "placement"
-                ? `${9 - gameState.data.piecesPlaced["2"]} to place`
-                : `${gameState.data.piecesOnBoard["2"]} on board`}
+                ? `${9 - (gameState.data.piecesPlaced as Record<string,number>)["2"]} to place`
+                : `${bp} on board`}
             </p>
           </div>
         </div>
@@ -545,21 +589,18 @@ export function Morris() {
               <motion.div initial={{ rotate: -15, scale: 0 }} animate={{ rotate: 0, scale: 1 }} transition={{ type: "spring", delay: 0.2, stiffness: 110 }} className={cn("w-28 h-28 mx-auto rounded-[2rem] flex items-center justify-center text-5xl shadow-2xl mb-6 border-4 border-white", resultTone, "text-white")}>
                 {resultEmoji}
               </motion.div>
-
               <h2 className="text-5xl font-black italic tracking-tighter text-slate-900 leading-none mb-2">{resultTitle}</h2>
               <p className="text-slate-500 font-bold text-sm mb-4">{coachingMsg}</p>
-
               <div className="rounded-[1.5rem] bg-slate-50 p-4 mb-6 text-left">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">
                   <Trophy className="w-3 h-3 inline mr-1" /> Coaching tip
                 </p>
                 <p className="text-sm text-slate-700 leading-relaxed">
-                  {gameState.winner === "1"
+                  {playerWon
                     ? "You controlled the board well. In Morabaraba, you win by building mills and leaving the opponent with no good move."
-                    : "Watch the connected lines. Once placement ends, every move must follow a line unless you are down to three pieces and can fly."}
+                    : "Watch the connected lines. Once placement ends, every move must follow a line unless you're flying (3 pieces left)."}
                 </p>
               </div>
-
               <div className="grid gap-3">
                 <button onClick={() => start()} className="py-5 bg-emerald-600 text-white font-black uppercase tracking-[0.2em] rounded-[1.5rem] shadow-xl hover:bg-emerald-700 transition-all flex items-center justify-center gap-3">
                   <RotateCcw className="w-5 h-5" /> Rematch
@@ -571,7 +612,6 @@ export function Morris() {
                   More games
                 </Link>
               </div>
-
               <div className="absolute -left-6 -top-6 text-8xl text-slate-50 font-black rotate-12 opacity-50 select-none">◎</div>
             </motion.div>
           </motion.div>

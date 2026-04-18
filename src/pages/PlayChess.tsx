@@ -125,7 +125,7 @@ function getResultSummary(winner?: string, status?: string) {
 }
 
 export function PlayChess() {
-  const { gameState, chessGame, startNewGame, makeMove, undo, updateGameState } = useGame();
+  const { gameState, chessGame, startNewGame, makeMove, undo, updateGameState, recordResult } = useGame();
   const [persona, setPersona] = useState<BotPersona>("tactical");
   const [insight, setInsight] = useState<CoachingInsight | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -236,6 +236,7 @@ export function PlayChess() {
 
     if (gameState.status !== "playing" && gameState.status !== "waiting") {
       if (!showResult) {
+        recordResult?.("chess", gameState.winner === "w");
         const timer = window.setTimeout(() => setShowResult(true), 900);
         return () => window.clearTimeout(timer);
       }

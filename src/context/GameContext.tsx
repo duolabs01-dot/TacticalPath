@@ -22,6 +22,35 @@ export interface GameState {
   fen?: string;
 }
 
+interface GameRecord {
+  game: GameType;
+  won: boolean;
+  ts: number;
+}
+
+const GAME_RESULTS_KEY = 'tacticalpath_game_results';
+
+function persistResult(gameType: GameType, won: boolean) {
+  const raw = localStorage.getItem(GAME_RESULTS_KEY);
+  const records: GameRecord[] = raw ? JSON.parse(raw) : [];
+  records.push({ game: gameType, won, ts: Date.now() });
+  // Keep last 200
+  if (records.length > 200) records.splice(0, records.length - 200);
+  localStorage.setItem(GAME_RESULTS_KEY, JSON.stringify(records));
+
+  // Also update streak in progress store
+  const PROGRESS_KEY = 'tacticalpath_progress';
+  const prog = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
+  const today = new Date().toISOString().slice(0, 10);
+  const lastPlayed = prog.lastPlayed ? prog.lastPlayed.slice(0, 10) : null;
+  if (won) {
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    prog.streak = lastPlayed === yesterday ? (prog.streak || 0) + 1 : lastPlayed === today ? (prog.streak || 0) : 1;
+    prog.lastPlayed = new Date().toISOString();
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(prog));
+  }
+}
+
 interface GameContextType {
   gameState: GameState | null;
   game: Chess | null;
@@ -29,6 +58,7 @@ interface GameContextType {
   startNewGame: (type: GameType, mode: GameMode, options?: { difficulty?: Difficulty; [key: string]: any }) => void;
   updateGameState: (update: Partial<GameState>) => void;
   resetGame: () => void;
+  recordResult?: (gameType: GameType, won: boolean) => void;
   // Compatibility with old API
   startGame: (mode: GameMode, options?: any) => void;
   makeMove: (move: any) => boolean;
@@ -165,6 +195,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         startNewGame,
         updateGameState,
         resetGame,
+        recordResult: persistResult,
         startGame,
         makeMove,
         undo,

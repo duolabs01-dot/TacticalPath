@@ -72,7 +72,7 @@ const OMark = () => (
 );
 
 export function TicTacToe() {
-  const { gameState, startNewGame, updateGameState } = useGame();
+  const { gameState, startNewGame, updateGameState, recordResult } = useGame();
   const [insight, setInsight] = useState<CoachingInsight | null>(null);
   const [reviewIndex, setReviewIndex] = useState<number | null>(null);
   const [moveHistory, setMoveHistory] = useState<BoardState[]>([]);
@@ -214,6 +214,7 @@ export function TicTacToe() {
     });
 
     if (winner) {
+        recordResult?.("tictactoe", winner === "X");
         setTimeout(() => setShowResult(true), 1200);
     }
   }, [gameState, moveHistory, updateGameState]);
