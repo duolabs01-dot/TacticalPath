@@ -1,32 +1,7 @@
 import { Link } from "react-router-dom";
 import { BarChart3, Target, Trophy, Flame, Play, Swords } from "lucide-react";
-import { type ThemeProgress, useProgress } from "../hooks/useProgress";
-import { useEffect, useState } from "react";
+import { type ThemeProgress, useProgress, useGameResults } from "../hooks/useProgress";
 import { GameType } from "../context/GameContext";
-
-interface GameRecord { game: GameType; won: boolean; ts: number; }
-
-function useGameResults() {
-  const [records, setRecords] = useState<GameRecord[]>([]);
-  useEffect(() => {
-    const load = () => {
-      const raw = localStorage.getItem("tacticalpath_game_results");
-      if (raw) {
-        try { setRecords(JSON.parse(raw)); } catch { /* ignore */ }
-      }
-    };
-    load();
-    window.addEventListener("storage", load);
-    return () => window.removeEventListener("storage", load);
-  }, []);
-
-  const byGame = (type: GameType) => {
-    const r = records.filter((x) => x.game === type);
-    return { played: r.length, wins: r.filter((x) => x.won).length };
-  };
-  const total = { played: records.length, wins: records.filter((x) => x.won).length };
-  return { byGame, total };
-}
 
 const GAME_LABELS: Record<GameType, { label: string; emoji: string }> = {
   chess:     { label: "Chess",      emoji: "♟" },

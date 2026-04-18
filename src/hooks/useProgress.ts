@@ -10,6 +10,36 @@ export interface UserProgress {
   username: string;
 }
 
+export type GameType = 'chess' | 'tictactoe' | 'checkers' | 'morris';
+
+export interface GameRecord {
+  game: GameType;
+  won: boolean;
+  ts: number;
+}
+
+export function useGameResults() {
+  const [records, setRecords] = useState<GameRecord[]>([]);
+  useEffect(() => {
+    const load = () => {
+      const raw = localStorage.getItem("tacticalpath_game_results");
+      if (raw) {
+        try { setRecords(JSON.parse(raw)); } catch { /* ignore */ }
+      }
+    };
+    load();
+    window.addEventListener("storage", load);
+    return () => window.removeEventListener("storage", load);
+  }, []);
+
+  const byGame = (type: GameType) => {
+    const r = records.filter((x) => x.game === type);
+    return { played: r.length, wins: r.filter((x) => x.won).length };
+  };
+  const total = { played: records.length, wins: records.filter((x) => x.won).length };
+  return { records, byGame, total };
+}
+
 export interface ThemeProgress {
   solved: number;
   attempts: number;

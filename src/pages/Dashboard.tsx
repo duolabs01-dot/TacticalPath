@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Brain, Play, Sparkles, Target, Trophy } from "lucide-react";
-import { useProgress } from "../hooks/useProgress";
+import { ArrowRight, Brain, Play, Sparkles, Target, Trophy, Clock3 } from "lucide-react";
+import { useProgress, useGameResults } from "../hooks/useProgress";
 
 export function Dashboard() {
   const { progress, getOverallLevel } = useProgress();
+  const { records } = useGameResults();
   const level = getOverallLevel();
+  const lastGame = records.length > 0 ? records[records.length - 1] : null;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-8">
@@ -70,9 +72,48 @@ export function Dashboard() {
                 {progress.difficulty}
               </p>
             </div>
+            <div className="rounded-[1.5rem] bg-white/10 p-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-100">
+                Puzzles solved
+              </p>
+              <p className="mt-2 text-3xl font-black">
+                {progress.totalPuzzlesSolved}
+              </p>
+            </div>
           </div>
         </div>
       </header>
+
+      {/* Last Played */}
+      {lastGame && (
+        <section className="mb-10">
+          <div className="flex items-center gap-2 mb-4">
+            <Clock3 className="w-5 h-5 text-slate-400" />
+            <h2 className="text-xl font-black tracking-tight text-slate-900">Recent match</h2>
+          </div>
+          <div className="rounded-[2rem] bg-slate-50 border border-slate-200 p-6 flex flex-col md:flex-row md:items-center gap-6 shadow-sm">
+            <div className="flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-slate-900 text-3xl text-white">
+               {lastGame.game === "chess" ? "♟" : lastGame.game === "checkers" ? "⬤" : lastGame.game === "morris" ? "◎" : "✕"}
+            </div>
+            <div className="flex-1">
+              <div className="inline-flex items-center gap-2 rounded-full bg-slate-200/60 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-600">
+                {lastGame.game}
+              </div>
+              <h3 className="mt-2 text-2xl font-black text-slate-900">
+                You {lastGame.won ? "won" : "lost"} against the Bot
+              </h3>
+              <p className="mt-1 text-sm text-slate-600">
+                Played {new Date(lastGame.ts).toLocaleDateString()} at {new Date(lastGame.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}. Keep your streak alive today by playing another match.
+              </p>
+            </div>
+            <div className="shrink-0">
+               <Link to={`/play/${lastGame.game === 'tictactoe' || lastGame.game === 'morris' ? lastGame.game : lastGame.game}`} className="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-4 text-sm font-black text-slate-900 shadow-sm border border-slate-200 transition hover:bg-slate-50">
+                  Play again <ArrowRight className="h-4 w-4" />
+               </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Daily Board stub + Chess hero */}
       <section className="mb-8 grid gap-4 lg:grid-cols-[1.1fr,0.9fr]">
