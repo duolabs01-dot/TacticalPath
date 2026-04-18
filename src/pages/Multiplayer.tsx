@@ -6,18 +6,18 @@ import { isSupabaseConfigured } from "../lib/supabase";
 const localReadyGames = gameLibrary;
 const multiplayerLanes = [
   {
-    title: "Room codes live",
-    description: "Tic Tac Toe now supports live invite-code rooms with no account wall.",
+    title: "All 4 games online",
+    description: "Chess, Checkers, Morabaraba, and Tic Tac Toe all support live invite-code rooms. Create a room, share the code, start playing.",
     accent: "bg-emerald-50 text-emerald-700",
   },
   {
-    title: "Same-device still strong",
-    description: "Checkers, Morabaraba, and chess still play best locally until their online rules are wired safely.",
+    title: "No account wall",
+    description: "Pick a name, paste a room code, and play. Guest join keeps mobile friction low for you and your opponent.",
     accent: "bg-blue-50 text-blue-700",
   },
   {
-    title: "One game first",
-    description: "Shipping one honest multiplayer game beats pretending every board has live rooms.",
+    title: "One code, two players",
+    description: "Each room is isolated by a 6-character code. No lobby list, no fake matchmaking — just a live board that syncs in real time.",
     accent: "bg-violet-50 text-violet-700",
   },
 ];
@@ -35,10 +35,9 @@ export function Multiplayer() {
         </Link>
         <div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-600">Friends</p>
-          <h1 className="mt-1 text-3xl font-black tracking-tight text-slate-900 md:text-4xl">Multiplayer that actually ships</h1>
+          <h1 className="mt-1 text-3xl font-black tracking-tight text-slate-900 md:text-4xl">All four games, online now</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600 md:text-base">
-            TacticalPath now has one real online lane instead of fake lobbies: live Tic Tac Toe rooms with invite codes.
-            The other boards stay honest about being local-first until their rules and sync are ready.
+            Chess, Checkers, Morabaraba, and Tic Tac Toe all have live room-code multiplayer. Create a room, share a 6-character code, and play with anyone — no account needed.
           </p>
           {!isSupabaseConfigured && (
             <p className="mt-3 max-w-2xl rounded-2xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
@@ -56,9 +55,9 @@ export function Multiplayer() {
               <Wifi className="h-4 w-4" /> Live multiplayer lane
             </div>
             <h2 className="text-2xl font-black md:text-3xl">Send a code. Join fast. Start playing.</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-emerald-50 md:text-base">
-              The cleanest version of online play in this app is one lightweight board with instant invite links and guest names. That board is Tic Tac Toe.
-            </p>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-emerald-50 md:text-base">
+                Every game has a live room ready: Chess, Checkers, Morabaraba, and Tic Tac Toe. Pick your game, create a room, share the 6-character code.
+              </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link to={liveOnlineGame?.onlinePath ?? "/multiplayer/tictactoe"} className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-emerald-900 transition hover:bg-emerald-50">
                 <Zap className="h-4 w-4" /> {liveRoomCta}
@@ -68,18 +67,18 @@ export function Multiplayer() {
               </Link>
             </div>
           </div>
-          <div className="grid gap-3 rounded-3xl bg-white/10 p-4 backdrop-blur">
-            <div className="rounded-[1.5rem] bg-white/10 p-4">
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-100">Playable today</p>
-              <p className="mt-1 text-2xl font-black">Online Tic Tac Toe</p>
-              <p className="mt-1 text-xs text-emerald-50">Invite code, live sync, guest join.</p>
+            <div className="grid gap-3 rounded-3xl bg-white/10 p-4 backdrop-blur">
+              <div className="rounded-[1.5rem] bg-white/10 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-100">Online now</p>
+                <p className="mt-1 text-2xl font-black">All 4 boards</p>
+                <p className="mt-1 text-xs text-emerald-50">Chess · Checkers · Morabaraba · Tic Tac Toe.</p>
+              </div>
+              <div className="rounded-[1.5rem] bg-white/10 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-100">How it works</p>
+                <p className="mt-1 text-2xl font-black">Room codes</p>
+                <p className="mt-1 text-xs text-emerald-50">6-char code. No account. Instant sync.</p>
+              </div>
             </div>
-            <div className="rounded-[1.5rem] bg-white/10 p-4">
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-100">Still local-first</p>
-              <p className="mt-1 text-2xl font-black">Chess, Checkers, Morabaraba</p>
-              <p className="mt-1 text-xs text-emerald-50">Better to stay honest than flaky.</p>
-            </div>
-          </div>
         </div>
       </section>
 

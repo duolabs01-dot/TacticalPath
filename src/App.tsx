@@ -12,12 +12,17 @@ import { Profile } from "./pages/Profile";
 import { Settings } from "./pages/Settings";
 import { Multiplayer } from "./pages/Multiplayer";
 
-// Game pages
+// Game pages — solo vs bot
 import { PlayChess } from "./pages/PlayChess";
 import { TicTacToe } from "./pages/TicTacToe";
 import { Checkers } from "./pages/Checkers";
 import { Morris } from "./pages/Morris";
+
+// Online multiplayer pages
 import { OnlineTicTacToe } from "./pages/OnlineTicTacToe";
+import { OnlineChess } from "./pages/OnlineChess";
+import { OnlineCheckers } from "./pages/OnlineCheckers";
+import { OnlineMorris } from "./pages/OnlineMorris";
 
 // Kept for Daily Board reuse (hidden from nav)
 import { PuzzleBank } from "./pages/PuzzleBank";
@@ -39,12 +44,17 @@ export default function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
 
-            {/* Game routes */}
+            {/* Solo vs bot routes */}
             <Route path="/play/chess" element={<PlayChess />} />
             <Route path="/tictactoe" element={<TicTacToe />} />
-            <Route path="/multiplayer/tictactoe" element={<OnlineTicTacToe />} />
             <Route path="/checkers" element={<Checkers />} />
             <Route path="/morris" element={<Morris />} />
+
+            {/* Online multiplayer routes */}
+            <Route path="/multiplayer/tictactoe" element={<OnlineTicTacToe />} />
+            <Route path="/multiplayer/chess" element={<OnlineChess />} />
+            <Route path="/multiplayer/checkers" element={<OnlineCheckers />} />
+            <Route path="/multiplayer/morris" element={<OnlineMorris />} />
 
             {/* Hidden — kept for Daily Board infrastructure reuse */}
             <Route path="/puzzle-bank" element={<PuzzleBank />} />
