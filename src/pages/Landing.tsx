@@ -1,176 +1,288 @@
 import { Link } from "react-router-dom";
-import { Brain, Clock3, Play, Sparkles, Swords, Trophy, Users, Zap } from "lucide-react";
-import { gameLibrary } from "../data/games";
-
-const featuredGames = gameLibrary.filter((game) => game.status === "live");
-const quickStartGames = gameLibrary.slice(0, 3);
+import { Brain, Play, Sparkles, Target, Trophy, Zap } from "lucide-react";
 
 export function Landing() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
+      {/* Header / Hero */}
       <header className="border-b border-white/10 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.32),_transparent_40%),linear-gradient(180deg,_#020617_0%,_#0f172a_55%,_#111827_100%)] px-6 py-8 sm:px-8">
         <div className="mx-auto max-w-6xl">
+          {/* Top bar */}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-2xl font-black text-white shadow-lg shadow-blue-500/30">T</div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-2xl font-black text-white shadow-lg shadow-blue-500/30">
+                T
+              </div>
               <div>
-                <p className="text-lg font-black tracking-tight text-white">TacticalPath</p>
-                <p className="text-xs font-bold uppercase tracking-[0.24em] text-blue-200">Public arcade</p>
+                <p className="text-lg font-black tracking-tight text-white">
+                  TacticalPath
+                </p>
+                <p className="text-xs font-bold uppercase tracking-[0.24em] text-blue-200">
+                  Chess coaching
+                </p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <Link to="/multiplayer" className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">
-                Friend play
+            <Link
+              to="/dashboard"
+              className="rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-blue-50"
+            >
+              Start playing
+            </Link>
+          </div>
+
+          {/* Hero content */}
+          <div className="mt-14 max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-blue-100">
+              <Sparkles className="h-4 w-4" /> Chess coaching that makes sense
+            </div>
+            <h1 className="mt-6 text-4xl font-black tracking-tight text-white sm:text-6xl">
+              Every game has a turning point. TacticalPath shows you yours.
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+              Play chess against smart bots, see the one move that changed the
+              result, and carry that lesson into the rematch. Plus Morabaraba and
+              classic strategy games to sharpen how you think.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Link
+                to="/play/chess"
+                className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-7 py-4 font-black text-white shadow-lg shadow-blue-500/30 transition hover:bg-blue-500"
+              >
+                <Play className="h-4 w-4" /> Play chess now
               </Link>
-              <Link to="/dashboard" className="rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-blue-50">
-                Enter arcade
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-7 py-4 font-bold text-white transition hover:bg-white/10"
+              >
+                <Zap className="h-4 w-4" /> Choose a game
               </Link>
             </div>
           </div>
 
-          <div className="mt-14 grid gap-8 lg:grid-cols-[1.2fr,0.8fr] lg:items-end">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-blue-100">
-                <Sparkles className="h-4 w-4" /> Play-first strategy training
-              </div>
-              <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-tight text-white sm:text-6xl">
-                Start a game in seconds. Learn from the turning point. Hit rematch while it still matters.
-              </h1>
-              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-                Tactical Path should feel like a living arcade, not a gated classroom. Browse the boards in public, jump straight into a playable loop, and keep your momentum between matches.
+          {/* Value props */}
+          <div className="mt-14 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-blue-200">
+                Coaching
               </p>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Link to="/play/chess" className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-7 py-4 font-black text-white shadow-lg shadow-blue-500/30 transition hover:bg-blue-500">
-                  <Play className="h-4 w-4" /> Play chess now
-                </Link>
-                <Link to="/play" className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-7 py-4 font-bold text-white transition hover:bg-white/10">
-                  <Zap className="h-4 w-4" /> Quick-start arcade
-                </Link>
-              </div>
-              <div className="mt-10 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-blue-200">Fast path</p>
-                  <p className="mt-2 text-lg font-black text-white">Public home stays playable</p>
-                  <p className="mt-1 text-sm text-slate-300">No sign-in wall just to see the games and start the loop.</p>
-                </div>
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-200">Honest social play</p>
-                  <p className="mt-2 text-lg font-black text-white">Local first</p>
-                  <p className="mt-1 text-sm text-slate-300">Same-device matches work now. Invite links come next.</p>
-                </div>
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-200">Progress energy</p>
-                  <p className="mt-2 text-lg font-black text-white">Play, spot, rematch</p>
-                  <p className="mt-1 text-sm text-slate-300">Every screen should point to the next good move.</p>
-                </div>
-              </div>
+              <p className="mt-2 text-lg font-black text-white">
+                One insight, not forty annotations
+              </p>
+              <p className="mt-1 text-sm text-slate-300">
+                After every game, TacticalPath finds the single turning point
+                and explains it in plain language.
+              </p>
             </div>
-
-            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-blue-950/40 backdrop-blur">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-blue-200">Tonight's quick start</p>
-                  <h2 className="mt-2 text-2xl font-black text-white">Pick your energy</h2>
-                </div>
-                <div className="rounded-2xl bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-[0.18em] text-slate-100">Live boards</div>
-              </div>
-              <div className="mt-6 space-y-3">
-                {quickStartGames.map((game) => (
-                  <Link key={game.id} to={game.path} className="flex items-start justify-between gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/10">
-                    <div className="flex gap-4">
-                      <div className={`flex h-12 w-12 items-center justify-center rounded-2xl text-2xl text-white ${game.accentClass}`}>
-                        {game.icon}
-                      </div>
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-lg font-black text-white">{game.name}</h3>
-                          <span className="rounded-full bg-white/10 px-2 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-200">{game.sessionLabel}</span>
-                        </div>
-                        <p className="mt-1 text-sm text-slate-300">{game.energy}</p>
-                      </div>
-                    </div>
-                    <Play className="mt-1 h-4 w-4 text-slate-300" />
-                  </Link>
-                ))}
-              </div>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-200">
+                Morabaraba
+              </p>
+              <p className="mt-2 text-lg font-black text-white">
+                The game you grew up with, on your phone
+              </p>
+              <p className="mt-1 text-sm text-slate-300">
+                Build mills, block threats, and learn positional patience in a
+                classic strategy game — with coaching tips.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-200">
+                Daily Board
+              </p>
+              <p className="mt-2 text-lg font-black text-white">
+                One chess puzzle every day
+              </p>
+              <p className="mt-1 text-sm text-slate-300">
+                Solve it in 90 seconds, build your streak, and carry the lesson
+                into your next game.
+              </p>
             </div>
           </div>
         </div>
       </header>
 
+      {/* Games section */}
       <main className="mx-auto max-w-6xl px-6 py-16 sm:px-8">
-        <section className="mb-16 grid gap-4 md:grid-cols-3">
-          <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/15 text-blue-200">
-              <Clock3 className="h-5 w-5" />
+        {/* How it works */}
+        <section className="mb-16">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
+            How it works
+          </p>
+          <h2 className="mt-2 text-3xl font-black text-white">
+            Play, learn, play sharper
+          </h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/15 text-blue-200">
+                <Play className="h-5 w-5" />
+              </div>
+              <h3 className="text-xl font-black text-white">Play a game</h3>
+              <p className="mt-2 text-sm leading-7 text-slate-300">
+                Pick chess, Morabaraba, checkers, or Tic Tac Toe. Play against a
+                smart bot at your level.
+              </p>
             </div>
-            <h2 className="text-xl font-black text-white">Faster path to play</h2>
-            <p className="mt-2 text-sm leading-7 text-slate-300">The best session starts with a board, not an explanation. Landing pushes straight into live games and the arcade hub.</p>
-          </div>
-          <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-200">
-              <Users className="h-5 w-5" />
+            <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-200">
+                <Brain className="h-5 w-5" />
+              </div>
+              <h3 className="text-xl font-black text-white">
+                See your turning point
+              </h3>
+              <p className="mt-2 text-sm leading-7 text-slate-300">
+                TacticalPath finds the one moment that changed the result and
+                explains it in a sentence you&#39;ll remember.
+              </p>
             </div>
-            <h2 className="text-xl font-black text-white">Social without pretending</h2>
-            <p className="mt-2 text-sm leading-7 text-slate-300">Multiplayer is framed around what exists today: local, pass-and-play, and game-aware invites coming next.</p>
-          </div>
-          <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-200">
-              <Brain className="h-5 w-5" />
+            <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-200">
+                <Trophy className="h-5 w-5" />
+              </div>
+              <h3 className="text-xl font-black text-white">Play sharper</h3>
+              <p className="mt-2 text-sm leading-7 text-slate-300">
+                Carry the lesson into your next game. Track your progress. Build
+                your streak. Get better over time.
+              </p>
             </div>
-            <h2 className="text-xl font-black text-white">Coaching after contact</h2>
-            <p className="mt-2 text-sm leading-7 text-slate-300">The lesson should arrive after real play and point to the one decision worth carrying into the rematch.</p>
           </div>
         </section>
 
+        {/* Game lineup */}
         <section className="mb-16">
-          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">Game lineup</p>
-              <h2 className="mt-2 text-3xl font-black text-white">Pick the board that matches your mood</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-300">Every game gets a clearer promise: what it feels like, what it teaches, and how social it really is.</p>
-            </div>
-            <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">
-              <Trophy className="h-4 w-4" /> Open arcade hub
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
+            Games
+          </p>
+          <h2 className="mt-2 text-3xl font-black text-white">
+            Chess leads. Morabaraba differentiates.
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-300">
+            Chess is the core training board with the deepest coaching. Morabaraba
+            is the distinctive strategy game nobody else has on mobile. Checkers
+            and Tic Tac Toe round out the library.
+          </p>
+
+          <div className="mt-8 grid gap-5 md:grid-cols-2">
+            {/* Chess — hero card */}
+            <Link
+              to="/play/chess"
+              className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-xl transition hover:-translate-y-1 hover:bg-white/10"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-3xl text-white">
+                  ♞
+                </div>
+                <span className="rounded-full bg-blue-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-blue-200">
+                  Core game
+                </span>
+              </div>
+              <h3 className="mt-5 text-2xl font-black text-white">Chess</h3>
+              <p className="mt-2 text-sm leading-7 text-slate-300">
+                Play full matches against smart bots, sharpen your plans, and
+                review the turning point that decided the board.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200">
+                  vs computer
+                </span>
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200">
+                  coaching
+                </span>
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200">
+                  daily puzzle
+                </span>
+              </div>
+              <div className="mt-5 inline-flex items-center gap-2 font-black text-white">
+                <Play className="h-4 w-4" /> Play chess
+              </div>
+            </Link>
+
+            {/* Morabaraba — featured card */}
+            <Link
+              to="/morris"
+              className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-xl transition hover:-translate-y-1 hover:bg-white/10"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600 text-3xl text-white">
+                  ◎
+                </div>
+                <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200">
+                  Featured game
+                </span>
+              </div>
+              <h3 className="mt-5 text-2xl font-black text-white">
+                Morabaraba
+              </h3>
+              <p className="mt-2 text-sm leading-7 text-slate-300">
+                The mill-building strategy game passed down across generations.
+                Place your pieces, form three-in-a-row, and outsmart the board.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200">
+                  vs computer
+                </span>
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200">
+                  coaching tips
+                </span>
+              </div>
+              <div className="mt-5 inline-flex items-center gap-2 font-black text-white">
+                <Play className="h-4 w-4" /> Play Morabaraba
+              </div>
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {featuredGames.map((game) => (
-              <div key={game.id} className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-xl shadow-slate-950/10 transition hover:-translate-y-1 hover:bg-white/10">
-                <div className="flex items-start justify-between gap-4">
-                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl text-3xl text-white ${game.accentClass}`}>
-                    {game.icon}
-                  </div>
-                  <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-200">{game.status === "live" ? "Live now" : "Building"}</span>
+          {/* Quick games row */}
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <Link
+              to="/tictactoe"
+              className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 transition hover:bg-white/10"
+            >
+              <div className="flex items-center gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-xl text-white">
+                  ✕
                 </div>
-                <div className="mt-5 flex items-center justify-between gap-3">
-                  <h3 className="text-2xl font-black text-white">{game.name}</h3>
-                  <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-200">{game.sessionLabel}</span>
-                </div>
-                <p className="mt-3 text-sm leading-7 text-slate-300">{game.summary}</p>
-                <p className="mt-4 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Why it feels alive</p>
-                <p className="mt-1 text-sm text-slate-200">{game.energy}</p>
-                <p className="mt-4 text-xs font-black uppercase tracking-[0.2em] text-slate-400">Multiplayer truth</p>
-                <p className="mt-1 text-sm text-slate-200">{game.multiplayerStatus}</p>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {game.modes.map((mode) => (
-                    <span key={mode} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200">
-                      {mode}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-6 flex items-center justify-between gap-3">
-                  <Link to={game.path} className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-blue-50">
-                    <Play className="h-4 w-4" /> Play now
-                  </Link>
-                  <Link to="/multiplayer" className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10">
-                    <Swords className="h-4 w-4" /> Social modes
-                  </Link>
+                <div>
+                  <h3 className="font-black text-white">Tic Tac Toe</h3>
+                  <p className="text-sm text-slate-400">
+                    Quick game, sharp thinking
+                  </p>
                 </div>
               </div>
-            ))}
+            </Link>
+            <Link
+              to="/checkers"
+              className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 transition hover:bg-white/10"
+            >
+              <div className="flex items-center gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-xl text-white">
+                  ●
+                </div>
+                <div>
+                  <h3 className="font-black text-white">Checkers</h3>
+                  <p className="text-sm text-slate-400">
+                    Classic captures and king chases
+                  </p>
+                </div>
+              </div>
+            </Link>
           </div>
+        </section>
+
+        {/* CTA */}
+        <section className="rounded-[2rem] bg-gradient-to-br from-blue-600 to-blue-800 p-8 text-center">
+          <Target className="mx-auto h-10 w-10 text-blue-200" />
+          <h2 className="mt-4 text-3xl font-black text-white">
+            Start with today&#39;s puzzle
+          </h2>
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-blue-100">
+            One chess position. One best move. Build your streak, sharpen your
+            instincts, and carry the lesson into your next game.
+          </p>
+          <Link
+            to="/dashboard"
+            className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-white px-7 py-4 font-black text-blue-700 transition hover:bg-blue-50"
+          >
+            <Play className="h-4 w-4" /> Go to your training board
+          </Link>
         </section>
       </main>
     </div>

@@ -269,7 +269,7 @@ export function TicTacToe() {
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none overflow-x-hidden">
       <header className="w-full max-w-md flex items-center justify-between mb-8">
-        <Link to="/" className="p-2 hover:bg-slate-200 rounded-2xl transition-all active:scale-90">
+        <Link to="/dashboard" className="p-2 hover:bg-slate-200 rounded-2xl transition-all active:scale-90">
           <ArrowLeft className="w-6 h-6 text-slate-600" />
         </Link>
         <div className="text-center group">
@@ -506,7 +506,7 @@ export function TicTacToe() {
                  </button>
 
                  <div className="grid grid-cols-2 gap-4">
-                    <Link to="/" className="py-5 bg-white border-4 border-slate-200 text-slate-700 font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-center">
+                    <Link to="/play" className="py-5 bg-white border-4 border-slate-200 text-slate-700 font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 text-center">
                         <LayoutGrid className="w-4 h-4" /> Library
                     </Link>
                     {(['easy', 'medium', 'hard'] as Difficulty[]).filter(d => d !== gameState.difficulty).slice(0, 1).map(d => (

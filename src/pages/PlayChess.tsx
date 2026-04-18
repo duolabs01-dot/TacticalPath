@@ -155,14 +155,17 @@ export function PlayChess() {
 
   const onDrop = useCallback(
     ({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string | null }) => {
-      if (!targetSquare || !gameState || !chessGame) return false;
-      if (gameState.turn !== "w" || gameState.status !== "playing" || isThinking) return false;
+      console.log("[onDrop] called", { sourceSquare, targetSquare, gameState: gameState?.status, turn: gameState?.turn, chessGame: !!chessGame, isThinking });
+      if (!targetSquare || !gameState || !chessGame) { console.log("[onDrop] BLOCKED: missing state"); return false; }
+      if (gameState.turn !== "w" || gameState.status !== "playing" || isThinking) { console.log("[onDrop] BLOCKED: wrong turn/status", { turn: gameState.turn, status: gameState.status, isThinking }); return false; }
 
-      return makeMove({
+      const result = makeMove({
         from: sourceSquare,
         to: targetSquare,
         promotion: "q",
       });
+      console.log("[onDrop] makeMove result:", result);
+      return result;
     },
     [chessGame, gameState, isThinking, makeMove]
   );
@@ -252,7 +255,7 @@ export function PlayChess() {
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none overflow-x-hidden">
       <header className="w-full max-w-6xl flex items-center justify-between mb-8">
-        <Link to="/" className="p-2 hover:bg-slate-200 rounded-2xl transition-all active:scale-90">
+        <Link to="/dashboard" className="p-2 hover:bg-slate-200 rounded-2xl transition-all active:scale-90">
           <ArrowLeft className="w-6 h-6 text-slate-600" />
         </Link>
 
@@ -527,7 +530,7 @@ export function PlayChess() {
                   {isAnalyzing ? "Analysis loading" : "Review critical moment"}
                 </button>
 
-                <Link to="/" className="py-5 bg-white border-4 border-slate-100 text-slate-500 font-black rounded-[1.5rem] hover:bg-slate-50 transition-all uppercase tracking-[0.18em] text-xs text-center">
+                <Link to="/play" className="py-5 bg-white border-4 border-slate-100 text-slate-500 font-black rounded-[1.5rem] hover:bg-slate-50 transition-all uppercase tracking-[0.18em] text-xs text-center">
                   Games Library
                 </Link>
               </div>

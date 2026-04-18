@@ -38,9 +38,7 @@ class StockfishEngine {
 
     return new Promise((resolve, reject) => {
       try {
-        this.worker = new Worker(new URL("stockfish.js", import.meta.url), {
-          type: "classic",
-        });
+        this.worker = new Worker("/stockfish.js");
 
         this.worker.onmessage = (e: MessageEvent) => {
           const msg = typeof e.data === "string" ? e.data : String(e.data);

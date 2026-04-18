@@ -20,7 +20,7 @@ export function Settings() {
           </Link>
           <div className="ml-3">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-600">Settings</p>
-            <h1 className="text-2xl font-black tracking-tight text-slate-950">Arcade preferences</h1>
+            <h1 className="text-2xl font-black tracking-tight text-slate-950">Preferences</h1>
           </div>
         </div>
       </header>
@@ -31,12 +31,12 @@ export function Settings() {
             <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">Player-first defaults</p>
             <h2 className="mt-3 text-3xl font-black tracking-tight">Keep the shell light, clear, and ready for the next match.</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-200">
-              Settings now support the public arcade loop: simple identity, device-level comfort choices, and believable transitions back into live play.
+              Simple identity, device-level comfort choices, and quick transitions back into your next game.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
-              <span className={`${settingPill} bg-white/10 text-white`}>Public-first</span>
+              <span className={`${settingPill} bg-white/10 text-white`}>Player-first</span>
               <span className={`${settingPill} bg-white/10 text-white`}>Game-first</span>
-              <span className={`${settingPill} bg-white/10 text-white`}>No classroom residue</span>
+              <span className={`${settingPill} bg-white/10 text-white`}>Clean setup</span>
             </div>
           </div>
 
@@ -96,7 +96,7 @@ export function Settings() {
                   <Palette className="mt-1 h-5 w-5 text-violet-600" />
                   <div>
                     <p className="font-semibold text-slate-900">Visual tone</p>
-                    <p className="mt-1 text-sm leading-7 text-slate-600">The shell now leans more arcade than admin so the app feels alive before the first move is made.</p>
+                    <p className="mt-1 text-sm leading-7 text-slate-600">The app is designed to feel alive and ready for your next move from the moment you open it.</p>
                   </div>
                 </div>
               </div>
@@ -115,7 +115,7 @@ export function Settings() {
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700">
                   <Home className="h-4 w-4" />
-                  Return to arcade
+                  Back to home
                 </Link>
                 <Link to="/profile" className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-blue-200 hover:text-blue-700">
                   Back to profile

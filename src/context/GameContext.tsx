@@ -1,8 +1,8 @@
 import { useState, createContext, useContext, useCallback, ReactNode } from 'react';
 import { Chess } from 'chess.js';
-import { v4 as uuidv4 } from 'uuid';
 
-export type GameType = 'chess' | 'tictactoe' | 'checkers' | 'morris' | 'solitaire';
+
+export type GameType = 'chess' | 'tictactoe' | 'checkers' | 'morris';
 export type GameMode = 'puzzle' | 'play' | 'online';
 export type GameStatus = 'waiting' | 'playing' | 'checkmate' | 'draw' | 'stalemate' | 'finished';
 export type Difficulty = 'easy' | 'medium' | 'hard';
@@ -68,7 +68,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
 
     const newState: GameState = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       type,
       mode,
       status: 'playing',

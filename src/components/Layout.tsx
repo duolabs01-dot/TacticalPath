@@ -2,16 +2,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
 import { SideNav } from "./SideNav";
 
-const HIDE_NAV_ROUTES = [
-  "/",
-  "/login",
-  "/signup",
-  "/checkout",
-  "/subscription",
-  "/coach-review",
-  "/coach-connect",
-  "/coach/login",
-];
+const HIDE_NAV_ROUTES = ["/"];
 
 export function Layout() {
   const location = useLocation();

@@ -23,7 +23,7 @@ export class CoachingService {
             ? "Game over. You held the bot to a draw."
             : state.winner === "w" || state.winner === "X" || state.winner === "1"
               ? "Game over. Great finish."
-              : "Game over. Let's review the key moment.",
+              : "Game over. Let’s review the key moment.",
         type: "analysis",
       };
     }
@@ -72,8 +72,8 @@ export class CoachingService {
     if (moveCount < 8) {
       return {
         message: castled
-          ? "You're out of the opening. Finish development before launching an attack."
-          : "Opening rule: don't move the same piece twice unless you win something concrete.",
+          ? "You’re out of the opening. Finish development before launching an attack."
+          : "Opening rule: don’t move the same piece twice unless you win something concrete.",
         type: "hint",
       };
     }
@@ -118,7 +118,7 @@ export class CoachingService {
 
     if (!isHumanMistake) {
       return {
-        message: `The bot's best phase came around move ${moveNumber}. Review how it improved piece activity and kept the initiative.`,
+        message: `The bot’s best phase came around move ${moveNumber}. Review how it improved piece activity and kept the initiative.`,
         explanation: `The evaluation swung by about ${evalSwing} points around that moment.`,
         type: "analysis",
         turningPointIndex: analysis.criticalMoveNumber,
