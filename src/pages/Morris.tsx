@@ -3,9 +3,10 @@ import { useGame, Difficulty } from "../context/GameContext";
 import { Link } from "react-router-dom";
 import { ArrowLeft, RotateCcw, Brain, Trophy, LayoutGrid } from "lucide-react";
 import { cn } from "../lib/utils";
-import { CoachingService } from "../lib/coaching-service";
+import { CoachingInsight, CoachingService } from "../lib/coaching-service";
 import { motion, AnimatePresence } from "motion/react";
 import { useBoardDrag } from "../hooks/useBoardDrag";
+import { playMoveSound, playCaptureSound, playWinSound } from "../lib/audio";
 
 type MorrisPlayer = "1" | "2";
 
@@ -171,6 +172,7 @@ export function Morris() {
     if (piecesPlaced["2"] === 9 && piecesOnBoard["2"] < 3) {
       updateGameState({ status: "finished", winner: "Player" });
       recordResult?.("morris", true);
+      playWinSound();
       setTimeout(() => setShowResult(true), 500);
       return;
     }
@@ -184,6 +186,7 @@ export function Morris() {
       if (getAllMoves(board, piecesOnBoard, "2").length === 0) {
         updateGameState({ status: "finished", winner: "Player" });
         recordResult?.("morris", true);
+        playWinSound();
         setTimeout(() => setShowResult(true), 500);
       }
     }
@@ -201,6 +204,7 @@ export function Morris() {
     nextBoard[destination] = "1";
     nextBoard[source]      = null;
     const millCreated = checkMill(nextBoard, destination);
+    playMoveSound();
 
     setSelected(null);
     setValidMoves([]);
@@ -248,6 +252,7 @@ export function Morris() {
       nextBoard[i] = null;
       const nextOnBoard = { ...piecesOnBoard, "2": piecesOnBoard["2"] - 1 };
       setIsCapturing(false);
+      playCaptureSound();
       setSelected(null);
       setValidMoves([]);
       updateGameState({ data: { ...gameState.data, board: nextBoard, piecesOnBoard: nextOnBoard }, turn: "2" });
@@ -264,6 +269,7 @@ export function Morris() {
       const nextOnBoard  = { ...piecesOnBoard, "1": piecesOnBoard["1"] + 1 };
       const nextStage    = nextPlaced["1"] === 9 && nextPlaced["2"] === 9 ? "moving" : "placement";
       const millCreated  = checkMill(nextBoard, i);
+      playMoveSound();
       if (millCreated) {
         setIsCapturing(true);
         setCoachingMsg("Mill formed! Capture one of the highlighted robot pieces.");
@@ -328,7 +334,12 @@ export function Morris() {
             )[0];
             nextBoard[cap] = null;
             nextOnBoard["1"] -= 1;
+            playCaptureSound();
+          } else {
+            playMoveSound();
           }
+        } else {
+          playMoveSound();
         }
 
         updateGameState({ data: { ...gameState.data, board: nextBoard, piecesPlaced: nextPlaced, piecesOnBoard: nextOnBoard, stage: nextStage }, turn: "1" });
@@ -369,7 +380,12 @@ export function Morris() {
           )[0];
           nextBoard[cap] = null;
           nextOnBoard["1"] -= 1;
+          playCaptureSound();
+        } else {
+          playMoveSound();
         }
+      } else {
+        playMoveSound();
       }
 
       updateGameState({ data: { ...gameState.data, board: nextBoard, piecesOnBoard: nextOnBoard }, turn: "1" });

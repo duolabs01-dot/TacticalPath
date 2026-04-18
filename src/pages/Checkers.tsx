@@ -5,7 +5,9 @@ import { ArrowLeft, RotateCcw, Brain, Monitor, Trophy, LayoutGrid } from "lucide
 import { cn } from "../lib/utils";
 import { CoachingService } from "../lib/coaching-service";
 import { motion, AnimatePresence } from "motion/react";
+import { isPlayerPiece, isBotPiece } from "../utils/checkers";
 import { useBoardDrag } from "../hooks/useBoardDrag";
+import { playMoveSound, playCaptureSound, playWinSound } from "../lib/audio";
 
 type CheckersMove = { from: number; to: number; capture: number | null };
 
@@ -141,6 +143,7 @@ export function Checkers() {
     } else if (bp === 0 || bm.length === 0) {
       updateGameState({ status: "finished", winner: "Player" });
       recordResult?.("checkers", true);
+      playWinSound();
       setTimeout(() => setShowResult(true), 500);
     }
   }, [updateGameState, recordResult]);
@@ -155,6 +158,7 @@ export function Checkers() {
     if (!move) return;
 
     const { board: nextBoard, becameKing } = applyMove(board, move);
+    if (move.capture !== null) playCaptureSound(); else playMoveSound();
 
     if (becameKing) {
       setKingFlash(destination);
@@ -236,12 +240,14 @@ export function Checkers() {
       if (!currentMove) {
         updateGameState({ status: "finished", winner: "Player" });
         recordResult?.("checkers", true);
+        playWinSound();
         setTimeout(() => setShowResult(true), 500);
         return;
       }
 
       while (currentMove) {
         const applied = applyMove(workingBoard, currentMove);
+        if (currentMove.capture !== null) playCaptureSound(); else playMoveSound();
         workingBoard = applied.board;
         if (currentMove.capture === null || applied.becameKing) break;
         const followUps = getPieceMoves(workingBoard, currentMove.to)
