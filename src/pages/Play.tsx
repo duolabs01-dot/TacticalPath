@@ -21,8 +21,7 @@ export function Play() {
       </div>
 
       {/* Chess — hero card */}
-      <Link
-        to={chess.path}
+      <div
         className="group mb-4 block rounded-[2rem] bg-gradient-to-br from-slate-950 via-slate-900 to-blue-900 p-6 text-white shadow-xl shadow-blue-900/20 transition hover:-translate-y-0.5 md:p-8"
       >
         <div className="flex items-start justify-between gap-4">
@@ -51,11 +50,15 @@ export function Play() {
             </span>
           ))}
         </div>
-        <div className="mt-5 inline-flex items-center gap-2 font-black text-white transition group-hover:gap-3">
-          <PlayIcon className="h-4 w-4" /> Play chess{" "}
-          <ArrowRight className="h-4 w-4" />
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link to={chess.path} className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-900 transition hover:bg-blue-50">
+            <PlayIcon className="h-4 w-4" /> Play against bot
+          </Link>
+          <Link to="/multiplayer/chess" className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-black text-white transition hover:bg-white/20">
+            <Wifi className="h-4 w-4" /> Play online
+          </Link>
         </div>
-      </Link>
+      </div>
 
       <Link
         to="/multiplayer"
@@ -83,8 +86,7 @@ export function Play() {
       </Link>
 
       {/* Morabaraba — featured card */}
-      <Link
-        to={morabaraba.path}
+      <div
         className="group mb-4 block rounded-[2rem] bg-white p-6 shadow-lg shadow-slate-200 transition hover:-translate-y-0.5 dark:bg-slate-800 dark:shadow-none"
       >
         <div className="flex items-start justify-between gap-4">
@@ -115,11 +117,15 @@ export function Play() {
             </span>
           ))}
         </div>
-        <div className="mt-5 inline-flex items-center gap-2 font-black text-emerald-600 transition group-hover:gap-3 dark:text-emerald-400">
-          <PlayIcon className="h-4 w-4" /> Play Morabaraba{" "}
-          <ArrowRight className="h-4 w-4" />
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link to={morabaraba.path} className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black text-white transition hover:bg-emerald-500">
+            <PlayIcon className="h-4 w-4" /> Play against bot
+          </Link>
+          <Link to="/multiplayer/morris" className="inline-flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-black text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+            <Wifi className="h-4 w-4" /> Play online
+          </Link>
         </div>
-      </Link>
+      </div>
 
       {/* Quick Games row */}
       <div className="mb-4">
@@ -128,26 +134,34 @@ export function Play() {
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           {quickGames.map((game) => (
-            <Link
+            <div
               key={game.id}
-              to={game.path}
-              className="flex items-center gap-4 rounded-[1.5rem] bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-800"
+              className="flex flex-col gap-4 rounded-[1.5rem] bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-slate-800"
             >
-              <div
-                className={`flex h-11 w-11 items-center justify-center rounded-xl ${game.accentClass} text-xl text-white`}
-              >
-                {game.icon}
+              <div className="flex items-center gap-4">
+                <div
+                  className={`flex h-11 w-11 items-center justify-center rounded-xl ${game.accentClass} text-xl text-white`}
+                >
+                  {game.icon}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-black text-slate-900 dark:text-white">
+                    {game.name}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {game.summary.split(".")[0]}
+                  </p>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <Link to={game.path} className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300">
+                    <PlayIcon className="h-4 w-4" />
+                  </Link>
+                  <Link to={`/multiplayer/${game.id}`} className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300">
+                    <Wifi className="h-4 w-4" />
+                  </Link>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="font-black text-slate-900 dark:text-white">
-                  {game.name}
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {game.summary.split(".")[0]}
-                </p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
-            </Link>
+            </div>
           ))}
         </div>
       </div>

@@ -9,10 +9,15 @@ interface GameRecord { game: GameType; won: boolean; ts: number; }
 function useGameResults() {
   const [records, setRecords] = useState<GameRecord[]>([]);
   useEffect(() => {
-    const raw = localStorage.getItem("tacticalpath_game_results");
-    if (raw) {
-      try { setRecords(JSON.parse(raw)); } catch { /* ignore */ }
-    }
+    const load = () => {
+      const raw = localStorage.getItem("tacticalpath_game_results");
+      if (raw) {
+        try { setRecords(JSON.parse(raw)); } catch { /* ignore */ }
+      }
+    };
+    load();
+    window.addEventListener("storage", load);
+    return () => window.removeEventListener("storage", load);
   }, []);
 
   const byGame = (type: GameType) => {

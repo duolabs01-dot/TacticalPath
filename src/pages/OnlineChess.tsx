@@ -24,7 +24,7 @@ function readName() { return typeof window === 'undefined' ? '' : localStorage.g
 interface OnlineChessState {
   fen: string;
   turn: 'w' | 'b';
-  status: 'playing' | 'checkmate' | 'draw' | 'stalemate';
+  status: 'playing' | 'checkmate' | 'draw' | 'stalemate' | 'resign';
   winner: 'w' | 'b' | 'draw' | null;
   lastMove: { from: string; to: string } | null;
   moves: string[];       // SAN notation history
@@ -134,6 +134,34 @@ export function OnlineChess() {
     channelRef.current?.push(next);
   };
 
+  const handleResign = () => {
+    if (!roomState || (myRole !== 'w' && myRole !== 'b')) return;
+    const next: OnlineChessState = {
+      ...roomState,
+      status: 'resign',
+      winner: myRole === 'w' ? 'b' : 'w',
+      updatedAt: Date.now()
+    };
+    stateRef.current = next;
+    setRoomState(next);
+    channelRef.current?.push(next);
+  };
+
+  const handleDraw = () => {
+    if (!roomState || (myRole !== 'w' && myRole !== 'b')) return;
+    // For simplicity, a draw immediately applies. 
+    // Usually it's an offer, but we can do mutually agreed draw or quick draw here.
+    const next: OnlineChessState = {
+      ...roomState,
+      status: 'draw',
+      winner: 'draw',
+      updatedAt: Date.now()
+    };
+    stateRef.current = next;
+    setRoomState(next);
+    channelRef.current?.push(next);
+  };
+
   const inviteUrl = useMemo(() => roomCode ? `${window.location.origin}/multiplayer/chess?room=${roomCode}` : '', [roomCode]);
 
   const copyCode = async () => {
@@ -219,7 +247,7 @@ export function OnlineChess() {
                   <div className="text-center text-white p-8">
                     <p className="text-6xl mb-4">{roomState.winner === 'w' ? (myRole === 'w' ? '🏆' : '💀') : roomState.winner === 'b' ? (myRole === 'b' ? '🏆' : '💀') : '🤝'}</p>
                     <h2 className="text-4xl font-black italic mb-2">
-                      {roomState.status === 'draw' || roomState.status === 'stalemate' ? 'Draw' : roomState.winner === myRole ? 'You Win!' : 'Opponent Wins'}
+                       {roomState.status === 'draw' || roomState.status === 'stalemate' ? 'Draw' : roomState.status === 'resign' ? (roomState.winner === myRole ? 'Opponent Resigned' : 'You Resigned') : roomState.winner === myRole ? 'You Win!' : 'Opponent Wins'}
                     </h2>
                     <button onClick={handleRematch} className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3 text-base font-black text-slate-900 transition hover:bg-slate-100">
                       <RefreshCcw className="h-5 w-5" /> Rematch
@@ -273,6 +301,24 @@ export function OnlineChess() {
                 <p className="col-span-2 text-slate-300 text-center py-4">No moves yet</p>
               )}
             </div>
+            
+            {/* Player controls */}
+            {roomState?.status === 'playing' && (myRole === 'w' || myRole === 'b') && (
+              <div className="mt-5 grid grid-cols-2 gap-2 border-t pt-4">
+                <button
+                  onClick={handleResign}
+                  className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-600 transition hover:bg-rose-100"
+                >
+                  Resign
+                </button>
+                <button
+                  onClick={handleDraw}
+                  className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-100"
+                >
+                  Draw
+                </button>
+              </div>
+            )}
           </div>
         </RoomSidebar>
       </div>

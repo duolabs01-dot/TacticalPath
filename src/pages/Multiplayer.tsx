@@ -40,10 +40,13 @@ export function Multiplayer() {
             Chess, Checkers, Morabaraba, and Tic Tac Toe all have live room-code multiplayer. Create a room, share a 6-character code, and play with anyone — no account needed.
           </p>
           {!isSupabaseConfigured && (
-            <p className="mt-3 max-w-2xl rounded-2xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-              Online rooms are implemented, but this device still needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
-              in `.env.local` before live sync can connect.
-            </p>
+            <div className="mt-4 rounded-2xl bg-amber-50 p-4 border border-amber-200">
+              <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-900">Setup required</p>
+              <p className="mt-2 text-sm text-amber-800">
+                Online rooms are built, but your device is missing Supabase credentials. 
+                Copy <code>.env.example</code> to <code>.env.local</code> and add <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> to enable live sync.
+              </p>
+            </div>
           )}
         </div>
       </header>
@@ -131,22 +134,22 @@ export function Multiplayer() {
           <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
             <Users className="h-5 w-5" />
           </div>
-          <h3 className="text-lg font-black text-slate-900">Invite flow shipped</h3>
-          <p className="mt-2 text-sm text-slate-600">Tic Tac Toe now opens the smallest possible live room: room code, guest name, shared board, instant turns.</p>
+          <h3 className="text-lg font-black text-slate-900">Seamless invite flow</h3>
+          <p className="mt-2 text-sm text-slate-600">Every game opens the smallest possible live room: room code, guest name, shared board, instant turns.</p>
         </div>
         <div className="rounded-[1.75rem] bg-white p-5 shadow-sm">
           <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
             <Smartphone className="h-5 w-5" />
           </div>
-          <h3 className="text-lg font-black text-slate-900">Trust over theatre</h3>
-          <p className="mt-2 text-sm text-slate-600">It is still better to keep the more complex boards local-first than to ship broken live sync just to tick a feature box.</p>
+          <h3 className="text-lg font-black text-slate-900">Mobile-ready UI</h3>
+          <p className="mt-2 text-sm text-slate-600">The entire multiplayer layer is built to work flawlessly on phones. Copy a code, text it to a friend, and play on the go.</p>
         </div>
         <div className="rounded-[1.75rem] bg-white p-5 shadow-sm">
           <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
             <ShieldCheck className="h-5 w-5" />
           </div>
           <h3 className="text-lg font-black text-slate-900">Guest-friendly join</h3>
-          <p className="mt-2 text-sm text-slate-600">No account wall. Pick a name, paste a room code, and play. That keeps mobile join friction low.</p>
+          <p className="mt-2 text-sm text-slate-600">No account wall. Pick a name, paste a room code, and play. That keeps barrier to entry extremely low.</p>
         </div>
       </section>
 
@@ -154,20 +157,17 @@ export function Multiplayer() {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
-              <Sparkles className="h-3.5 w-3.5" /> Coming next
+              <Sparkles className="h-3.5 w-3.5" /> Next steps
             </div>
-            <h2 className="text-xl font-black text-slate-900">More boards after this lane proves itself</h2>
+            <h2 className="text-xl font-black text-slate-900">Global matchmaking</h2>
             <p className="mt-2 max-w-2xl text-sm text-slate-600">
-              If the room-code flow feels good in real use, the next pass can extend the same pattern to the other turn-based games instead of rebuilding from scratch.
+              When the playerbase grows, we will introduce a global lobby for auto-matchmaking against random active players based on ELO ratings.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <div className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm">
-              <Clock3 className="h-4 w-4 text-slate-400" /> One live board first
+              <Clock3 className="h-4 w-4 text-slate-400" /> Playing with friends first
             </div>
-            <Link to={liveOnlineGame?.onlinePath ?? "/multiplayer/tictactoe"} className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-slate-800">
-              {liveRoomCta}
-            </Link>
           </div>
         </div>
       </section>

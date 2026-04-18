@@ -13,12 +13,11 @@ export interface GameState {
   mode: GameMode;
   status: GameStatus;
   startedAt: number;
-  data: any; // Type-specific state
+  data: any; 
   moves: any[];
-  turn: string; // 'w'|'b' for chess, '1'|'2' for others
+  turn: string;
   winner?: string;
   difficulty: Difficulty;
-  // Compatibility properties
   fen?: string;
 }
 
