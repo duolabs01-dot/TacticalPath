@@ -1,8 +1,7 @@
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
 import { SideNav } from "./SideNav";
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,9 +10,9 @@ const HIDE_NAV_ROUTES = ["/"];
 
 const mainNav = [
   { to: "/dashboard", label: "Home" },
-  { to: "/daily", label: "Daily Board" },
-  { to: "/play", label: "Play Solo" },
-  { to: "/multiplayer", label: "Multiplayer" },
+  { to: "/daily", label: "Daily Puzzle" },
+  { to: "/play", label: "Play" },
+  { to: "/multiplayer", label: "Online" },
   { to: "/progress", label: "Stats" },
 ];
 
@@ -27,42 +26,28 @@ function MobileHeader() {
   const isActive = (to: string) => location.pathname === to;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur-md dark:border-slate-700 dark:bg-slate-900/95 md:hidden">
+    <header className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-3 dark:border-slate-700 dark:bg-slate-900">
       <Link to="/dashboard" className="flex items-center gap-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-sm font-black text-white">
-          T
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">
+          TP
         </div>
-        <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
-          TacticalPath
-        </span>
       </Link>
       
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-10 w-10">
+          <Button variant="ghost" size="icon" className="h-9 w-9">
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="w-72 p-0">
-          <div className="flex h-full flex-col">
-            <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-700">
-              <Link to="/dashboard" className="flex items-center gap-2" onClick={() => document.body.style.pointerEvents = ""}>
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-sm font-black text-white">
-                  T
-                </div>
-                <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
-                  TacticalPath
-                </span>
-              </Link>
-            </div>
-            <nav className="flex-1 space-y-1 p-3">
+        <SheetContent side="right" className="w-64">
+          <div className="flex h-full flex-col pt-4">
+            <nav className="flex-1 space-y-1">
               {mainNav.map(({ to, label }) => (
                 <Link
                   key={to}
                   to={to}
-                  onClick={() => document.body.style.pointerEvents = ""}
                   className={cn(
-                    "flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition",
+                    "flex items-center rounded-lg px-3 py-3 text-sm font-medium transition",
                     isActive(to)
                       ? "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
                       : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -72,13 +57,12 @@ function MobileHeader() {
                 </Link>
               ))}
             </nav>
-            <div className="border-t border-slate-200 p-3 dark:border-slate-700">
+            <div className="border-t border-slate-200 pt-2 dark:border-slate-700">
               {secondaryNav.map(({ to, label }) => (
                 <Link
                   key={to}
                   to={to}
-                  onClick={() => document.body.style.pointerEvents = ""}
-                  className="flex items-center rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"
+                  className="flex items-center rounded-lg px-3 py-3 text-sm font-medium text-slate-500 transition hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"
                 >
                   {label}
                 </Link>
@@ -96,7 +80,7 @@ export function Layout() {
   const shouldHideNav = HIDE_NAV_ROUTES.includes(location.pathname);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.08),_transparent_32%),linear-gradient(180deg,_#f8fbff_0%,_#f8fafc_46%,_#eef2ff_100%)] font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100 md:flex-row">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {!shouldHideNav && (
         <>
           <SideNav />
@@ -104,12 +88,12 @@ export function Layout() {
           <BottomNav />
         </>
       )}
-      <div className={cn(
-        "flex min-h-screen w-full flex-col",
-        !shouldHideNav && "pb-20 md:pb-0 md:pl-72 pt-16 md:pt-0"
+      <main className={cn(
+        "w-full",
+        !shouldHideNav ? "pt-14 pb-20 md:pt-0 md:pb-0 md:pl-64" : "min-h-screen"
       )}>
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 }

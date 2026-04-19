@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { to: "/dashboard", icon: Home, label: "Home" },
-  { to: "/play", icon: Play, label: "Solo" },
+  { to: "/play", icon: Play, label: "Play" },
   { to: "/multiplayer", icon: Wifi, label: "Online" },
   { to: "/progress", icon: BarChart3, label: "Stats" },
 ];
@@ -23,8 +23,8 @@ export function BottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur-md dark:border-slate-700 dark:bg-slate-900/95 md:hidden">
-      <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-1">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white pb-safe dark:border-slate-700 dark:bg-slate-900 md:hidden">
+      <div className="flex items-center justify-around h-14">
         {navItems.map(({ to, icon: Icon, label }) => {
           const isActive = isActiveRoute(to);
 
@@ -33,14 +33,14 @@ export function BottomNav() {
               key={to}
               to={to}
               className={cn(
-                "flex flex-col items-center justify-center gap-0.5 min-w-[64px] py-2 px-3 rounded-xl transition-all duration-200",
+                "flex flex-1 flex-col items-center justify-center h-full gap-0.5 transition-colors",
                 isActive
-                  ? "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-950/50"
-                  : "text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-800/50"
+                  ? "text-blue-600 dark:text-blue-400"
+                  : "text-slate-400 dark:text-slate-500"
               )}
             >
               <Icon className="h-5 w-5" />
-              <span className="text-[10px] font-semibold">{label}</span>
+              <span className="text-[10px] font-medium">{label}</span>
             </Link>
           );
         })}

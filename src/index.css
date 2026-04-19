@@ -231,3 +231,22 @@ body {
     @apply font-sans;
   }
 }
+
+/* iOS Safe Area Support */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Prevent overscroll/bounce on iOS */
+html, body {
+  overscroll-behavior: none;
+}
+
+/* Smooth tap highlight removal */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
