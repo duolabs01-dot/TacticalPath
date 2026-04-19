@@ -350,7 +350,6 @@ export function Checkers() {
             return (
               <button
                 key={i}
-                data-drag-target={i}
                 onClick={() => handleCellClick(i)}
                 disabled={!isDark || gameState.status !== "playing" || gameState.turn !== "1"}
                 className={cn(

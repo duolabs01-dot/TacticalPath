@@ -11,6 +11,7 @@ export function PuzzlePlay() {
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
   const [status, setStatus] = useState<"loading" | "playing" | "correct" | "incorrect">("loading");
   const [moveIndex, setMoveIndex] = useState(0);
+  const [moveFrom, setMoveFrom] = useState<string | null>(null);
   const { recordAttempt, progress } = useProgress();
 
   const loadPuzzle = (theme?: PuzzleTheme) => {
@@ -58,14 +59,26 @@ export function PuzzlePlay() {
     return false;
   }
 
-  function onDrop({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string | null }) {
-    if (!targetSquare) return false;
-    return makeAMove({
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: "q",
-    });
-  }
+  // Click-to-select handler (mobile-friendly alternative to drag & drop)
+  const handleSquareClick = ({ square }: { square: string }) => {
+    if (status !== "playing" || !game) return;
+
+    if (!moveFrom) {
+      const piece = game.get(square as any);
+      if (piece && piece.color === game.turn()) {
+        setMoveFrom(square);
+      }
+      return;
+    }
+
+    if (moveFrom === square) {
+      setMoveFrom(null);
+      return;
+    }
+
+    const result = makeAMove({ from: moveFrom, to: square, promotion: "q" });
+    setMoveFrom(null);
+  };
 
   const nextPuzzle = () => loadPuzzle();
   const tryAgain = () => {
@@ -122,11 +135,13 @@ export function PuzzlePlay() {
           <Chessboard 
             options={{
               position: game.fen(),
-              onPieceDrop: onDrop,
+              allowDragging: false,
+              onSquareClick: handleSquareClick,
               boardOrientation: "white",
               darkSquareStyle: { backgroundColor: '#739552' },
               lightSquareStyle: { backgroundColor: '#ebecd0' },
-              animationDurationInMs: 200
+              animationDurationInMs: 200,
+              squareStyles: moveFrom ? { [moveFrom]: { backgroundColor: "rgba(255, 255, 0, 0.4)" } } : {},
             }}
           />
         </div>

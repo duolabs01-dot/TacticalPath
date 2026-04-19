@@ -74,6 +74,7 @@ export function DailyBoard() {
   const [result, setResult] = useState<Result>("none");
   const [lastMoveHighlight, setLastMoveHighlight] = useState<Record<string, { background: string }>>({});
   const [playerColor, setPlayerColor] = useState<"white" | "black">("white");
+  const [moveFrom, setMoveFrom] = useState<string | null>(null);
 
   const fetchPuzzle = async (force = false) => {
     if (!force) {
@@ -121,43 +122,74 @@ export function DailyBoard() {
 
   useEffect(() => { fetchPuzzle(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const onDrop = ({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string | null }) => {
-    if (!game || !puzzle || result !== "none" || !targetSquare) return false;
-    const expected = puzzle.puzzle.solution[solutionStep];
-    const expectedFrom = expected?.slice(0, 2);
-    const expectedTo   = expected?.slice(2, 4);
-    const promotion    = expected?.[4];
+  // Click-to-select handler (mobile-friendly alternative to drag & drop)
+  const handleSquareClick = ({ square }: { square: string }) => {
+    if (!game || !puzzle || result !== "none") return;
 
-    // Try the move
+    // If no piece selected yet, select this square if it has a piece
+    if (!moveFrom) {
+      const piece = game.get(square as any);
+      if (piece && piece.color === game.turn()) {
+        setMoveFrom(square);
+      }
+      return;
+    }
+
+    // If same square clicked, deselect
+    if (moveFrom === square) {
+      setMoveFrom(null);
+      return;
+    }
+
+    // Try to make the move
     const gameCopy = new Chess(game.fen());
     let move;
     try {
-      move = gameCopy.move({ from: sourceSquare, to: targetSquare, promotion: promotion ?? "q" });
-    } catch { return false; }
-    if (!move) return false;
-
-    // Check if it matches the solution
-    if (sourceSquare !== expectedFrom || targetSquare !== expectedTo) {
-      setLastMoveHighlight({
-        [sourceSquare]: { background: "rgba(239, 68, 68, 0.55)" },
-        [targetSquare]: { background: "rgba(239, 68, 68, 0.35)" },
-      });
-      setResult("wrong");
-      return true;
+      move = gameCopy.move({ from: moveFrom, to: square, promotion: "q" });
+    } catch {
+      // Invalid move - if clicking own piece, select that instead
+      const piece = game.get(square as any);
+      if (piece && piece.color === game.turn()) {
+        setMoveFrom(square);
+      } else {
+        setMoveFrom(null);
+      }
+      return;
     }
 
+    if (!move) {
+      setMoveFrom(null);
+      return;
+    }
+
+    // Check if it matches the solution
+    const expected = puzzle.puzzle.solution[solutionStep];
+    const expectedFrom = expected?.slice(0, 2);
+    const expectedTo = expected?.slice(2, 4);
+
+    if (moveFrom !== expectedFrom || square !== expectedTo) {
+      setLastMoveHighlight({
+        [moveFrom]: { background: "rgba(239, 68, 68, 0.55)" },
+        [square]: { background: "rgba(239, 68, 68, 0.35)" },
+      });
+      setResult("wrong");
+      setGame(gameCopy);
+      setMoveFrom(null);
+      return;
+    }
+
+    // Correct move!
     setLastMoveHighlight({
-      [sourceSquare]: { background: "rgba(34, 197, 94, 0.4)" },
-      [targetSquare]: { background: "rgba(34, 197, 94, 0.55)" },
+      [moveFrom]: { background: "rgba(34, 197, 94, 0.4)" },
+      [square]: { background: "rgba(34, 197, 94, 0.55)" },
     });
+    setGame(gameCopy);
+    setMoveFrom(null);
 
     const nextStep = solutionStep + 1;
-    setGame(gameCopy);
-
     if (nextStep >= puzzle.puzzle.solution.length) {
       setResult("correct");
       setSolutionStep(nextStep);
-      // Update streak
       const PROGRESS_KEY = "tacticalpath_progress";
       const prog = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}");
       const today = todayISO();
@@ -167,10 +199,10 @@ export function DailyBoard() {
       prog.lastPlayed = new Date().toISOString();
       prog.totalPuzzlesSolved = (prog.totalPuzzlesSolved || 0) + 1;
       localStorage.setItem(PROGRESS_KEY, JSON.stringify(prog));
-      return true;
+      return;
     }
 
-    // Apply the opponent's response automatically after a short delay
+    // Apply opponent response
     setTimeout(() => {
       const opponentMove = puzzle.puzzle.solution[nextStep];
       if (!opponentMove) return;
@@ -185,8 +217,6 @@ export function DailyBoard() {
         setSolutionStep(nextStep + 1);
       } catch { /* ignore */ }
     }, 500);
-
-    return true;
   };
 
   const resetPuzzle = () => { if (puzzle) initPuzzle(puzzle); };
@@ -251,10 +281,14 @@ export function DailyBoard() {
               <Chessboard
                 options={{
                   position: game.fen(),
-                  onPieceDrop: onDrop,
+                  allowDragging: false,
+                  onSquareClick: handleSquareClick,
                   boardOrientation: playerColor,
                   animationDurationInMs: 280,
-                  squareStyles: lastMoveHighlight,
+                  squareStyles: {
+                    ...lastMoveHighlight,
+                    ...(moveFrom ? { [moveFrom]: { backgroundColor: "rgba(255, 255, 0, 0.4)" } } : {}),
+                  },
                   darkSquareStyle: { backgroundColor: "#739552" },
                   lightSquareStyle: { backgroundColor: "#ebecd0" },
                 }}

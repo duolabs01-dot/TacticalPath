@@ -504,7 +504,6 @@ export function Morris() {
               <button
                 key={i}
                 onClick={() => handlePointClick(i)}
-                data-drag-target={i}
                 style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
                 className={cn(
                   "absolute w-8 h-8 -ml-4 -mt-4 rounded-full z-10 transition-all duration-300 transform active:scale-90 flex items-center justify-center",
