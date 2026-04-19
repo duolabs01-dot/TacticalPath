@@ -4,7 +4,7 @@ import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft, RotateCcw, Brain, Monitor, User, Undo2, History, Target, Search, Zap, Swords } from "lucide-react";
-import { useGame } from "../context/GameContext";
+import { useGame, Difficulty } from "../context/GameContext";
 import { CoachingService, CoachingInsight } from "../lib/coaching-service";
 import { getStockfish } from "../lib/stockfish";
 import { cn } from "../lib/utils";
@@ -131,6 +131,17 @@ export function PlayChess() {
   const [persona, setPersona] = useState<BotPersona>("tactical");
   const [insight, setInsight] = useState<CoachingInsight | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [showSetup, setShowSetup] = useState(true);
+
+  // Mount
+  useEffect(() => {
+    start("medium");
+  }, []);
+
+  const handleStart = (diff: Difficulty) => {
+    start(diff === 'hard' || diff === 'expert' ? 'tactical' : diff === 'medium' ? 'positional' : 'gambiter');
+    setShowSetup(false);
+  };
   const [isThinking, setIsThinking] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [evaluation, setEvaluation] = useState(0);
@@ -279,11 +290,11 @@ export function PlayChess() {
       if (!gameState.data.analysis) {
         runAnalysis();
       }
-    if (!gameState || gameState.status === "waiting" || gameState.type !== "chess" || !chessGame) {
-    return <GameSetup gameId="chess" gameName="Chess" icon={<span className="text-xl">♞</span>} onPlayBot={
-      // map generic difficulty string to BotPersona
-      (d) => start(d === 'hard' || d === 'expert' ? 'tactical' : d === 'medium' ? 'positional' : 'gambiter')
-    } />;
+    }
+  }, [chessGame, gameState, requestEngineMove, requestEvaluation, runAnalysis, showResult]);
+
+  if (!gameState || gameState.type !== "chess" || !chessGame) {
+    return null;
   }
 
   const isCheck = chessGame.isCheck() && gameState.status === "playing";
@@ -292,7 +303,8 @@ export function PlayChess() {
   const evalSwing = analysis ? Math.abs((analysis.evalAfter ?? 0) - (analysis.evalBefore ?? 0)).toFixed(1) : null;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none overflow-x-hidden">
+    <>
+    <div className={cn("min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none overflow-x-hidden transition-all", showSetup && "blur-sm opacity-90")}>
       <header className="w-full max-w-6xl flex items-center justify-between mb-8">
         <Link to="/dashboard" className="p-2 hover:bg-slate-200 rounded-2xl transition-all active:scale-90">
           <ArrowLeft className="w-6 h-6 text-slate-600" />
@@ -340,15 +352,17 @@ export function PlayChess() {
 
             <div className="bg-white p-4 rounded-[3rem] shadow-2xl border-4 border-slate-200 relative overflow-hidden">
               <Chessboard
-                position={chessGame.fen()}
-                boardOrientation="white"
-                animationDuration={400}
-                arePiecesDraggable={false}
-                onSquareClick={handleSquareClick}
-                customSquareStyles={moveFrom ? { [moveFrom]: { backgroundColor: "rgba(255, 255, 0, 0.4)" } } : {}}
-                customBoardStyle={{ borderRadius: "2rem" }}
-                customDarkSquareStyle={{ backgroundColor: "#739552" }}
-                customLightSquareStyle={{ backgroundColor: "#ebecd0" }}
+                options={{
+                  position: chessGame.fen(),
+                  boardOrientation: "white",
+                  animationDurationInMs: 400,
+                  allowDragging: false,
+                  onSquareClick: handleSquareClick,
+                  squareStyles: moveFrom ? { [moveFrom]: { backgroundColor: "rgba(255, 255, 0, 0.4)" } } : {},
+                  boardStyle: { borderRadius: "2rem" },
+                  darkSquareStyle: { backgroundColor: "#739552" },
+                  lightSquareStyle: { backgroundColor: "#ebecd0" }
+                }}
               />
               <AnimatePresence>
                 {isCheck && (
@@ -581,5 +595,9 @@ export function PlayChess() {
         )}
       </AnimatePresence>
     </div>
+    <AnimatePresence>
+      {showSetup && <GameSetup gameId="chess" gameName="Chess" icon={<span className="text-xl">♞</span>} onPlayBot={handleStart} />}
+    </AnimatePresence>
+    </>
   );
 }

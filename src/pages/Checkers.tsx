@@ -7,7 +7,7 @@ import { CoachingInsight, CoachingService } from "../lib/coaching-service";
 import { motion, AnimatePresence } from "motion/react";
 import { playMoveSound, playCaptureSound, playWinSound } from "../lib/audio";
 import { GameSetup } from "../components/GameSetup";
-import { isPlayerPiece, isBotPiece } from "../utils/checkers";
+
 
 type CheckersMove = { from: number; to: number; capture: number | null };
 
@@ -106,7 +106,7 @@ function getBotMove(board: number[]): CheckersMove | null {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-const DIFFICULTY_LABELS: Record<Difficulty, string> = { easy: "Easy", medium: "Medium", hard: "Hard" };
+const DIFFICULTY_LABELS: Record<Difficulty, string> = { easy: "Easy", medium: "Medium", hard: "Hard", expert: "Expert" };
 
 export function Checkers() {
   const { gameState, startNewGame, updateGameState, recordResult } = useGame();
@@ -128,9 +128,16 @@ export function Checkers() {
     setKingFlash(null);
   }, [difficulty, startNewGame]);
 
+  const [showSetup, setShowSetup]     = useState(true);
+
   useEffect(() => {
-    // Rely on GameSetup to handle start
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    start("medium");
+  }, []);
+
+  const handleStart = (diff: Difficulty) => {
+    start(diff);
+    setShowSetup(false);
+  };
 
   const checkGameEnd = useCallback((board: number[]) => {
     const pp = board.filter(isPlayerPiece).length;
@@ -261,8 +268,8 @@ export function Checkers() {
     if (gameState) setCoachingMsg(CoachingService.getInsight("checkers", gameState).message);
   }, [gameState, makeComputerMove]);
 
-  if (!gameState || gameState.status === "waiting" || gameState.type !== "checkers") {
-    return <GameSetup gameId="checkers" gameName="Checkers" icon={<Circle className="h-6 w-6 fill-current"/>} onPlayBot={start as any} />;
+  if (!gameState || gameState.type !== "checkers") {
+    return null;
   }
 
   const board = gameState.data.board as number[];
@@ -282,7 +289,8 @@ export function Checkers() {
   const highlightedSelected = selected;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none">
+    <>
+    <div className={cn("min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none transition-all", showSetup && "blur-sm opacity-90")}>
       <header className="w-full max-w-md flex items-center justify-between mb-6">
         <Link to="/dashboard" className="p-2 hover:bg-slate-200 rounded-2xl transition-colors">
           <ArrowLeft className="w-6 h-6" />
@@ -458,5 +466,9 @@ export function Checkers() {
         )}
       </AnimatePresence>
     </div>
+    <AnimatePresence>
+      {showSetup && <GameSetup gameId="checkers" gameName="Checkers" icon={<Circle className="h-6 w-6 fill-current"/>} onPlayBot={handleStart} />}
+    </AnimatePresence>
+    </>
   );
 }

@@ -24,7 +24,6 @@ import { OnlineTicTacToe } from "./pages/OnlineTicTacToe";
 import { OnlineChess } from "./pages/OnlineChess";
 import { OnlineCheckers } from "./pages/OnlineCheckers";
 import { OnlineMorris } from "./pages/OnlineMorris";
-import { OnlineFourInARow } from "./pages/OnlineFourInARow";
 
 // Kept for Daily Board reuse (hidden from nav)
 import { PuzzleBank } from "./pages/PuzzleBank";
@@ -58,7 +57,6 @@ export default function App() {
             <Route path="/multiplayer/chess" element={<OnlineChess />} />
             <Route path="/multiplayer/checkers" element={<OnlineCheckers />} />
             <Route path="/multiplayer/morris" element={<OnlineMorris />} />
-            <Route path="/multiplayer/fourinarow" element={<OnlineFourInARow />} />
 
             {/* Hidden — kept for Daily Board infrastructure reuse */}
             <Route path="/puzzle-bank" element={<PuzzleBank />} />

@@ -86,6 +86,7 @@ export function TicTacToe() {
   const [lastMoveIndex, setLastMoveIndex] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [isAutoplaying, setIsAutoplaying] = useState(false);
+  const [showSetup, setShowSetup] = useState(true);
 
   const profile = useMemo(() => BOT_PROFILES[gameState?.difficulty || 'medium'], [gameState?.difficulty]);
 
@@ -107,9 +108,13 @@ export function TicTacToe() {
   }, [startNewGame]);
 
   useEffect(() => {
-    // Only auto-start on mount if it's NOT Tic Tac Toe (e.g., leaving a game). 
-    // Instead we let the user pick via GameSetup.
-  }, []); // Only run once on mount
+    start("medium");
+  }, []);
+
+  const handleStart = (diff: Difficulty) => {
+    start(diff);
+    setShowSetup(false);
+  };
 
   const checkWinner = (squares: BoardState) => {
     const lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
@@ -271,15 +276,14 @@ export function TicTacToe() {
     setReviewIndex(null);
   };
 
-  if (!gameState || gameState.status === "waiting" || gameState.type !== "tictactoe") {
-    return <GameSetup gameId="tictactoe" gameName="Tic Tac Toe" icon={<X className="h-6 w-6"/>} onPlayBot={start as any} />;
-  }
+  if (!gameState || gameState.type !== "tictactoe") return null;
 
   const currentBoard = reviewIndex !== null ? moveHistory[reviewIndex] : gameState.data.board;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none overflow-x-hidden">
-      <header className="w-full max-w-md flex items-center justify-between mb-8">
+    <>
+      <div className={cn("min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none overflow-x-hidden transition-all", showSetup && "blur-sm opacity-90")}>
+        <header className="w-full max-w-md flex items-center justify-between mb-8">
         <Link to="/dashboard" className="p-2 hover:bg-slate-200 rounded-2xl transition-all active:scale-90">
           <ArrowLeft className="w-6 h-6 text-slate-600" />
         </Link>
@@ -535,5 +539,9 @@ export function TicTacToe() {
         )}
       </main>
     </div>
+    <AnimatePresence>
+      {showSetup && <GameSetup gameId="tictactoe" gameName="Tic Tac Toe" icon={<X className="h-6 w-6"/>} onPlayBot={handleStart} />}
+    </AnimatePresence>
+    </>
   );
 }

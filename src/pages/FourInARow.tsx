@@ -1,17 +1,16 @@
 import { useEffect, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, RotateCcw, HelpCircle, AlertCircle, LayoutGrid } from "lucide-react";
-import { useGameContext } from "../context/GameContext";
+import { useGame } from "../context/GameContext";
 import { GameSetup } from "../components/GameSetup";
 import { CoachingInsight, CoachingService } from "../lib/coaching-service";
 import { motion, AnimatePresence } from "motion/react";
 import { playMoveSound, playCaptureSound, playWinSound } from "../lib/audio";
 import { createEmptyBoard, checkWin, getValidMoves, applyMove, getBotMoveFour, FourBoard, COLS, ROWS, getIndex } from "../utils/fourinarow";
-import { useProgress } from "../hooks/useProgress";
+import { cn } from "../lib/utils";
 
 export function FourInARow() {
-  const { gameState, startNewGame, updateGameState } = useGameContext();
-  const { recordResult } = useProgress();
+  const { gameState, startNewGame, updateGameState, recordResult } = useGame();
   const [showResult, setShowResult] = useState(false);
   const [coachingMsg, setCoachingMsg] = useState("");
   const [isBotThinking, setIsBotThinking] = useState(false);
@@ -21,6 +20,17 @@ export function FourInARow() {
     setShowResult(false);
     setCoachingMsg("Drop your first piece in the center column. It gives the most connections!");
   }, [startNewGame]);
+
+  const [showSetup, setShowSetup] = useState(true);
+
+  useEffect(() => {
+    start("medium");
+  }, []);
+
+  const handleStart = (diff: "easy" | "medium" | "hard" | "expert") => {
+    start(diff);
+    setShowSetup(false);
+  };
 
   const checkGameEnd = useCallback((board: FourBoard) => {
     if (checkWin(board, "1")) {
@@ -93,8 +103,8 @@ export function FourInARow() {
     makeComputerMove();
   }, [gameState?.turn, makeComputerMove]); // trigger when turn changes
 
-  if (!gameState || gameState.status === "waiting" || gameState.type !== "fourinarow") {
-    return <GameSetup gameId="fourinarow" gameName="Four in Row" icon={<LayoutGrid className="w-6 h-6" />} onPlayBot={start} />;
+  if (!gameState || gameState.type !== "fourinarow") {
+    return null;
   }
 
   const resultWin = gameState.status === "finished" && gameState.winner === "Player";
@@ -102,7 +112,8 @@ export function FourInARow() {
   const board = gameState.data.board as FourBoard;
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-6 md:py-8">
+    <>
+    <div className={cn("mx-auto flex min-h-screen max-w-lg flex-col px-4 py-6 md:py-8 transition-all", showSetup && "blur-sm opacity-90")}>
       <header className="mb-8 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link to="/play" className="rounded-2xl bg-white p-3 shadow-sm transition hover:bg-slate-50">
@@ -186,5 +197,9 @@ export function FourInARow() {
         </div>
       )}
     </div>
+    <AnimatePresence>
+      {showSetup && <GameSetup gameId="fourinarow" gameName="Four in Row" icon={<LayoutGrid className="w-6 h-6" />} onPlayBot={handleStart as any} />}
+    </AnimatePresence>
+    </>
   );
 }

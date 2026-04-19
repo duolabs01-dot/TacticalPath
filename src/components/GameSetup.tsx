@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Bot, Users, Play, ArrowLeft, ArrowRight, Trophy, Zap, Brain, Flame } from "lucide-react";
 import { Difficulty } from "../context/GameContext";
@@ -7,13 +7,13 @@ interface GameSetupProps {
   gameId: string;
   gameName: string;
   onPlayBot: (difficulty: Difficulty) => void;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
 }
 
 export function GameSetup({ gameId, gameName, onPlayBot, icon }: GameSetupProps) {
   const [mode, setMode] = useState<"bot" | "friend" | null>(null);
 
-  const diffOptions: { value: Difficulty; label: string; icon: React.ReactNode; desc: string }[] = [
+  const diffOptions: { value: Difficulty; label: string; icon: ReactNode; desc: string }[] = [
     { value: "easy", label: "Beginner", icon: <Play className="h-4 w-4" />, desc: "Makes frequent blunders." },
     { value: "medium", label: "Intermediate", icon: <Zap className="h-4 w-4" />, desc: "Plays reasonably well." },
     { value: "hard", label: "Advanced", icon: <Brain className="h-4 w-4" />, desc: "Looks ahead to trap you." },

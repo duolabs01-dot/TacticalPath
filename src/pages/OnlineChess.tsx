@@ -3,6 +3,7 @@
  * Player 1 (room creator) plays White; Player 2 plays Black.
  */
 
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Chess, Square } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
@@ -65,6 +66,8 @@ export function OnlineChess() {
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
   const [moveFrom, setMoveFrom] = useState<string | null>(null);
+  const [roomState, setRoomState] = useState<OnlineChessState | null>(null);
+  const [players, setPlayers] = useState<RoomPresence[]>([]);
 
   const roomCode = sanitizeRoomCode(searchParams.get('room') ?? '');
   const playerId = useMemo(() => crypto.randomUUID(), []);
@@ -113,6 +116,8 @@ export function OnlineChess() {
     });
     channelRef.current = ch;
     return () => { ch.teardown(); channelRef.current = null; };
+  }, [roomCode, playerId, resolvedName, joinedAt]);
+
   const handleSquareClick = useCallback((square: string) => {
     if (!roomState || !isMyTurn) return;
 
@@ -236,15 +241,17 @@ export function OnlineChess() {
           {/* Chess board */}
           <div className="relative rounded-[2.5rem] bg-white p-4 shadow-xl border-4 border-slate-200 overflow-hidden">
             <Chessboard
-              position={roomState?.fen ?? 'start'}
-              boardOrientation={boardOrientation}
-              animationDuration={350}
-              arePiecesDraggable={false}
-              onSquareClick={handleSquareClick}
-              customSquareStyles={moveFrom ? { [moveFrom]: { backgroundColor: "rgba(255, 255, 0, 0.4)" } } : {}}
-              customBoardStyle={{ borderRadius: '1.5rem' }}
-              customDarkSquareStyle={{ backgroundColor: '#739552' }}
-              customLightSquareStyle={{ backgroundColor: '#ebecd0' }}
+              options={{
+                position: roomState?.fen ?? 'start',
+                boardOrientation: boardOrientation,
+                animationDurationInMs: 350,
+                allowDragging: false,
+                onSquareClick: handleSquareClick,
+                squareStyles: moveFrom ? { [moveFrom]: { backgroundColor: "rgba(255, 255, 0, 0.4)" } } : {},
+                boardStyle: { borderRadius: '1.5rem' },
+                darkSquareStyle: { backgroundColor: '#739552' },
+                lightSquareStyle: { backgroundColor: '#ebecd0' }
+              }}
             />
             {!roomState && <WaitingOverlay />}
             <AnimatePresence>

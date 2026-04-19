@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useGame, Difficulty } from "../context/GameContext";
 import { Link } from "react-router-dom";
-import { ArrowLeft, RotateCcw, Brain, Trophy, LayoutGrid } from "lucide-react";
+import { ArrowLeft, RotateCcw, Brain, Trophy, LayoutGrid, Target } from "lucide-react";
 import { cn } from "../lib/utils";
 import { CoachingInsight, CoachingService } from "../lib/coaching-service";
 import { motion, AnimatePresence } from "motion/react";
@@ -131,7 +131,7 @@ function scoreMovePhase(
   return score;
 }
 
-const DIFFICULTY_LABELS: Record<Difficulty, string> = { easy: "Easy", medium: "Medium", hard: "Hard" };
+const DIFFICULTY_LABELS: Record<Difficulty, string> = { easy: "Easy", medium: "Medium", hard: "Hard", expert: "Expert" };
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -155,9 +155,16 @@ export function Morris() {
     setIsBotThinking(false);
   }, [difficulty, startNewGame]);
 
+  const [showSetup, setShowSetup] = useState(true);
+
   useEffect(() => {
-    // Rely on GameSetup
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    start("medium");
+  }, []);
+
+  const handleStart = (diff: Difficulty) => {
+    start(diff);
+    setShowSetup(false);
+  };
 
   const checkGameOver = useCallback((
     board: (string | null)[],
@@ -410,7 +417,8 @@ export function Morris() {
   const bp = (gameState.data.piecesOnBoard as Record<string, number>)["2"] ?? 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none">
+    <>
+    <div className={cn("min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center select-none overflow-x-hidden transition-all", showSetup && "blur-sm opacity-90")}>
       <header className="w-full max-w-md flex items-center justify-between mb-6">
         <Link to="/dashboard" className="p-2 hover:bg-slate-200 rounded-2xl transition-colors">
           <ArrowLeft className="w-6 h-6" />
@@ -603,5 +611,9 @@ export function Morris() {
         )}
       </AnimatePresence>
     </div>
+    <AnimatePresence>
+      {showSetup && <GameSetup gameId="morris" gameName="Morabaraba" icon={<LayoutGrid className="h-6 w-6"/>} onPlayBot={handleStart} />}
+    </AnimatePresence>
+    </>
   );
 }
