@@ -4,13 +4,12 @@ import { SideNav } from "./SideNav";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 const HIDE_NAV_ROUTES = ["/"];
 
 const mainNav = [
   { to: "/dashboard", label: "Home" },
-  { to: "/daily", label: "Daily Puzzle" },
+  { to: "/daily", label: "Daily" },
   { to: "/play", label: "Play" },
   { to: "/multiplayer", label: "Online" },
   { to: "/progress", label: "Stats" },
@@ -26,10 +25,10 @@ function MobileHeader() {
   const isActive = (to: string) => location.pathname === to;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-3 dark:border-slate-700 dark:bg-slate-900">
+    <header className="fixed top-0 left-0 right-0 z-40 h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 dark:bg-slate-900 dark:border-slate-700">
       <Link to="/dashboard" className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">
-          TP
+        <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+          <span className="text-sm font-bold text-white">T</span>
         </div>
       </Link>
       
@@ -40,29 +39,28 @@ function MobileHeader() {
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="w-64">
-          <div className="flex h-full flex-col pt-4">
-            <nav className="flex-1 space-y-1">
+          <div className="flex flex-col pt-4">
+            <nav className="space-y-1">
               {mainNav.map(({ to, label }) => (
                 <Link
                   key={to}
                   to={to}
-                  className={cn(
-                    "flex items-center rounded-lg px-3 py-3 text-sm font-medium transition",
+                  className={`flex items-center px-3 py-3 text-sm font-medium rounded-lg transition ${
                     isActive(to)
                       ? "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
-                      : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
-                  )}
+                      : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                  }`}
                 >
                   {label}
                 </Link>
               ))}
             </nav>
-            <div className="border-t border-slate-200 pt-2 dark:border-slate-700">
+            <div className="border-t border-slate-200 mt-2 pt-2 dark:border-slate-700">
               {secondaryNav.map(({ to, label }) => (
                 <Link
                   key={to}
                   to={to}
-                  className="flex items-center rounded-lg px-3 py-3 text-sm font-medium text-slate-500 transition hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800"
+                  className="flex items-center px-3 py-3 text-sm font-medium text-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   {label}
                 </Link>
@@ -88,10 +86,7 @@ export function Layout() {
           <BottomNav />
         </>
       )}
-      <main className={cn(
-        "w-full",
-        !shouldHideNav ? "pt-14 pb-20 md:pt-0 md:pb-0 md:pl-64" : "min-h-screen"
-      )}>
+      <main className={!shouldHideNav ? "pt-14" : ""}>
         <Outlet />
       </main>
     </div>

@@ -241,6 +241,11 @@ body {
   padding-top: env(safe-area-inset-top);
 }
 
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+  min-height: calc(56px + env(safe-area-inset-bottom));
+}
+
 /* Prevent overscroll/bounce on iOS */
 html, body {
   overscroll-behavior: none;

@@ -1,6 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
 import { Home, Play, BarChart3, Wifi } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const navItems = [
   { to: "/dashboard", icon: Home, label: "Home" },
@@ -23,8 +22,8 @@ export function BottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white pb-safe dark:border-slate-700 dark:bg-slate-900 md:hidden">
-      <div className="flex items-center justify-around h-14">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-white border-t border-slate-200 safe-bottom dark:bg-slate-900 dark:border-slate-700 md:hidden">
+      <div className="flex items-center justify-around h-full">
         {navItems.map(({ to, icon: Icon, label }) => {
           const isActive = isActiveRoute(to);
 
@@ -32,14 +31,13 @@ export function BottomNav() {
             <Link
               key={to}
               to={to}
-              className={cn(
-                "flex flex-1 flex-col items-center justify-center h-full gap-0.5 transition-colors",
+              className={`flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors ${
                 isActive
                   ? "text-blue-600 dark:text-blue-400"
                   : "text-slate-400 dark:text-slate-500"
-              )}
+              }`}
             >
-              <Icon className="h-5 w-5" />
+              <Icon className="w-5 h-5" />
               <span className="text-[10px] font-medium">{label}</span>
             </Link>
           );
