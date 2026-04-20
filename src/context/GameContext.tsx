@@ -1,8 +1,9 @@
 import { useState, createContext, useContext, useCallback, ReactNode } from 'react';
 import { Chess } from 'chess.js';
+import { appendGameResult } from '../lib/game-results';
 
 
-export type GameType = 'chess' | 'tictactoe' | 'checkers' | 'morris';
+export type GameType = 'chess' | 'tictactoe' | 'checkers' | 'morris' | 'fourinarow';
 export type GameMode = 'puzzle' | 'play' | 'online';
 export type GameStatus = 'waiting' | 'playing' | 'checkmate' | 'draw' | 'stalemate' | 'finished';
 export type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
@@ -27,15 +28,8 @@ interface GameRecord {
   ts: number;
 }
 
-const GAME_RESULTS_KEY = 'tacticalpath_game_results';
-
 function persistResult(gameType: GameType, won: boolean) {
-  const raw = localStorage.getItem(GAME_RESULTS_KEY);
-  const records: GameRecord[] = raw ? JSON.parse(raw) : [];
-  records.push({ game: gameType, won, ts: Date.now() });
-  // Keep last 200
-  if (records.length > 200) records.splice(0, records.length - 200);
-  localStorage.setItem(GAME_RESULTS_KEY, JSON.stringify(records));
+  appendGameResult(gameType, won);
 
   // Also update streak in progress store
   const PROGRESS_KEY = 'tacticalpath_progress';
@@ -94,6 +88,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
           piecesPlaced: { "1": 0, "2": 0 },
           piecesOnBoard: { "1": 0, "2": 0 }
       };
+    } else if (type === 'fourinarow') {
+      initialData = options?.data ?? { board: Array(42).fill(null) };
     }
 
     const newState: GameState = {

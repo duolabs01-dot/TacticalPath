@@ -12,6 +12,7 @@ interface GameSetupProps {
 
 export function GameSetup({ gameId, gameName, onPlayBot, icon }: GameSetupProps) {
   const [mode, setMode] = useState<"bot" | "friend" | null>(null);
+  const onlineSupported = ["chess", "morris", "tictactoe", "checkers"].includes(gameId);
 
   const diffOptions: { value: Difficulty; label: string; icon: ReactNode; desc: string }[] = [
     { value: "easy", label: "Beginner", icon: <Play className="h-4 w-4" />, desc: "Makes frequent blunders." },
@@ -47,13 +48,20 @@ export function GameSetup({ gameId, gameName, onPlayBot, icon }: GameSetupProps)
                <Bot className={`h-8 w-8 ${mode === "bot" ? "text-emerald-600" : "text-slate-400"}`} />
                <span className="font-bold">Play against Bot</span>
             </button>
-            <Link
-               to={`/multiplayer/${gameId}`}
-               className="flex flex-col items-center gap-3 rounded-3xl border-2 border-slate-200 bg-white p-5 text-slate-600 transition hover:border-slate-300"
-            >
-               <Users className="h-8 w-8 text-blue-500" />
-               <span className="font-bold">Play a Friend</span>
-            </Link>
+            {onlineSupported ? (
+              <Link
+                 to={`/multiplayer/${gameId}`}
+                 className="flex flex-col items-center gap-3 rounded-3xl border-2 border-slate-200 bg-white p-5 text-slate-600 transition hover:border-slate-300"
+              >
+                 <Users className="h-8 w-8 text-blue-500" />
+                 <span className="font-bold">Play a Friend</span>
+              </Link>
+            ) : (
+              <div className="flex flex-col items-center gap-3 rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50 p-5 text-slate-400">
+                 <Users className="h-8 w-8 text-slate-300" />
+                 <span className="font-bold">Online Soon</span>
+              </div>
+            )}
           </div>
         </div>
 

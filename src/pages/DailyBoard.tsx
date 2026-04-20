@@ -9,6 +9,7 @@ import { Chessboard } from "react-chessboard";
 import { Target, Loader2, RefreshCcw, CheckCircle2, ArrowRight, XCircle } from "lucide-react";
 import { Chess } from "chess.js";
 import { cn } from "../lib/utils";
+import { getChessboardSquare } from "../lib/chessboard-events";
 
 interface LichessPuzzle {
   game: {
@@ -123,7 +124,9 @@ export function DailyBoard() {
   useEffect(() => { fetchPuzzle(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Click-to-select handler (mobile-friendly alternative to drag & drop)
-  const handleSquareClick = ({ square }: { square: string }) => {
+  const handleSquareClick = (input: { square: string } | string) => {
+    const square = getChessboardSquare(input);
+    if (!square) return;
     if (!game || !puzzle || result !== "none") return;
 
     // If no piece selected yet, select this square if it has a piece

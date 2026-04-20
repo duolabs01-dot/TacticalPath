@@ -10,6 +10,7 @@ const GAME_LABELS: Record<GameType, { label: string; emoji: string; color: strin
   tictactoe: { label: "Tic Tac Toe", emoji: "✕", color: "bg-amber-500" },
   checkers:  { label: "Checkers",   emoji: "⬤", color: "bg-rose-600" },
   morris:    { label: "Morabaraba", emoji: "◎", color: "bg-emerald-600" },
+  fourinarow:{ label: "Four in a Row", emoji: "🔴", color: "bg-indigo-500" },
 };
 
 export function Progress() {
@@ -71,7 +72,7 @@ export function Progress() {
         <Card className="mb-4">
           <CardContent className="p-4">
             <div className="space-y-3">
-              {(["chess", "checkers", "morris", "tictactoe"] as GameType[]).map((g) => {
+              {(["chess", "checkers", "morris", "tictactoe", "fourinarow"] as GameType[]).map((g) => {
                 const { played, wins } = byGame(g);
                 const pct = played > 0 ? Math.round((wins / played) * 100) : 0;
                 const { label, emoji, color } = GAME_LABELS[g];
@@ -102,11 +103,11 @@ export function Progress() {
         </Card>
 
         {/* CTA */}
-        <Button asChild className="w-full" size="lg">
-          <Link to="/play">
+        <Link to="/play" className="block">
+          <Button className="w-full" size="lg">
             <Play className="mr-2 w-4 h-4" /> Play More Games
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </div>
     </div>
   );

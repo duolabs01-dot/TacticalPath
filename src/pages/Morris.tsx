@@ -226,14 +226,12 @@ export function Morris() {
     if (!millCreated) setTimeout(() => checkGameOver(nextBoard, piecesPlaced, piecesOnBoard, "moving"), 100);
   }, [checkGameOver, gameState, updateGameState]);
 
-  if (!gameState || gameState.status === "waiting" || gameState.type !== "morris") {
-    return <GameSetup gameId="morris" gameName="Morabaraba" icon={<Target className="h-6 w-6"/>} onPlayBot={start as any} />;
-  }
-
-  const board        = gameState.data.board        as (string | null)[];
-  const stage        = gameState.data.stage        as "placement" | "moving";
-  const piecesPlaced = gameState.data.piecesPlaced  as Record<MorrisPlayer, number>;
-  const piecesOnBoard= gameState.data.piecesOnBoard as Record<MorrisPlayer, number>;
+  const board = (gameState?.data.board as (string | null)[] | undefined) ?? Array(24).fill(null);
+  const stage = (gameState?.data.stage as "placement" | "moving" | undefined) ?? "placement";
+  const piecesPlaced =
+    (gameState?.data.piecesPlaced as Record<MorrisPlayer, number> | undefined) ?? { "1": 0, "2": 0 };
+  const piecesOnBoard =
+    (gameState?.data.piecesOnBoard as Record<MorrisPlayer, number> | undefined) ?? { "1": 0, "2": 0 };
 
   const handlePointClick = (i: number) => {
     if (!gameState || gameState.status !== "playing" || gameState.turn !== "1") return;
@@ -396,7 +394,23 @@ export function Morris() {
     setCoachingMsg(CoachingService.getInsight("morris", gameState).message);
   }, [gameState, makeComputerMove, isCapturing, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!gameState || gameState.type !== "morris") return null;
+  if (!gameState || gameState.type !== "morris") {
+    return (
+      <>
+        <div className="min-h-screen bg-slate-50" />
+        <AnimatePresence>
+          {showSetup && (
+            <GameSetup
+              gameId="morris"
+              gameName="Morabaraba"
+              icon={<LayoutGrid className="h-6 w-6" />}
+              onPlayBot={handleStart}
+            />
+          )}
+        </AnimatePresence>
+      </>
+    );
+  }
 
   const isGameOver    = gameState.status === "finished";
   const playerWon     = gameState.winner === "Player";

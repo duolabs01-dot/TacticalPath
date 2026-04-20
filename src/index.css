@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -8,6 +8,13 @@
 
 :root {
   color-scheme: light;
+  --tp-cream: #f4ecdf;
+  --tp-cream-strong: #e8dcc7;
+  --tp-ink: #1c120c;
+  --tp-earth: #8e4a2f;
+  --tp-gold: #c8923b;
+  --tp-olive: #55674c;
+  --tp-warm-line: rgba(88, 58, 41, 0.16);
   --tp-blue-50: #eff6ff;
   --tp-blue-100: #dbeafe;
   --tp-blue-500: #3b82f6;
@@ -60,12 +67,12 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "Geist Variable", "Segoe UI", sans-serif;
   color: var(--tp-ink);
   background:
-    radial-gradient(circle at top right, rgba(147, 197, 253, 0.38), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(187, 247, 208, 0.34), transparent 28%),
-    linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 48%, #f0fdf4 100%);
+    radial-gradient(circle at top left, rgba(200, 146, 59, 0.18), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(142, 74, 47, 0.12), transparent 26%),
+    linear-gradient(140deg, #f8f2e8 0%, #efe2cf 52%, #f6efe5 100%);
 }
 
 #root {
@@ -73,14 +80,19 @@ body {
 }
 
 .font-display {
-  font-family: "Fredoka", "Inter", system-ui, sans-serif;
+  font-family: "Fredoka", "Geist Variable", sans-serif;
+}
+
+.tp-display {
+  font-family: "Fredoka", "Geist Variable", sans-serif;
+  letter-spacing: -0.06em;
 }
 
 .tp-page {
   background:
-    radial-gradient(circle at top right, rgba(191, 219, 254, 0.58), transparent 24%),
-    radial-gradient(circle at bottom left, rgba(187, 247, 208, 0.5), transparent 26%),
-    linear-gradient(135deg, #f8fbff 0%, #eef7ff 48%, #f5fff7 100%);
+    radial-gradient(circle at top left, rgba(200, 146, 59, 0.14), transparent 26%),
+    radial-gradient(circle at bottom right, rgba(85, 103, 76, 0.1), transparent 24%),
+    linear-gradient(145deg, #f8f1e7 0%, #f1e6d6 48%, #f7f2ea 100%);
 }
 
 .tp-card {
@@ -102,6 +114,41 @@ body {
 
 .tp-hero-gradient {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 52%, #1d4ed8 100%);
+}
+
+.tp-kicker {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+
+.tp-quiet-link {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.tp-quiet-link:hover {
+  opacity: 0.78;
+  transform: translateY(-1px);
+}
+
+.tp-hero-board {
+  background:
+    linear-gradient(180deg, rgba(25, 17, 12, 0.08), rgba(25, 17, 12, 0.3)),
+    linear-gradient(135deg, rgba(200, 146, 59, 0.26), rgba(85, 103, 76, 0.12));
+  box-shadow: 0 48px 120px rgba(12, 8, 5, 0.42);
+}
+
+.tp-hero-grid {
+  background-image:
+    linear-gradient(rgba(255, 247, 232, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 247, 232, 0.08) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(142, 74, 47, 0.22), rgba(28, 18, 12, 0.14));
+  background-size: 12.5% 12.5%, 12.5% 12.5%, 100% 100%;
+}
+
+.tp-board-shadow {
+  box-shadow: 0 30px 80px rgba(18, 12, 8, 0.2);
 }
 
 .tp-soft-ring {

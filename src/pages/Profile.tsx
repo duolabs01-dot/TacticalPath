@@ -99,7 +99,7 @@ export function Profile() {
               <div>
                 <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Recommended board</p>
                 <h3 className="mt-1 text-xl font-black text-slate-900">{featuredGame.name}</h3>
-                <p className="mt-2 text-sm leading-7 text-slate-600">{featuredGame.energy}</p>
+                <p className="mt-2 text-sm leading-7 text-slate-600">{featuredGame.coachFocus}</p>
               </div>
             </div>
             <div className="mt-5 flex flex-wrap gap-3">

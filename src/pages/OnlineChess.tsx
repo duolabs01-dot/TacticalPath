@@ -10,6 +10,7 @@ import { Chessboard } from 'react-chessboard';
 import { motion, AnimatePresence } from 'motion/react';
 import { RefreshCcw } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { getChessboardSquare } from '../lib/chessboard-events';
 import {
   createRoomChannel, generateRoomCode, sanitizeRoomCode,
   RoomPresence, ConnectionStatus, RoomChannel,
@@ -118,7 +119,9 @@ export function OnlineChess() {
     return () => { ch.teardown(); channelRef.current = null; };
   }, [roomCode, playerId, resolvedName, joinedAt]);
 
-  const handleSquareClick = useCallback((square: string) => {
+  const handleSquareClick = useCallback((input: { square: string } | string) => {
+    const square = getChessboardSquare(input);
+    if (!square) return;
     if (!roomState || !isMyTurn) return;
 
     if (!moveFrom) {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PuzzleTheme, Difficulty } from '../data/puzzles';
+import { GAME_RESULTS_EVENT, readGameResults } from '../lib/game-results';
 
 export interface UserProgress {
   totalPuzzlesSolved: number;
@@ -10,7 +11,7 @@ export interface UserProgress {
   username: string;
 }
 
-export type GameType = 'chess' | 'tictactoe' | 'checkers' | 'morris';
+export type GameType = 'chess' | 'tictactoe' | 'checkers' | 'morris' | 'fourinarow';
 
 export interface GameRecord {
   game: GameType;
@@ -22,14 +23,15 @@ export function useGameResults() {
   const [records, setRecords] = useState<GameRecord[]>([]);
   useEffect(() => {
     const load = () => {
-      const raw = localStorage.getItem("tacticalpath_game_results");
-      if (raw) {
-        try { setRecords(JSON.parse(raw)); } catch { /* ignore */ }
-      }
+      setRecords(readGameResults());
     };
     load();
     window.addEventListener("storage", load);
-    return () => window.removeEventListener("storage", load);
+    window.addEventListener(GAME_RESULTS_EVENT, load);
+    return () => {
+      window.removeEventListener("storage", load);
+      window.removeEventListener(GAME_RESULTS_EVENT, load);
+    };
   }, []);
 
   const byGame = (type: GameType) => {

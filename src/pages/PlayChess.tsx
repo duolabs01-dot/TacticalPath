@@ -8,6 +8,7 @@ import { useGame, Difficulty } from "../context/GameContext";
 import { CoachingService, CoachingInsight } from "../lib/coaching-service";
 import { getStockfish } from "../lib/stockfish";
 import { cn } from "../lib/utils";
+import { getChessboardSquare } from "../lib/chessboard-events";
 import { GameSetup } from "../components/GameSetup";
 import { Square } from "chess.js";
 
@@ -135,7 +136,7 @@ export function PlayChess() {
 
   // Mount
   useEffect(() => {
-    start("medium");
+    start("positional");
   }, []);
 
   const handleStart = (diff: Difficulty) => {
@@ -164,11 +165,9 @@ export function PlayChess() {
     [startNewGame]
   );
 
-  useEffect(() => {
-    // GameSetup will invoke start
-  }, [start]);
-
-  const handleSquareClick = useCallback((square: string) => {
+  const handleSquareClick = useCallback((input: { square: string } | string) => {
+    const square = getChessboardSquare(input);
+    if (!square) return;
     if (!gameState || !chessGame) return;
     if (gameState.turn !== "w" || gameState.status !== "playing" || isThinking) return;
 

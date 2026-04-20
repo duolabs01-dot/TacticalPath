@@ -5,6 +5,7 @@ import { Chess } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import { Puzzle, PuzzleTheme, puzzles, getRandomPuzzle } from "../data/puzzles";
 import { useProgress } from "../hooks/useProgress";
+import { getChessboardSquare } from "../lib/chessboard-events";
 
 export function PuzzlePlay() {
   const [game, setGame] = useState<Chess | null>(null);
@@ -60,7 +61,9 @@ export function PuzzlePlay() {
   }
 
   // Click-to-select handler (mobile-friendly alternative to drag & drop)
-  const handleSquareClick = ({ square }: { square: string }) => {
+  const handleSquareClick = (input: { square: string } | string) => {
+    const square = getChessboardSquare(input);
+    if (!square) return;
     if (status !== "playing" || !game) return;
 
     if (!moveFrom) {

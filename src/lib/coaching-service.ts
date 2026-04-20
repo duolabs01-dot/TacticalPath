@@ -30,6 +30,7 @@ export class CoachingService {
       if (gameType === "chess" && state.data.analysis) return this.getChessPostGame(state);
       if (gameType === "checkers") return this.getCheckersPostGame(state);
       if (gameType === "morris")   return this.getMorrisPostGame(state);
+      if (gameType === "fourinarow") return this.getFourInARowPostGame(state);
 
       return {
         message:
@@ -47,6 +48,7 @@ export class CoachingService {
       case "tictactoe":return this.getTicTacToeInsight(state);
       case "checkers": return this.getCheckersInsight(state);
       case "morris":   return this.getMorrisInsight(state);
+      case "fourinarow": return this.getFourInARowInsight(state);
       default:
         return { message: "Think carefully about your next move.", type: "hint" };
     }
@@ -178,6 +180,54 @@ export class CoachingService {
       board[move.index] = move.player;
     }
     return { message: "The Robot outplayed you by creating simultaneous threats. Study 'fork' patterns to improve!", type: "analysis" };
+  }
+
+  // ─── FOUR IN A ROW ──────────────────────────────────────────────────────────
+
+  private static getFourInARowInsight(state: GameState): CoachingInsight {
+    const board = (state.data?.board as (string | null)[]) ?? [];
+    const centerColumn = [3, 10, 17, 24, 31, 38];
+    const centerControl = centerColumn.filter((index) => board[index] === "1").length;
+
+    if (state.moves.length < 2) {
+      return {
+        message: "Start in the middle. The center column creates the most four-in-a-row chances.",
+        type: "hint",
+      };
+    }
+
+    if (centerControl === 0) {
+      return {
+        message: "You have no center control yet. Fight for the middle before chasing edge tactics.",
+        type: "hint",
+      };
+    }
+
+    return {
+      message: "Look for double threats. The best move often wins two ways at once on your next turn.",
+      type: "hint",
+    };
+  }
+
+  private static getFourInARowPostGame(state: GameState): CoachingInsight {
+    if (isPlayerWin(state.winner)) {
+      return {
+        message: "Strong conversion. Four in a Row rewards early center control and patient setup.",
+        type: "analysis",
+      };
+    }
+
+    if (state.winner === "draw") {
+      return {
+        message: "Balanced board. When every column matters, keep the center and force the last useful move.",
+        type: "analysis",
+      };
+    }
+
+    return {
+      message: "The bot probably created a fork. Watch for columns that threaten two winning lines at once.",
+      type: "analysis",
+    };
   }
 
   private static findWinningMove(board: (string | null)[], player: string): number | null {
